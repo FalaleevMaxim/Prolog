@@ -10,11 +10,16 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
+/**
+ * Variable of base type
+ */
 public class SimpleVariable extends AbstractValue implements Variable {
     private Set<Variable> related;
+    private String name;
 
-    public SimpleVariable(Type type) {
+    public SimpleVariable(Type type, String name) {
         super(type);
+        this.name = name;
     }
 
     public boolean isFree(){
@@ -91,5 +96,10 @@ public class SimpleVariable extends AbstractValue implements Variable {
             iterator.remove();
             variable.removeRelated(this);
         }
+    }
+
+    @Override
+    public String getName() {
+        return name;
     }
 }

@@ -3,7 +3,11 @@ package ru.prolog.model.values;
 import ru.prolog.WrongTypeException;
 import ru.prolog.model.Type;
 
-public class AbstractValue implements Value{
+/**
+ * Abstract value containing fields and methods to store value and type.
+ * Unify method only checks that values are of same type.
+ */
+public abstract class AbstractValue implements Value{
     protected Type type;
     protected Object value;
 

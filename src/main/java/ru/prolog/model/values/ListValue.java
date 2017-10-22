@@ -4,10 +4,10 @@ import ru.prolog.WrongTypeException;
 import ru.prolog.model.Type;
 import ru.prolog.model.values.variables.Variable;
 
-public class ListValue implements List {
+public class ListValue implements PrologList {
     protected Value value;
     protected Type type;
-    protected List next;
+    protected PrologList next;
 
     //empty list
     public ListValue(Type type) {
@@ -15,13 +15,13 @@ public class ListValue implements List {
         this.type = type;
     }
 
-    //List element
+    //PrologList element
     public ListValue(Type listType, Value value) {
         this(listType);
         this.value = value;
     }
 
-    private ListValue(Type listType, Value value, List tail){
+    private ListValue(Type listType, Value value, PrologList tail){
         this(listType, value);
         this.next = tail;
     }
@@ -39,7 +39,7 @@ public class ListValue implements List {
     @Override
     public Boolean unify(Value other) {
         if(other.getType()!=type) throw new WrongTypeException("Wrong type of value to unify", type, other.getType());
-        List otherList = (List) other;
+        PrologList otherList = (PrologList) other;
         if(other instanceof Variable && other.getValue()==null) return other.unify(this);
         if(isEmpty() && otherList.isEmpty()) return true;
         if(this.isEmpty() || otherList.isEmpty()) return false;
@@ -63,14 +63,14 @@ public class ListValue implements List {
     }
 
     @Override
-    public List tail(){
+    public PrologList tail(){
         if(next!=null) return next;
         if(isEmpty()) return null;//Can not get tail of empty list
         return new ListValue(type);//Tail of list with 1 element is empty list
     }
 
     @Override
-    public List join(Value value){
+    public PrologList join(Value value){
         if(value==null) throw new IllegalArgumentException("Value can not be null");
         if(type.getListType() != value.getType()) throw new WrongTypeException("New list element has different type", type.getListType(), value.getType());
         return new ListValue(type, value, this);

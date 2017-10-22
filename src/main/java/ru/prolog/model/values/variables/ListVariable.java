@@ -2,6 +2,7 @@ package ru.prolog.model.values.variables;
 
 import ru.prolog.WrongTypeException;
 import ru.prolog.model.Type;
+import ru.prolog.model.predicates.rule.execution.RuleExecution;
 import ru.prolog.model.values.ListValue;
 import ru.prolog.model.values.Value;
 
@@ -14,9 +15,11 @@ public class ListVariable extends ListValue implements Variable {
     //isEmpty true означает, что переменная содержит пустой список.
     private boolean isEmpty;
     private Set<ListVariable> related;
+    private String name;
 
-    public ListVariable(Type type) {
+    public ListVariable(Type type, String name) {
         super(type);
+        this.name = name;
     }
 
     @Override
@@ -102,5 +105,10 @@ public class ListVariable extends ListValue implements Variable {
     @Override
     public boolean isFree(){
         return !isEmpty && value==null;
+    }
+
+    @Override
+    public String getName() {
+        return name;
     }
 }

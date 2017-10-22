@@ -1,23 +1,13 @@
 package ru.prolog;
 
-import org.antlr.v4.runtime.BufferedTokenStream;
-import org.antlr.v4.runtime.CharStream;
-import org.antlr.v4.runtime.CharStreams;
-import org.antlr.v4.runtime.TokenStream;
-import org.antlr.v4.runtime.tree.ParseTree;
-import org.antlr.v4.runtime.tree.ParseTreeWalker;
 import ru.prolog.model.Type;
-import ru.prolog.model.values.List;
-import ru.prolog.model.values.ListValue;
+import ru.prolog.model.values.PrologList;
 import ru.prolog.model.values.SimpleValue;
 import ru.prolog.model.values.Value;
-import ru.prolog.model.values.variables.ListVariable;
 import ru.prolog.model.values.variables.SimpleVariable;
 import ru.prolog.model.values.variables.Variable;
 
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.stream.Collectors;
 
 public class Main {
     public static void main(String[] args) throws IOException {
@@ -87,11 +77,11 @@ public class Main {
             for (int i = 0; i < intValues.length; i++) {
                 values[i] = new SimpleValue(integerType, intValues[i]);
             }
-            printList(List.asList(intListType, values));
+            printList(PrologList.asList(intListType, values));
         }
     }
 
-    private static void printList(List list){
+    private static void printList(PrologList list){
         System.out.print('[');
         while (!list.isEmpty()){
             System.out.print(list.head().getValue());

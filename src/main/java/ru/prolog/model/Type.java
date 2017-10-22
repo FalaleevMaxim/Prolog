@@ -3,6 +3,9 @@ package ru.prolog.model;
 import ru.prolog.model.values.ListValue;
 import ru.prolog.model.values.SimpleValue;
 import ru.prolog.model.values.Value;
+import ru.prolog.model.values.variables.ListVariable;
+import ru.prolog.model.values.variables.SimpleVariable;
+import ru.prolog.model.values.variables.Variable;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -30,10 +33,16 @@ public final class Type {
         return listType !=null;
     }
 
-    Value createValue(Object value){
+    public Value createValue(Object value){
         if(isList())
             return new ListValue(this, new SimpleValue(listType, value));
         return new SimpleValue(this, value);
+    }
+
+    public Variable createVariable(String name){
+        if(isList())
+            return new ListVariable(this, name);
+        return new SimpleVariable(this, name);
     }
 
 

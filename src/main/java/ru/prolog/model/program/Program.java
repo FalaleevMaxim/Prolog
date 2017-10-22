@@ -1,5 +1,8 @@
 package ru.prolog.model.program;
 
-public interface Program {
+import ru.prolog.service.BackupManager;
+
+public class Program {
+    private BackupManager backupManager;
 
 }
