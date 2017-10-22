@@ -1,27 +1,31 @@
 package ru.prolog.model.predicates.predicate;
 
+import ru.prolog.model.predicates.execution.predicate.PredicateExecution;
 import ru.prolog.model.predicates.rule.Rule;
-import ru.prolog.model.predicates.rule.execution.BaseRuleExecution;
-import ru.prolog.model.predicates.rule.execution.RuleExecution;
+import ru.prolog.model.predicates.execution.rule.BaseRuleExecution;
+import ru.prolog.model.predicates.execution.rule.RuleExecution;
 import ru.prolog.model.values.Value;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class RuleExecutorPredicate extends Predicate {
-    List<Rule> rules = new ArrayList<>();
+    List<Rule> rules;
 
-    public RuleExecutorPredicate() {
-    }
-
-    public RuleExecutorPredicate(List<Rule> rules) {
+    public RuleExecutorPredicate(String name, List<String> argTypes, List<Rule> rules) {
+        super(name, argTypes);
         this.rules = new ArrayList<>(rules);
     }
 
+    public RuleExecutorPredicate(String name, List<String> argTypes) {
+        super(name, argTypes);
+        this.rules = new ArrayList<>();
+    }
+
     @Override
-    protected int run(List<Value> args, int startWith) {
+    public int run(PredicateExecution context, List<Value> args, int startWith) {
         for(int i=0; i<rules.size();i++){
-            if(cut) return -1;
+            if(context.isCut()) return -1;
             //ToDo: create decorator for RuleExecution
             RuleExecution ruleExecution = new BaseRuleExecution(rules.get(i), args);
             if(ruleExecution.execute()) return i;

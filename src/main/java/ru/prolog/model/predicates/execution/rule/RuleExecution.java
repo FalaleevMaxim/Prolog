@@ -1,6 +1,7 @@
-package ru.prolog.model.predicates.rule.execution;
+package ru.prolog.model.predicates.execution.rule;
 
 import ru.prolog.model.Type;
+import ru.prolog.model.predicates.execution.predicate.PredicateExecution;
 import ru.prolog.model.predicates.rule.Rule;
 import ru.prolog.model.values.Value;
 import ru.prolog.model.values.variables.Variable;
@@ -13,6 +14,6 @@ public interface RuleExecution {
     List<Value> getArgs();
     Variable getVariable(String name, Type type);
     Collection<Variable> getVariables();
-
+    PredicateExecution getPredicateContext();
     boolean execute();
 }

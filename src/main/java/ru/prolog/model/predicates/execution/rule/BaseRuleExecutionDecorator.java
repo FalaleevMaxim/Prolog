@@ -1,6 +1,7 @@
-package ru.prolog.model.predicates.rule.execution;
+package ru.prolog.model.predicates.execution.rule;
 
 import ru.prolog.model.Type;
+import ru.prolog.model.predicates.execution.predicate.PredicateExecution;
 import ru.prolog.model.predicates.rule.Rule;
 import ru.prolog.model.values.Value;
 import ru.prolog.model.values.variables.Variable;
@@ -33,5 +34,10 @@ public abstract class BaseRuleExecutionDecorator implements RuleExecution {
     @Override
     public Collection<Variable> getVariables() {
         return decorated.getVariables();
+    }
+
+    @Override
+    public PredicateExecution getPredicateContext() {
+        return decorated.getPredicateContext();
     }
 }

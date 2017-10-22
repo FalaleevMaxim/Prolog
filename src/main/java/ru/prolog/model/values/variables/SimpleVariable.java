@@ -60,6 +60,7 @@ public class SimpleVariable extends AbstractValue implements Variable {
         if(related!=null){
             for(Variable variable : related){
                 if(variable.isFree()){
+                    //ToDo: apply value only to variables from same context
                     variable.applyValue(value);
                 }
             }

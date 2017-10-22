@@ -1,6 +1,5 @@
 package ru.prolog.model.values.variables;
 
-import ru.prolog.model.predicates.rule.execution.RuleExecution;
 import ru.prolog.model.values.Value;
 
 import java.util.Set;

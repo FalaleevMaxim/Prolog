@@ -2,7 +2,6 @@ package ru.prolog.model.values.variables;
 
 import ru.prolog.WrongTypeException;
 import ru.prolog.model.Type;
-import ru.prolog.model.predicates.rule.execution.RuleExecution;
 import ru.prolog.model.values.ListValue;
 import ru.prolog.model.values.Value;
 

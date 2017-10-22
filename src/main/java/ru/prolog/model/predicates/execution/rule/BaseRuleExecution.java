@@ -1,8 +1,9 @@
-package ru.prolog.model.predicates.rule.execution;
+package ru.prolog.model.predicates.execution.rule;
 
 
 import ru.prolog.WrongTypeException;
 import ru.prolog.model.Type;
+import ru.prolog.model.predicates.execution.predicate.PredicateExecution;
 import ru.prolog.model.predicates.rule.Rule;
 import ru.prolog.model.values.Value;
 import ru.prolog.model.values.variables.Variable;
@@ -11,14 +12,20 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
-public final class BaseRuleExecution implements RuleExecution {
+public class BaseRuleExecution implements RuleExecution {
     private Rule rule;
     private List<Value> args;
     private Map<String, Variable> variables;
+    private PredicateExecution context;
 
     public BaseRuleExecution(Rule rule, List<Value> args) {
         this.rule = rule;
         this.args = args;
+    }
+
+    public BaseRuleExecution(Rule rule, List<Value> args, PredicateExecution context) {
+        this(rule, args);
+        this.context = context;
     }
 
     public Rule getRule() {
@@ -52,10 +59,12 @@ public final class BaseRuleExecution implements RuleExecution {
     }
 
     @Override
+    public PredicateExecution getPredicateContext() {
+        return context;
+    }
+
+    @Override
     public boolean execute() {
-        if(!rule.unifyArgs(args, this)) {
-            return false;
-        }
-        return rule.run(this);
+        return rule.run(args, this);
     }
 }

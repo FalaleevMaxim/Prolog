@@ -1,15 +1,15 @@
 package ru.prolog.model.predicates.rule;
 
 import ru.prolog.model.predicates.predicate.Predicate;
-import ru.prolog.model.predicates.predicate.PredicateExecution;
-import ru.prolog.model.predicates.rule.execution.RuleExecution;
+import ru.prolog.model.predicates.execution.predicate.BasePredicateExecution;
+import ru.prolog.model.predicates.execution.rule.RuleExecution;
 import ru.prolog.model.values.Value;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class PredicateExecutorRule extends BaseRule {
+public class PredicateExecutorRule extends Rule {
     private List<Statement> statements;
 
     public PredicateExecutorRule(Predicate predicate, List<Value> toUnificate, List<Statement> statements) {
@@ -18,13 +18,13 @@ public class PredicateExecutorRule extends BaseRule {
     }
 
     @Override
-    public boolean run(RuleExecution context) {
-        List<PredicateExecution> executions = new ArrayList<>(statements.size());
+    protected boolean body(RuleExecution context) {
+        List<BasePredicateExecution> executions = new ArrayList<>(statements.size());
         int cutIndex = -1;
         int currentStatement=0;
 
         while(currentStatement<statements.size() && currentStatement>cutIndex){
-            PredicateExecution execution;
+            BasePredicateExecution execution;
             //if backtracked to executed statement, run same execution
             if((currentStatement-cutIndex) == executions.size()){
                 execution = executions.get(executions.size()-1);
@@ -34,12 +34,13 @@ public class PredicateExecutorRule extends BaseRule {
                 if(isCutPredicate(statement.getPredicate())){
                     executions.clear();
                     cutIndex = currentStatement;
-                    //ToDo send cut to predicate
+                    if(context.getPredicateContext() != null)
+                        context.getPredicateContext().cut();
                     currentStatement++;
                     continue;
                 }
                 //create new execution of statement
-                execution = new PredicateExecution(statement.getPredicate(),
+                execution = new BasePredicateExecution(statement.getPredicate(),
                         statement.getArgs().stream()
                                 .map(value -> processVariable(context, value))
                                 .collect(Collectors.toList()));
