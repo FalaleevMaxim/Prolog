@@ -1,6 +1,7 @@
 package ru.prolog.model.values.variables;
 
 import ru.prolog.model.Type;
+import ru.prolog.model.predicates.execution.rule.RuleExecution;
 import ru.prolog.model.values.AbstractValue;
 import ru.prolog.model.values.AnonymousVariable;
 import ru.prolog.model.values.Value;
@@ -52,6 +53,11 @@ public class SimpleVariable extends AbstractValue implements Variable {
                 }
             }
         }
+    }
+
+    @Override
+    public Value forContext(RuleExecution context) {
+        return context.getVariable(name, type);
     }
 
     @Override

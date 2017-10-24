@@ -22,24 +22,24 @@ public class Main {
         Type integerType = Type.getType("integer");
         //X=1, write(X).
         {
-            Variable x = new SimpleVariable(integerType);
+            Variable x = new SimpleVariable(integerType, "X");
             x.unify(new SimpleValue(integerType, 1));
             System.out.println(x.getValue());
         }
 
         //X=1, X=Y, write(Y).
         {
-            Variable x = new SimpleVariable(integerType);
+            Variable x = new SimpleVariable(integerType, "X");
             x.unify(new SimpleValue(integerType, 1));
-            Variable y = new SimpleVariable(integerType);
+            Variable y = new SimpleVariable(integerType, "Y");
             x.unify(y);
             System.out.println(y.getValue());
         }
 
         //X=Y, X=1, write(Y)
         {
-            Variable x = new SimpleVariable(integerType);
-            Variable y = new SimpleVariable(integerType);
+            Variable x = new SimpleVariable(integerType, "X");
+            Variable y = new SimpleVariable(integerType, "Y");
             x.unify(y);
             x.unify(new SimpleValue(integerType, 1));
             System.out.println(y.getValue());
@@ -47,10 +47,10 @@ public class Main {
 
         //X=Y, Y=Z, X=1, write(Z)
         {
-            Variable x = new SimpleVariable(integerType);
-            Variable y = new SimpleVariable(integerType);
+            Variable x = new SimpleVariable(integerType, "X");
+            Variable y = new SimpleVariable(integerType, "Y");
             x.unify(y);
-            Variable z = new SimpleVariable(integerType);
+            Variable z = new SimpleVariable(integerType, "Z");
             y.unify(z);
             x.unify(new SimpleValue(integerType, 1));
             System.out.println(z.getValue());
@@ -59,9 +59,9 @@ public class Main {
         // p(X,Z), X=1, write(Z).
         // p(Y,Y).
         {
-            Variable x = new SimpleVariable(integerType);
-            Variable z = new SimpleVariable(integerType);
-            Variable y = new SimpleVariable(integerType);
+            Variable x = new SimpleVariable(integerType, "X");
+            Variable z = new SimpleVariable(integerType, "Y");
+            Variable y = new SimpleVariable(integerType, "Z");
             x.unify(y);
             z.unify(y);
             y.dismiss();

@@ -2,6 +2,7 @@ package ru.prolog.model.values;
 
 import ru.prolog.WrongTypeException;
 import ru.prolog.model.Type;
+import ru.prolog.model.predicates.execution.rule.RuleExecution;
 import ru.prolog.model.values.variables.Variable;
 
 public class ListValue implements PrologList {
@@ -45,6 +46,17 @@ public class ListValue implements PrologList {
         if(this.isEmpty() || otherList.isEmpty()) return false;
         if(!value.unify(otherList.head())) return false;
         return tail().unify(otherList.tail());
+    }
+
+    @Override
+    public PrologList forContext(RuleExecution context) {
+        if(!isEmpty()) return this;
+        ListValue clone = new ListValue(type);
+        clone.value = value.forContext(context);
+        if(!isLast()){
+            clone.next = next.forContext(context);
+        }
+        return clone;
     }
 
     @Override

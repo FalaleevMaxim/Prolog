@@ -1,0 +1,19 @@
+package ru.prolog.model.predicates.predicate.std;
+
+import ru.prolog.model.predicates.execution.predicate.PredicateExecution;
+import ru.prolog.model.predicates.predicate.Predicate;
+import ru.prolog.model.values.Value;
+
+import java.util.Arrays;
+import java.util.List;
+
+public class EqualsOperatorPredicate extends Predicate{
+    public EqualsOperatorPredicate() {
+        super("=", Arrays.asList("integer", "integer"));
+    }
+
+    @Override
+    public int run(PredicateExecution context, List<Value> args, int startWith) {
+        return args.get(0).unify(args.get(1)) ? 0 : -1;
+    }
+}

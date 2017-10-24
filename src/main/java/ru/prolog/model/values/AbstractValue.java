@@ -2,6 +2,7 @@ package ru.prolog.model.values;
 
 import ru.prolog.WrongTypeException;
 import ru.prolog.model.Type;
+import ru.prolog.model.predicates.execution.rule.RuleExecution;
 
 /**
  * Abstract value containing fields and methods to store value and type.
@@ -34,5 +35,10 @@ public abstract class AbstractValue implements Value{
     public Boolean unify(Value other) {
         if(other.getType()!=type) throw new WrongTypeException("Wrong type of value to unify", type, other.getType());
         return true;
+    }
+
+    @Override
+    public Value forContext(RuleExecution context) {
+        return this;
     }
 }

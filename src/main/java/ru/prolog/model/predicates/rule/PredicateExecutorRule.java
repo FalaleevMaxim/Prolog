@@ -42,7 +42,7 @@ public class PredicateExecutorRule extends Rule {
                 //create new execution of statement
                 execution = new BasePredicateExecution(statement.getPredicate(),
                         statement.getArgs().stream()
-                                .map(value -> processVariable(context, value))
+                                .map(value -> value.forContext(context))
                                 .collect(Collectors.toList()));
                 executions.add(execution);
             }

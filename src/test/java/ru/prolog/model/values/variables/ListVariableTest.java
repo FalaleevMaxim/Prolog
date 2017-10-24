@@ -17,10 +17,10 @@ public class ListVariableTest {
     @Test
     //X=[1,Y,3|T], T=[4], Y=2, write(X).
     public void unify() throws Exception {
-        SimpleVariable y = new SimpleVariable(integerType);
-        ListVariable t = new ListVariable(intListType);
+        SimpleVariable y = new SimpleVariable(integerType, "Y");
+        ListVariable t = new ListVariable(intListType, "T");
         PrologList list = PrologList.asList(t, new SimpleValue(integerType, 1), y, new SimpleValue(integerType, 3) );
-        ListVariable x = new ListVariable(intListType);
+        ListVariable x = new ListVariable(intListType, "X");
         x.unify(list);
         t.unify(new ListValue(intListType, new SimpleValue(integerType, 4)));
         y.unify(new SimpleValue(integerType, 2));

@@ -2,7 +2,9 @@ package ru.prolog.model.values.variables;
 
 import ru.prolog.WrongTypeException;
 import ru.prolog.model.Type;
+import ru.prolog.model.predicates.execution.rule.RuleExecution;
 import ru.prolog.model.values.ListValue;
+import ru.prolog.model.values.PrologList;
 import ru.prolog.model.values.Value;
 
 import java.util.Collections;
@@ -39,6 +41,16 @@ public class ListVariable extends ListValue implements Variable {
         }
         applyValue(other);
         return true;
+    }
+
+    @Override
+    public PrologList forContext(RuleExecution context) {
+        ListVariable clone = (ListVariable) context.getVariable(name,type);
+        clone.value = value.forContext(context);
+        if(!isLast()){
+            clone.next = next.forContext(context);
+        }
+        return clone;
     }
 
     @Override

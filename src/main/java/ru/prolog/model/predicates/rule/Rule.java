@@ -42,23 +42,10 @@ public class Rule {
     public final boolean unifyArgs(List<Value> args, RuleExecution context){
         for(int i = 0; i < toUnificateList.size(); i++ ){
             Value toUnificate = toUnificateList.get(i);
-            toUnificate = processVariable(context, toUnificate);
+            toUnificate.forContext(context);
             if(!toUnificate.unify(args.get(i))) return false;
         }
         return true;
-    }
-
-    /**
-     * If arg is variable, returns variable from context
-     * @param context Context to get variables
-     * @param arg argument sent to predicate or to unificate in rule.
-     * @return Same arg if it is not variable or variable from context.
-     */
-    protected Value processVariable(RuleExecution context, Value arg) {
-        if(arg instanceof Variable){
-            arg = context.getVariable(((Variable)arg).getName(), arg.getType());
-        }
-        return arg;
     }
 
     public Predicate getPredicate() {

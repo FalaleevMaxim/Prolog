@@ -1,6 +1,7 @@
 package ru.prolog.model.values;
 
 import ru.prolog.model.Type;
+import ru.prolog.model.predicates.execution.rule.RuleExecution;
 
 public interface PrologList extends Value {
     boolean isEmpty();
@@ -9,6 +10,7 @@ public interface PrologList extends Value {
     Value getValue();
     PrologList tail();
     PrologList join(Value value);
+    PrologList forContext(RuleExecution context);
 
     static PrologList asList(Type type, Value... values){
         PrologList list = new ListValue(type);

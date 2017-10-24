@@ -10,7 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class RuleExecutorPredicate extends Predicate {
-    List<Rule> rules;
+    private List<Rule> rules;
 
     public RuleExecutorPredicate(String name, List<String> argTypes, List<Rule> rules) {
         super(name, argTypes);
@@ -20,6 +20,10 @@ public class RuleExecutorPredicate extends Predicate {
     public RuleExecutorPredicate(String name, List<String> argTypes) {
         super(name, argTypes);
         this.rules = new ArrayList<>();
+    }
+
+    public void addRule(Rule rule) {
+        rules.add(rule);
     }
 
     @Override
