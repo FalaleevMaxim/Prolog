@@ -39,20 +39,26 @@ public class ListValue implements PrologList {
 
     @Override
     public Boolean unify(Value other) {
-        if(other.getType()!=type) throw new WrongTypeException("Wrong type of value to unify", type, other.getType());
+        if(other.getType()!=getType()) throw new WrongTypeException("Wrong type of value to unify", type, other.getType());
         PrologList otherList = (PrologList) other;
-        if(other instanceof Variable && other.getValue()==null) return other.unify(this);
+        if(other instanceof Variable && ((Variable)other).isFree()) return other.unify(this);
         if(isEmpty() && otherList.isEmpty()) return true;
         if(this.isEmpty() || otherList.isEmpty()) return false;
         if(!value.unify(otherList.head())) return false;
-        return tail().unify(otherList.tail());
+        PrologList tail = tail();
+        PrologList otherTail = otherList.tail();
+        if(tail==null && otherTail==null) return true;
+        if(tail==null || otherTail==null) return false;
+        return tail.unify(otherTail);
     }
 
     @Override
     public PrologList forContext(RuleExecution context) {
-        if(!isEmpty()) return this;
+        if(isEmpty()) return this;
         ListValue clone = new ListValue(type);
-        clone.value = value.forContext(context);
+        if(value != null){
+            clone.value = value.forContext(context);
+        }
         if(!isLast()){
             clone.next = next.forContext(context);
         }
@@ -86,5 +92,25 @@ public class ListValue implements PrologList {
         if(value==null) throw new IllegalArgumentException("Value can not be null");
         if(type.getListType() != value.getType()) throw new WrongTypeException("New list element has different type", type.getListType(), value.getType());
         return new ListValue(type, value, this);
+    }
+
+    @Override
+    public String toString() {
+        PrologList list = this;
+        StringBuilder sb = new StringBuilder("[");
+        while (!list.isEmpty()){
+            if(list instanceof Variable && ((Variable)list).isFree()){
+                sb.append("|");
+                sb.append(list.toString());
+            }else{
+                if(list!=this) sb.append(',');
+                sb.append(list.head().toString());
+            }
+            list = list.tail();
+            if(list==null) break;
+
+        }
+        sb.append("]");
+        return sb.toString();
     }
 }

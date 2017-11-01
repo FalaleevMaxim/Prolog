@@ -42,7 +42,7 @@ public class Rule {
     public final boolean unifyArgs(List<Value> args, RuleExecution context){
         for(int i = 0; i < toUnificateList.size(); i++ ){
             Value toUnificate = toUnificateList.get(i);
-            toUnificate.forContext(context);
+            toUnificate = toUnificate.forContext(context);
             if(!toUnificate.unify(args.get(i))) return false;
         }
         return true;

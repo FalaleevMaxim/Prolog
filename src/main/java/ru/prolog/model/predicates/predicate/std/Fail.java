@@ -7,14 +7,13 @@ import ru.prolog.model.values.Value;
 import java.util.Collections;
 import java.util.List;
 
-public class WritePredicate extends Predicate{
-    public WritePredicate() {
-        super("write", Collections.singletonList("string"));
+public class Fail extends Predicate {
+    public Fail() {
+        super("fail", Collections.emptyList());
     }
 
     @Override
     public int run(PredicateExecution context, List<Value> args, int startWith) {
-        System.out.println(args.get(0));
-        return 0;
+        return -1;
     }
 }

@@ -21,4 +21,9 @@ public class SimpleValue extends AbstractValue{
         }
         return value.equals(other.getValue());
     }
+
+    @Override
+    public String toString() {
+        return value.toString();
+    }
 }

@@ -8,9 +8,7 @@ import ru.prolog.model.predicates.rule.Rule;
 import ru.prolog.model.values.Value;
 import ru.prolog.model.values.variables.Variable;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class BaseRuleExecution implements RuleExecution {
     private Rule rule;
@@ -39,6 +37,7 @@ public class BaseRuleExecution implements RuleExecution {
     @Override
     public Variable getVariable(String name, Type type) {
         Variable variable;
+        if(variables == null) variables = new HashMap<>();
         if(variables.containsKey(name)){
             variable = variables.get(name);
             if(variable.getType() != type)
@@ -55,6 +54,7 @@ public class BaseRuleExecution implements RuleExecution {
 
     @Override
     public Collection<Variable> getVariables() {
+        if(variables == null) return Collections.emptyList();
         return variables.values();
     }
 

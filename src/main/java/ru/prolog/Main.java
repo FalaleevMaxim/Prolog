@@ -81,7 +81,7 @@ public class Main {
         }
     }
 
-    private static void printList(PrologList list){
+    public static void printList(PrologList list){
         System.out.print('[');
         while (!list.isEmpty()){
             System.out.print(list.head().getValue());

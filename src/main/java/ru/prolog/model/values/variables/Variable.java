@@ -6,11 +6,16 @@ import java.util.Set;
 
 public interface Variable extends Value {
     String getName();
+    boolean isFree();
+    void dismiss();
+
+    //ToDo: move to BackupInterface
     Set<? extends Variable> getRelated();
+    boolean isRelated(Variable variable);
+
+    //ToDo: move to BackupRestoreInterface
     void addRelated(Variable variable);
     void removeRelated(Variable variable);
-    boolean isRelated(Variable variable);
-    boolean isFree();
     void applyValue(Value value);
-    void dismiss();
+    void setFree();
 }

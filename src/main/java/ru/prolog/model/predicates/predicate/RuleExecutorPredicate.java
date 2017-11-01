@@ -1,6 +1,7 @@
 package ru.prolog.model.predicates.predicate;
 
 import ru.prolog.model.predicates.execution.predicate.PredicateExecution;
+import ru.prolog.model.predicates.execution.rule.BackupingRuleExecutionDecorator;
 import ru.prolog.model.predicates.rule.Rule;
 import ru.prolog.model.predicates.execution.rule.BaseRuleExecution;
 import ru.prolog.model.predicates.execution.rule.RuleExecution;
@@ -30,8 +31,7 @@ public class RuleExecutorPredicate extends Predicate {
     public int run(PredicateExecution context, List<Value> args, int startWith) {
         for(int i=0; i<rules.size();i++){
             if(context.isCut()) return -1;
-            //ToDo: create decorator for RuleExecution
-            RuleExecution ruleExecution = new BaseRuleExecution(rules.get(i), args);
+            RuleExecution ruleExecution = new BackupingRuleExecutionDecorator( new BaseRuleExecution(rules.get(i), args, context) );
             if(ruleExecution.execute()) return i;
         }
         return -1;

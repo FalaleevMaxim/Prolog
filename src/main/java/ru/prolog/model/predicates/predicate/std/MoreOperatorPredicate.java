@@ -4,17 +4,16 @@ import ru.prolog.model.predicates.execution.predicate.PredicateExecution;
 import ru.prolog.model.predicates.predicate.Predicate;
 import ru.prolog.model.values.Value;
 
-import java.util.Collections;
+import java.util.Arrays;
 import java.util.List;
 
-public class WritePredicate extends Predicate{
-    public WritePredicate() {
-        super("write", Collections.singletonList("string"));
+public class MoreOperatorPredicate extends Predicate {
+    public MoreOperatorPredicate(String name, List<String> argTypes) {
+        super(">", Arrays.asList("integer", "integer"));
     }
 
     @Override
     public int run(PredicateExecution context, List<Value> args, int startWith) {
-        System.out.println(args.get(0));
-        return 0;
+        return (int)args.get(0).getValue() > (int)args.get(1).getValue() ? 0 : -1;
     }
 }
