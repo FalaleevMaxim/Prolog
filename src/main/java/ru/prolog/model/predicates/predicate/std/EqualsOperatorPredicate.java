@@ -14,6 +14,7 @@ public class EqualsOperatorPredicate extends Predicate{
 
     @Override
     public int run(PredicateExecution context, List<Value> args, int startWith) {
+        if(startWith>0) return -1;
         return args.get(0).unify(args.get(1)) ? 0 : -1;
     }
 }

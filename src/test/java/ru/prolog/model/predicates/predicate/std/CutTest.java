@@ -15,6 +15,15 @@ import ru.prolog.model.values.SimpleValue;
 import java.util.Arrays;
 import java.util.Collections;
 
+
+/*
+predicates
+cutTest(string)
+clauses
+cutTest("Not"):-!,fail.
+cutTest(_).
+
+ */
 public class CutTest {
     @Test
     public void cutTest(){

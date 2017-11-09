@@ -14,6 +14,7 @@ public class MoreOperatorPredicate extends Predicate {
 
     @Override
     public int run(PredicateExecution context, List<Value> args, int startWith) {
+        if(startWith>0) return -1;
         return (int)args.get(0).getValue() > (int)args.get(1).getValue() ? 0 : -1;
     }
 }

@@ -14,6 +14,7 @@ public class Cut extends Predicate {
 
     @Override
     public int run(PredicateExecution context, List<Value> args, int startWith) {
+        if(startWith>0) return -1;
         return 0;
     }
 }

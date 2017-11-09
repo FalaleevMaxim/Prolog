@@ -4,7 +4,7 @@ import ru.prolog.model.values.variables.Variable;
 
 public class ValueBackup implements Backup {
     private Variable variable;
-    Backup previous;
+    private Backup previous;
     private boolean isFree;
 
     public ValueBackup(Variable variable) {

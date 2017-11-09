@@ -14,6 +14,7 @@ public class WritePredicate extends Predicate{
 
     @Override
     public int run(PredicateExecution context, List<Value> args, int startWith) {
+        if(startWith>0) return -1;
         System.out.println(args.get(0));
         return 0;
     }
