@@ -1,7 +1,7 @@
 package ru.prolog.model.predicates.rule;
 
-import ru.prolog.model.predicates.predicate.Predicate;
-import ru.prolog.model.values.Value;
+import ru.prolog.model.predicate.Predicate;
+import ru.prolog.values.Value;
 
 import java.util.ArrayList;
 import java.util.Collections;

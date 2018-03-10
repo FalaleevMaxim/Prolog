@@ -1,11 +1,11 @@
 package ru.prolog;
 
 import ru.prolog.model.Type;
-import ru.prolog.model.values.PrologList;
-import ru.prolog.model.values.SimpleValue;
-import ru.prolog.model.values.Value;
-import ru.prolog.model.values.variables.SimpleVariable;
-import ru.prolog.model.values.variables.Variable;
+import ru.prolog.values.PrologList;
+import ru.prolog.values.SimpleValue;
+import ru.prolog.values.Value;
+import ru.prolog.values.variables.SimpleVariable;
+import ru.prolog.values.variables.Variable;
 
 import java.io.IOException;
 

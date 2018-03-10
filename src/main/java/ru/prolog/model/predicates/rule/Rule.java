@@ -1,9 +1,8 @@
 package ru.prolog.model.predicates.rule;
 
-import ru.prolog.model.predicates.predicate.Predicate;
-import ru.prolog.model.predicates.execution.rule.RuleExecution;
-import ru.prolog.model.values.Value;
-import ru.prolog.model.values.variables.Variable;
+import ru.prolog.model.predicate.Predicate;
+import ru.prolog.context.rule.RuleContext;
+import ru.prolog.values.Value;
 
 import java.util.Collections;
 import java.util.List;
@@ -11,9 +10,8 @@ import java.util.List;
 /**
  * Base class for all rules.
  * Implements method unifyArgs.
- * Can be used as fact (rule without body)
  */
-public class Rule {
+public abstract class Rule {
     private List<Value> toUnificateList;
     private Predicate predicate;
 
@@ -23,14 +21,14 @@ public class Rule {
         this.predicate = predicate;
     }
 
-    public final boolean run(List<Value> args, RuleExecution context){
+    public final boolean run(List<Value> args, RuleContext context){
         if(!unifyArgs(args, context)) {
             return false;
         }
         return body(context);
     }
 
-    protected boolean body(RuleExecution context) {
+    protected boolean body(RuleContext context) {
         return true;
     }
 
@@ -39,7 +37,7 @@ public class Rule {
      * @param context context of executing this rule
      * @return true if all arguments unification was successful
      */
-    public final boolean unifyArgs(List<Value> args, RuleExecution context){
+    public final boolean unifyArgs(List<Value> args, RuleContext context){
         for(int i = 0; i < toUnificateList.size(); i++ ){
             Value toUnificate = toUnificateList.get(i);
             toUnificate = toUnificate.forContext(context);

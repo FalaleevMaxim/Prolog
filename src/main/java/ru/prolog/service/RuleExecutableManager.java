@@ -1,13 +1,13 @@
 package ru.prolog.service;
 
-import ru.prolog.model.predicates.execution.rule.RuleExecution;
+import ru.prolog.context.rule.RuleContext;
 import ru.prolog.model.predicates.rule.Rule;
-import ru.prolog.model.values.Value;
+import ru.prolog.values.Value;
 
 import java.util.List;
 
 public interface RuleExecutableManager {
-    RuleExecution executable(Rule rule, List<Value> args);
+    RuleContext executable(Rule rule, List<Value> args);
 
     interface RuleExecutableOption{
 

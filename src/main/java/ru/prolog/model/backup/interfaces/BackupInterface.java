@@ -1,6 +1,6 @@
 package ru.prolog.model.backup.interfaces;
 
-import ru.prolog.model.values.variables.Variable;
+import ru.prolog.values.variables.Variable;
 
 import java.util.Set;
 

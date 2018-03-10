@@ -1,6 +1,6 @@
 package ru.prolog.model.backup;
 
-import ru.prolog.model.values.variables.Variable;
+import ru.prolog.values.variables.Variable;
 
 public class ValueBackup implements Backup {
     private Variable variable;
@@ -9,12 +9,9 @@ public class ValueBackup implements Backup {
 
     public ValueBackup(Variable variable) {
         this.variable = variable;
+        previous = variable.getLastBackup();
         isFree = variable.isFree();
-    }
-
-    public ValueBackup(Variable variable, Backup previous){
-        this(variable);
-        this.previous = previous;
+        variable.setLastBackup(this);
     }
 
     @Override

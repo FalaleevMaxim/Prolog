@@ -1,12 +1,13 @@
 package ru.prolog.model.backup;
 
-import ru.prolog.model.values.variables.Variable;
+import ru.prolog.values.variables.Variable;
 
 public abstract class AbstractBackupDecorator implements Backup{
     protected Backup decorated;
 
     public AbstractBackupDecorator(Backup decorated) {
         this.decorated = decorated;
+        decorated.getVariable().setLastBackup(this);
     }
 
     @Override

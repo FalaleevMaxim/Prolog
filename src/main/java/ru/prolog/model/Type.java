@@ -1,14 +1,13 @@
 package ru.prolog.model;
 
-import ru.prolog.model.values.ListValue;
-import ru.prolog.model.values.SimpleValue;
-import ru.prolog.model.values.Value;
-import ru.prolog.model.values.variables.ListVariable;
-import ru.prolog.model.values.variables.SimpleVariable;
-import ru.prolog.model.values.variables.Variable;
+import ru.prolog.values.ListValue;
+import ru.prolog.values.SimpleValue;
+import ru.prolog.values.Value;
+import ru.prolog.values.variables.ListVariable;
+import ru.prolog.values.variables.SimpleVariable;
+import ru.prolog.values.variables.Variable;
 
 import java.util.HashMap;
-import java.util.Map;
 
 public final class Type {
     private PrimitiveType primitiveType;
@@ -45,36 +44,9 @@ public final class Type {
         return new SimpleVariable(this, name);
     }
 
-
-    private static Map<String, Type> typesPool;
-
-    public static Type getType(String name){
-        return typesPool.get(name);
-    }
-
-    public static Type aliasType(String name, Type related){
-        return getType(name, related, false);
-    }
-
-    public static Type listType(String name, Type elementsType){
-        return getType(name, elementsType, true);
-    }
-
-    private static Type getType(String name, Type related, boolean isList){
-        Type type = getType(name);
-        if(type == null){
-            type = new Type();
-            type.listType = related;
-            saveType(name, type);
-            return type;
-        }
-        if(type.listType != related || type.isList() != isList)
-            throw new IllegalArgumentException("Requested type with existing name but different contents");
-        return type;
-    }
     public static class PrimitiveType {
 
-        private String name;
+        private final String name;
 
         private boolean isInteger;
         private boolean isReal;
@@ -107,7 +79,6 @@ public final class Type {
         public boolean isString() {
             return isString;
         }
-
     }
 
     static {
@@ -134,8 +105,33 @@ public final class Type {
         saveType("char", new Type(primitive));
     }
 
-    private static void saveType(String name, Type type){
-        typesPool.put(name, type);
-    }
+    public static class TypeBuilder{
+        private Type newType = new Type();
+        private boolean created = false;
 
+        public TypeBuilder setListType(Type listType){
+            checkTypeSet();
+            newType.listType = listType;
+            return this;
+        }
+
+        public TypeBuilder setPrimitiveType(PrimitiveType primitive){
+            checkTypeSet();
+            newType.primitiveType = primitive;
+            return this;
+        }
+
+        public Type create(){
+            if(!newType.isPrimitive() && !newType.isList())
+                throw new IllegalStateException("Type must be primitive or list");
+            created = true;
+            return newType;
+        }
+
+        private void checkTypeSet() {
+            if(created) throw new IllegalStateException("Can not modify type after it is created");
+            if(newType.isList()) throw new IllegalStateException("List type already set");
+            if(newType.isPrimitive()) throw new IllegalStateException("Type is already primitive.");
+        }
+    }
 }

@@ -2,16 +2,13 @@ package ru.prolog.model.predicates.rule;
 
 import org.junit.Test;
 import ru.prolog.model.Type;
-import ru.prolog.model.predicates.execution.predicate.BasePredicateExecution;
-import ru.prolog.model.predicates.predicate.RuleExecutorPredicate;
-import ru.prolog.model.predicates.predicate.std.WritePredicate;
-import ru.prolog.model.values.PrologList;
-import ru.prolog.model.values.SimpleValue;
-import ru.prolog.model.values.Value;
-import ru.prolog.model.values.variables.ListVariable;
-import ru.prolog.model.values.variables.SimpleVariable;
+import ru.prolog.context.predicate.BasePredicateContext;
+import ru.prolog.model.predicate.RuleExecutorPredicate;
+import ru.prolog.std.WritePredicate;
+import ru.prolog.values.SimpleValue;
+import ru.prolog.values.Value;
+import ru.prolog.values.variables.SimpleVariable;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Stream;
@@ -25,7 +22,7 @@ public class PredicateExecutorRuleTest {
 
     @Test
     public void helloWorldTest(){
-        new BasePredicateExecution(
+        new BasePredicateContext(
                 new WritePredicate(),
                 getArg("Hello, world"))
                 .execute();
@@ -43,11 +40,11 @@ public class PredicateExecutorRuleTest {
                     predicate.addRule(
                             new Rule(predicate,
                                     getArg(s))));
-        assertTrue(new BasePredicateExecution(predicate, getArg("Masha")).execute());
-        assertFalse(new BasePredicateExecution(predicate, getArg("Kolya")).execute());
+        assertTrue(new BasePredicateContext(predicate, getArg("Masha")).execute());
+        assertFalse(new BasePredicateContext(predicate, getArg("Kolya")).execute());
 
         SimpleVariable x = new SimpleVariable(string, "X");
-        new BasePredicateExecution(predicate, Collections.singletonList(x)).execute();
+        new BasePredicateContext(predicate, Collections.singletonList(x)).execute();
         assertEquals("Vasya", x.getValue());
     }
 }
