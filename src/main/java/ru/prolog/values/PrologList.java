@@ -1,6 +1,6 @@
 package ru.prolog.values;
 
-import ru.prolog.model.Type;
+import ru.prolog.model.type.Type;
 import ru.prolog.context.rule.RuleContext;
 
 public interface PrologList extends Value {

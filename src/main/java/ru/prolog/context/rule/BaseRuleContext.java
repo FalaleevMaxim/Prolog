@@ -1,15 +1,17 @@
 package ru.prolog.context.rule;
 
 
-import ru.prolog.WrongTypeException;
-import ru.prolog.model.Type;
-import ru.prolog.model.backup.Backup;
-import ru.prolog.model.backup.RelatedBackup;
-import ru.prolog.model.backup.ValueBackup;
 import ru.prolog.context.predicate.PredicateContext;
-import ru.prolog.model.predicates.rule.Rule;
+import ru.prolog.context.program.ProgramContext;
+import ru.prolog.context.rule.statements.ExecutedStatements;
+import ru.prolog.model.type.exceptions.WrongTypeException;
+import ru.prolog.model.type.Type;
+import ru.prolog.model.rule.Rule;
 import ru.prolog.values.Value;
 import ru.prolog.values.variables.Variable;
+import ru.prolog.values.variables.backup.Backup;
+import ru.prolog.values.variables.backup.RelatedBackup;
+import ru.prolog.values.variables.backup.ValueBackup;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -18,17 +20,19 @@ public class BaseRuleContext implements RuleContext {
     private Rule rule;
     private List<Value> args;
     private Map<String, Variable> variables;
+    private ProgramContext programContext;
     private PredicateContext context;
     private List<Backup> backups;
     private ExecutedStatements statements;
 
-    public BaseRuleContext(Rule rule, List<Value> args) {
+    public BaseRuleContext(Rule rule, List<Value> args, ProgramContext programContext) {
+        this.programContext = programContext;
         this.rule = rule;
         this.args = args;
     }
 
     public BaseRuleContext(Rule rule, List<Value> args, PredicateContext context) {
-        this(rule, args);
+        this(rule, args, context.programContext());
         this.context = context;
     }
 
@@ -51,11 +55,13 @@ public class BaseRuleContext implements RuleContext {
                         "Type of requested variable does not match type of stored variable",
                         type, variable.getType());
             return variable;
-        }else{
-            variable = type.createVariable(name);
-            variables.put(name, variable);
-            return variable;
         }
+        return null;
+    }
+
+    @Override
+    public void addVariable(Variable variable) {
+        variables.put(variable.getName(), variable);
     }
 
     @Override
@@ -65,13 +71,18 @@ public class BaseRuleContext implements RuleContext {
     }
 
     @Override
+    public ProgramContext programContext() {
+        return programContext;
+    }
+
+    @Override
     public PredicateContext getPredicateContext() {
         return context;
     }
 
     @Override
     public boolean execute() {
-        makeBackups();
+        argBackups();
         if(rule.run(args, this)){
             return true;
         }
@@ -81,7 +92,7 @@ public class BaseRuleContext implements RuleContext {
         }
     }
 
-    private void makeBackups() {
+    private void argBackups() {
         backups = getArgs().stream()
                 .filter(value -> value instanceof Variable)
                 .map(value -> (Variable)value)

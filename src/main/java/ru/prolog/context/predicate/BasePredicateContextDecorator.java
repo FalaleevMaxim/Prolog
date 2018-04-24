@@ -50,7 +50,7 @@ public abstract class BasePredicateContextDecorator implements PredicateContext 
     }
 
     @Override
-    public RuleContext getLastRuleContext() {
-        return decorated.getLastRuleContext();
+    public RuleContext getLastExecutedRuleContext() {
+        return decorated.getLastExecutedRuleContext();
     }
 }

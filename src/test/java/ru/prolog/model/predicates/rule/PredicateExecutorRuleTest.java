@@ -1,9 +1,10 @@
 package ru.prolog.model.predicates.rule;
 
 import org.junit.Test;
-import ru.prolog.model.Type;
 import ru.prolog.context.predicate.BasePredicateContext;
+import ru.prolog.model.type.Type;
 import ru.prolog.model.predicate.RuleExecutorPredicate;
+import ru.prolog.model.rule.FactRule;
 import ru.prolog.std.WritePredicate;
 import ru.prolog.values.SimpleValue;
 import ru.prolog.values.Value;
@@ -13,9 +14,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Stream;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 public class PredicateExecutorRuleTest {
     Type string = Type.getType("string");
@@ -38,7 +37,7 @@ public class PredicateExecutorRuleTest {
         RuleExecutorPredicate predicate = new RuleExecutorPredicate("student", Collections.singletonList("string"));
         Stream.of("Vasya", "Petya", "Masha").forEach(s ->
                     predicate.addRule(
-                            new Rule(predicate,
+                            new FactRule(predicate,
                                     getArg(s))));
         assertTrue(new BasePredicateContext(predicate, getArg("Masha")).execute());
         assertFalse(new BasePredicateContext(predicate, getArg("Kolya")).execute());

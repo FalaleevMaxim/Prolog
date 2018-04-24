@@ -1,7 +1,7 @@
 package ru.prolog.values.variables;
 
 import org.junit.Test;
-import ru.prolog.model.Type;
+import ru.prolog.model.type.Type;
 import ru.prolog.values.PrologList;
 import ru.prolog.values.ListValue;
 import ru.prolog.values.SimpleValue;

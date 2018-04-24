@@ -1,9 +1,12 @@
 package ru.prolog.values;
 
-import ru.prolog.WrongTypeException;
-import ru.prolog.model.Type;
+import ru.prolog.model.type.exceptions.WrongTypeException;
+import ru.prolog.model.type.Type;
 import ru.prolog.context.rule.RuleContext;
 import ru.prolog.values.variables.Variable;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class ListValue implements PrologList {
     protected Value value;
@@ -38,7 +41,7 @@ public class ListValue implements PrologList {
     }
 
     @Override
-    public Boolean unify(Value other) {
+    public boolean unify(Value other) {
         if(other.getType()!=getType()) throw new WrongTypeException("Wrong type of value to unify", type, other.getType());
         PrologList otherList = (PrologList) other;
         if(other instanceof Variable && ((Variable)other).isFree()) return other.unify(this);
@@ -63,6 +66,13 @@ public class ListValue implements PrologList {
             clone.next = next.forContext(context);
         }
         return clone;
+    }
+
+    @Override
+    public List<Variable> innerVariables() {
+        List<Variable> variables = new ArrayList<>(head().innerVariables());
+        variables.addAll(tail().innerVariables());
+        return variables;
     }
 
     @Override

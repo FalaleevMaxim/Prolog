@@ -1,28 +1,26 @@
 package ru.prolog.values.variables;
 
-import ru.prolog.model.Type;
-import ru.prolog.model.backup.Backup;
+import ru.prolog.model.type.Type;
+import ru.prolog.values.variables.backup.Backup;
 import ru.prolog.context.rule.RuleContext;
 import ru.prolog.values.AbstractValue;
-import ru.prolog.values.AnonymousVariable;
 import ru.prolog.values.Value;
 
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Variable of base type
  */
 public class SimpleVariable extends AbstractValue implements Variable {
+    private RuleContext ruleContext;
     private Set<Variable> related;
     private final String name;
     private Backup lastBackup;
 
-    public SimpleVariable(Type type, String name) {
+    public SimpleVariable(Type type, String name, RuleContext ruleContext) {
         super(type);
         this.name = name;
+        this.ruleContext = ruleContext;
     }
 
     public boolean isFree() {
@@ -34,7 +32,7 @@ public class SimpleVariable extends AbstractValue implements Variable {
     }
 
     @Override
-    public Boolean unify(Value other) {
+    public boolean unify(Value other) {
         if (other.getValue() != null) {
             if (getValue() != null) {
                 return getValue().equals(other.getValue());
@@ -59,7 +57,16 @@ public class SimpleVariable extends AbstractValue implements Variable {
 
     @Override
     public Value forContext(RuleContext context) {
-        return context.getVariable(name, type);
+        Variable inContext = context.getVariable(name, type);
+        if(inContext!=null) return inContext;
+        inContext = new SimpleVariable(type, name, ruleContext);
+        context.addVariable(inContext);
+        return inContext;
+    }
+
+    @Override
+    public List<Variable> innerVariables() {
+        return Collections.singletonList(this);
     }
 
     @Override
@@ -104,17 +111,8 @@ public class SimpleVariable extends AbstractValue implements Variable {
     }
 
     @Override
-    public void dismiss() {
-        Variable first = null;
-        //Итератор используется чтобы не получать ConcurrentModificationException
-        Iterator<Variable> iterator = related.iterator();
-        while (iterator.hasNext()) {
-            Variable variable = iterator.next();
-            if (first == null) first = variable;
-            else first.addRelated(variable);
-            iterator.remove();
-            variable.removeRelated(this);
-        }
+    public RuleContext getRuleContext() {
+        return ruleContext;
     }
 
     @Override

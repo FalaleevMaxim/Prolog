@@ -10,14 +10,15 @@ import java.util.List;
 
 public interface PredicateContext extends Executable {
     ProgramContext programContext();
+    RuleContext getRuleContext();
     Predicate getPredicate();
     List<Value> getArgs();
 
     /**
      * @return last rule context which successfully executed in predicate. Null if predicate never been executed before or last rule failed.
      */
-    RuleContext getLastRuleContext();
-    void setLastRuleContext(RuleContext lastRuleContext);
+    RuleContext getLastExecutedRuleContext();
+    void setLastExecutedRuleContext(RuleContext lastExecutedRuleContext);
 
     /**
      * Put object to context storage. Only this predicate in this execution can access data.

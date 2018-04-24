@@ -1,6 +1,6 @@
 package ru.prolog;
 
-import ru.prolog.model.Type;
+import ru.prolog.model.type.Type;
 import ru.prolog.values.PrologList;
 import ru.prolog.values.SimpleValue;
 import ru.prolog.values.Value;

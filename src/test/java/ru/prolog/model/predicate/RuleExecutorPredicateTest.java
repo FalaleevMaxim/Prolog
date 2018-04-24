@@ -1,18 +1,17 @@
 package ru.prolog.model.predicate;
 
 import org.junit.Test;
-import ru.prolog.model.Type;
+import ru.prolog.model.type.Type;
 import ru.prolog.context.predicate.PredicateContext;
 import ru.prolog.context.rule.BaseRuleContext;
 import ru.prolog.context.rule.RuleContext;
+import ru.prolog.model.rule.*;
 import ru.prolog.std.Cut;
 import ru.prolog.std.Fail;
 import ru.prolog.std.Nl;
 import ru.prolog.std.WritePredicate;
-import ru.prolog.model.predicates.rule.StatementExecutorRule;
-import ru.prolog.model.predicates.rule.Rule;
-import ru.prolog.model.predicates.rule.Statement;
 import ru.prolog.values.*;
+import ru.prolog.values.variables.AnonymousVariable;
 import ru.prolog.values.variables.ListVariable;
 import ru.prolog.values.variables.SimpleVariable;
 import ru.prolog.values.variables.Variable;
@@ -118,13 +117,13 @@ public class RuleExecutorPredicateTest {
     private void conc_rule1(){
         PrologList emptyList = new ListValue(list);//[]
         ListVariable var_L = new ListVariable(list,"L");//L
-        class ConcRule1 extends Rule{
+        class ConcRule1 extends FactRule {
             ConcRule1() {
                 super(concPredicate, Arrays.asList(emptyList, var_L, var_L));
             }
 
             @Override
-            protected boolean body(RuleContext context) {
+            public boolean body(RuleContext context) {
                 return super.body(context);
             }
         }
@@ -173,7 +172,7 @@ public class RuleExecutorPredicateTest {
     //neq(_,_).
     private void neq_rule2(){
         Value anon = new AnonymousVariable(list);
-        Rule neq_rule = new Rule(notEqualPredicate, Arrays.asList(anon, anon));
+        Rule neq_rule = new FactRule(notEqualPredicate, Arrays.asList(anon, anon));
         notEqualPredicate.addRule(neq_rule);
     }
 

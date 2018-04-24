@@ -1,7 +1,7 @@
 package ru.prolog.values;
 
-import ru.prolog.WrongTypeException;
-import ru.prolog.model.Type;
+import ru.prolog.model.type.exceptions.WrongTypeException;
+import ru.prolog.model.type.Type;
 import ru.prolog.context.rule.RuleContext;
 
 /**
@@ -32,7 +32,7 @@ public abstract class AbstractValue implements Value{
     }
 
     @Override
-    public Boolean unify(Value other) {
+    public boolean unify(Value other) {
         if(other.getType()!=type) throw new WrongTypeException("Wrong type of value to unify", type, other.getType());
         return true;
     }

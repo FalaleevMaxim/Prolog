@@ -1,6 +1,7 @@
 package ru.prolog.context.program;
 
 import ru.prolog.model.program.Program;
+import ru.prolog.service.Managers;
 import ru.prolog.storage.database.Database;
 
 import java.util.Collections;
@@ -13,16 +14,11 @@ public class BaseProgramContext implements ProgramContext {
     private final Map<String, Database> namedDatabases;
     private Map<String, Object> contextData;
 
-    public BaseProgramContext(Program program, Database database) {
+    public BaseProgramContext(Program program) {
         this.program = program;
-        this.database = database;
-        namedDatabases = null;
-    }
-
-    public BaseProgramContext(Program program, Map<String, Database> namedDatabases) {
-        this.program = program;
-        this.namedDatabases = namedDatabases;
-        this.database = null;
+        //ToDo: create new database objects as ones in program will be unmodifiable
+        this.namedDatabases = program.getNamedDatabases();
+        this.database = program.getDatabaseClauses();
     }
 
     @Override

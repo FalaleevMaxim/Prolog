@@ -2,14 +2,12 @@ package ru.prolog.std;
 
 import org.junit.Assert;
 import org.junit.Test;
-import ru.prolog.model.Type;
+import ru.prolog.model.type.Type;
 import ru.prolog.context.predicate.BasePredicateContext;
 import ru.prolog.context.predicate.PredicateContext;
 import ru.prolog.model.predicate.RuleExecutorPredicate;
-import ru.prolog.model.predicates.rule.StatementExecutorRule;
-import ru.prolog.model.predicates.rule.Rule;
-import ru.prolog.model.predicates.rule.Statement;
-import ru.prolog.values.AnonymousVariable;
+import ru.prolog.model.rule.*;
+import ru.prolog.values.variables.AnonymousVariable;
 import ru.prolog.values.SimpleValue;
 
 import java.util.Arrays;
@@ -34,7 +32,7 @@ public class CutTest {
                 Arrays.asList(
                         new Statement(new Cut(),Collections.emptyList()),
                         new Statement(new Fail(),Collections.emptyList())));
-        Rule rule2 = new Rule(predicate, Collections.singletonList(new AnonymousVariable(string)));
+        Rule rule2 = new FactRule(predicate, Collections.singletonList(new AnonymousVariable(string)));
         predicate.addRule(rule1);
         predicate.addRule(rule2);
 

@@ -2,6 +2,7 @@ package ru.prolog.context.program;
 
 import ru.prolog.context.Executable;
 import ru.prolog.model.program.Program;
+import ru.prolog.service.Managers;
 import ru.prolog.storage.database.Database;
 
 import java.util.Map;
@@ -10,17 +11,17 @@ public interface ProgramContext extends Executable {
     Program program();
 
     /**
-     * Returns only database in program if it does not have name
+     * Returns only database in program if it does not have functorName
      * To get named databases use {@link #databases() databases} method.
-     * To get database by name use {@link #database(String) database(String)} overload
+     * To get database by functorName use {@link #database(String) database(String)} overload
      * @return unnamed database or null if databases are named
      */
     Database database();
 
     /**
-     * Returns database by name
-     * @param name database name
-     * @return database by name or null.
+     * Returns database by functorName
+     * @param name database functorName
+     * @return database by functorName or null.
      */
     Database database(String name);
 

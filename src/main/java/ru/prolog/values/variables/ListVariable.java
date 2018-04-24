@@ -1,27 +1,28 @@
 package ru.prolog.values.variables;
 
-import ru.prolog.WrongTypeException;
-import ru.prolog.model.Type;
+import ru.prolog.model.type.exceptions.WrongTypeException;
+import ru.prolog.model.type.Type;
 import ru.prolog.context.rule.RuleContext;
 import ru.prolog.values.ListValue;
 import ru.prolog.values.PrologList;
 import ru.prolog.values.Value;
+import ru.prolog.values.variables.backup.Backup;
 
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Set;
+import java.util.*;
 
 public class ListVariable extends ListValue implements ListVariableInterface {
+    private RuleContext ruleContext;
     //В отличие от ListValue, null значение value может означать как пустой список, так и отсутствие значения переменной
     //isEmpty true означает, что переменная содержит пустой список.
     private boolean isEmpty;
     private Set<Variable> related;
     private String name;
+    private Backup lastBackup;
 
-    public ListVariable(Type type, String name) {
+    public ListVariable(Type type, String name, RuleContext ruleContext) {
         super(type);
         this.name = name;
+        this.ruleContext = ruleContext;
     }
 
     @Override
@@ -30,7 +31,7 @@ public class ListVariable extends ListValue implements ListVariableInterface {
     }
 
     @Override
-    public Boolean unify(Value other) {
+    public boolean unify(Value other) {
         if(other.getType()!=type) throw new WrongTypeException("Wrong type of value to unify", type, other.getType());
         if(!isFree()) return super.unify(other);
         if(other instanceof ListVariable){
@@ -46,14 +47,21 @@ public class ListVariable extends ListValue implements ListVariableInterface {
 
     @Override
     public PrologList forContext(RuleContext context) {
-        ListVariable clone = (ListVariable) context.getVariable(name,type);
-        if(value != null){
-            clone.value = value.forContext(context);
-        }
-        if(!isLast()){
-            clone.next = next.forContext(context);
-        }
-        return clone;
+        ListVariableInterface inContext = (ListVariableInterface) context.getVariable(name,type);
+        if(inContext!=null) return inContext;
+        inContext = new ListVariable(type, name, context);
+        context.addVariable(inContext);
+        return inContext;
+    }
+
+    @Override
+    @SuppressWarnings("Duplicates")
+    public List<Variable> innerVariables(){
+        if(isFree()) return Collections.singletonList(this);
+        List<Variable> variables = new ArrayList<>();
+        variables.add(this);
+        variables.addAll(super.innerVariables());
+        return variables;
     }
 
     @Override
@@ -120,22 +128,23 @@ public class ListVariable extends ListValue implements ListVariableInterface {
     }
 
     @Override
-    public void dismiss() {
-        Variable first = null;
-        //Итератор используется чтобы не получать ConcurrentModificationException
-        Iterator<Variable> iterator = related.iterator();
-        while (iterator.hasNext()){
-            Variable variable = iterator.next();
-            if(first==null) first = variable;
-            else first.addRelated(variable);
-            iterator.remove();
-            variable.removeRelated(this);
-        }
+    public Backup getLastBackup() {
+        return lastBackup;
+    }
+
+    @Override
+    public void setLastBackup(Backup backup) {
+        this.lastBackup = backup;
     }
 
     @Override
     public boolean isFree(){
         return !isEmpty && value==null;
+    }
+
+    @Override
+    public RuleContext getRuleContext() {
+        return ruleContext;
     }
 
     @Override

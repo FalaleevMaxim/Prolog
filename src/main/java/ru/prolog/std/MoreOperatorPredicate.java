@@ -1,13 +1,14 @@
 package ru.prolog.std;
 
 import ru.prolog.context.predicate.PredicateContext;
+import ru.prolog.model.predicate.AbstractPredicate;
 import ru.prolog.model.predicate.Predicate;
 import ru.prolog.values.Value;
 
 import java.util.Arrays;
 import java.util.List;
 
-public class MoreOperatorPredicate extends Predicate {
+public class MoreOperatorPredicate extends AbstractPredicate {
     public MoreOperatorPredicate(String name, List<String> argTypes) {
         super(">", Arrays.asList("integer", "integer"));
     }

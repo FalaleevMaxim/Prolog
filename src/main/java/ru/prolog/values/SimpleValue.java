@@ -1,8 +1,12 @@
 package ru.prolog.values;
 
-import ru.prolog.WrongTypeException;
-import ru.prolog.model.Type;
+import ru.prolog.model.type.exceptions.WrongTypeException;
+import ru.prolog.model.type.Type;
 import ru.prolog.values.variables.SimpleVariable;
+import ru.prolog.values.variables.Variable;
+
+import java.util.Collections;
+import java.util.List;
 
 public class SimpleValue extends AbstractValue{
 
@@ -14,12 +18,17 @@ public class SimpleValue extends AbstractValue{
     }
 
     @Override
-    public Boolean unify(Value other) {
+    public boolean unify(Value other) {
         super.unify(other);
         if(other instanceof SimpleVariable && other.getValue()==null){
             return other.unify(this);
         }
         return value.equals(other.getValue());
+    }
+
+    @Override
+    public List<Variable> innerVariables() {
+        return Collections.emptyList();
     }
 
     @Override

@@ -1,6 +1,6 @@
 package ru.prolog.storage.type;
 
-import ru.prolog.model.Type;
+import ru.prolog.model.type.Type;
 import ru.prolog.storage.type.exception.TypeAlreadyExistsException;
 import ru.prolog.storage.type.exception.TypeNotExistsException;
 

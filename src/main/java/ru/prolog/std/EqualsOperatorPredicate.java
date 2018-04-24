@@ -1,15 +1,17 @@
 package ru.prolog.std;
 
 import ru.prolog.context.predicate.PredicateContext;
+import ru.prolog.model.predicate.AbstractPredicate;
 import ru.prolog.model.predicate.Predicate;
+import ru.prolog.storage.type.TypeStorage;
 import ru.prolog.values.Value;
 
 import java.util.Arrays;
 import java.util.List;
 
-public class EqualsOperatorPredicate extends Predicate{
-    public EqualsOperatorPredicate() {
-        super("=", Arrays.asList("integer", "integer"));
+public class EqualsOperatorPredicate extends AbstractPredicate {
+    public EqualsOperatorPredicate(TypeStorage typeStorage) {
+        super("=", Arrays.asList("integer", "integer"), typeStorage);
     }
 
     @Override

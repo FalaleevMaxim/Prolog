@@ -1,11 +1,15 @@
 package ru.prolog.values;
 
-import ru.prolog.model.Type;
+import ru.prolog.model.type.Type;
 import ru.prolog.context.rule.RuleContext;
+import ru.prolog.values.variables.Variable;
+
+import java.util.List;
 
 public interface Value {
     Object getValue();
     Type getType();
-    Boolean unify(Value other);
+    boolean unify(Value other);
     Value forContext(RuleContext context);
+    List<Variable> innerVariables();
 }

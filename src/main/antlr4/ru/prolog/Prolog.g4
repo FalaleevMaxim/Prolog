@@ -8,11 +8,15 @@ program:domain?
 
 domain:DOMAIN typedef*;
 typedef:NAME (',' NAME)* '=' type;
-type:typeName=NAME
+type:primitiveType=PRIMITIVE
+    |listOf=PRIMITIVE '*'
     |listOf=NAME '*'
-    |structType
+    |functorType
     ;
-structType:NAME '(' type (',' type)*')';
+functorType:functor (';' functor)*;
+functor:functorName=NAME
+       |functorName=NAME '(' type (',' type)*')'
+       ;
 
 predicates:PREDICATES predDef*;
 predDef:NAME
@@ -31,6 +35,7 @@ stat:predExec
     |cut
     |equality
     |compare
+    |not
     ;
 predExec:NAME
         |NAME '(' argList ')'
@@ -52,6 +57,7 @@ negative:'-' '(' expr ')'
         | '-' VARNAME
         ;
 compare:left=eqVal operator=('>'|'<'|'<='|'>=') right=eqVal;
+not:'not' '(' predExec ')';
 value:VARNAME
      |real
      |integer
@@ -86,6 +92,13 @@ DOMAIN    :'domains';
 PREDICATES:'predicates';
 CLAUSES   :'clauses';
 GOAL      :'goal';
+
+PRIMITIVE:'integer'
+         |'real'
+         |'char'
+         |'string'
+         |'symbol'
+         ;
 
 ASSIGN:':-'
       |'if'

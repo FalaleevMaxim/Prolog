@@ -14,13 +14,15 @@ public class BasePredicateContext implements PredicateContext {
     private final Predicate predicate;
     private final List<Value> args;
     private final ProgramContext programContext;
+    private RuleContext ruleContext;
     private Map<String, Object> contextData;
     private int startWith = 0;
-    private RuleContext lastRuleContext;
+    private RuleContext lastExecutedRuleContext;
     private boolean cut = false;
 
-    public BasePredicateContext(Predicate predicate, List<Value> args){
-        this(predicate, args, null);
+    public BasePredicateContext(Predicate predicate, List<Value> args, RuleContext ruleContext){
+        this(predicate, args, ruleContext.programContext());
+        this.ruleContext = ruleContext;
     }
 
     public BasePredicateContext(Predicate predicate, List<Value> args, ProgramContext program) {
@@ -42,13 +44,23 @@ public class BasePredicateContext implements PredicateContext {
     }
 
     @Override
-    public RuleContext getLastRuleContext() {
-        return lastRuleContext;
+    public RuleContext getRuleContext() {
+        return ruleContext;
     }
 
     @Override
-    public void setLastRuleContext(RuleContext lastRuleContext) {
-        this.lastRuleContext = lastRuleContext;
+    public ProgramContext programContext() {
+        return programContext;
+    }
+
+    @Override
+    public RuleContext getLastExecutedRuleContext() {
+        return lastExecutedRuleContext;
+    }
+
+    @Override
+    public void setLastExecutedRuleContext(RuleContext lastExecutedRuleContext) {
+        this.lastExecutedRuleContext = lastExecutedRuleContext;
     }
 
     @Override
@@ -70,11 +82,6 @@ public class BasePredicateContext implements PredicateContext {
     @Override
     public boolean isCut() {
         return cut;
-    }
-
-    @Override
-    public ProgramContext programContext() {
-        return programContext;
     }
 
     @Override
