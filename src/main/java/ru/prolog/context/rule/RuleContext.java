@@ -4,10 +4,9 @@ import ru.prolog.context.Executable;
 import ru.prolog.context.predicate.PredicateContext;
 import ru.prolog.context.program.ProgramContext;
 import ru.prolog.context.rule.statements.ExecutedStatements;
-import ru.prolog.model.type.Type;
 import ru.prolog.model.rule.Rule;
 import ru.prolog.values.Value;
-import ru.prolog.values.variables.Variable;
+import ru.prolog.values.Variable;
 
 import java.util.Collection;
 import java.util.List;
@@ -15,7 +14,7 @@ import java.util.List;
 public interface RuleContext extends Executable {
     Rule getRule();
     List<Value> getArgs();
-    Variable getVariable(String name, Type type);
+    Variable getVariable(String name);
     void addVariable(Variable variable);
     ExecutedStatements getStatements();
     Collection<Variable> getVariables();
@@ -25,6 +24,6 @@ public interface RuleContext extends Executable {
 
     // Instead of execute() when need to find new solution
     // Executes last executed statement again.
-    // if rule has no statements, returns false
+    // if getRule has no statements, returns false
     boolean redo();
 }

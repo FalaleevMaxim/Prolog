@@ -1,6 +1,6 @@
 package ru.prolog.exceprions;
 
-import ru.prolog.values.variables.Variable;
+import ru.prolog.values.Variable;
 
 public class FreeVariableException extends RuntimeException {
     private Variable freeVariable;

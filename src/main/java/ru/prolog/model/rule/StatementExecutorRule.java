@@ -2,16 +2,17 @@ package ru.prolog.model.rule;
 
 import ru.prolog.context.predicate.PredicateContext;
 import ru.prolog.context.rule.statements.ExecutedStatements;
-import ru.prolog.model.type.exceptions.WrongTypeException;
+import ru.prolog.model.ModelObject;
+import ru.prolog.model.exceptions.ModelStateException;
 import ru.prolog.model.predicate.Predicate;
 import ru.prolog.context.rule.RuleContext;
 import ru.prolog.context.rule.statements.ExecutedStatement;
-import ru.prolog.model.type.Type;
 import ru.prolog.service.Managers;
 import ru.prolog.values.Value;
-import ru.prolog.values.variables.Variable;
+import ru.prolog.values.model.ValueModel;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -19,9 +20,35 @@ import java.util.stream.Collectors;
 public class StatementExecutorRule extends AbstractRule {
     private List<Statement> statements;
 
-    protected StatementExecutorRule(List<Value> toUnify) {
+    public StatementExecutorRule() {
+        statements = new ArrayList<>();
+    }
+
+    public StatementExecutorRule(List<ValueModel> toUnify) {
         super(toUnify);
     }
+
+    public StatementExecutorRule(List<ValueModel> toUnifyList, List<Statement> statements) {
+        super(toUnifyList);
+        this.statements = new ArrayList<>(statements);
+    }
+
+    public StatementExecutorRule(Predicate predicate, List<ValueModel> toUnifyList) {
+        super(predicate, toUnifyList);
+        statements = new ArrayList<>();
+    }
+
+    public StatementExecutorRule(Predicate predicate, List<ValueModel> toUnifyList, List<Statement> statements) {
+        super(predicate, toUnifyList);
+        this.statements = new ArrayList<>(statements);
+    }
+
+    void addStatement(Statement statement){
+        if(fixed) throw new IllegalStateException("Rule state is fixed. You can not change it anymore.");
+        statements.add(statement);
+    }
+
+
 
     @Override
     public boolean body(RuleContext context) {
@@ -47,19 +74,24 @@ public class StatementExecutorRule extends AbstractRule {
                 }
                 //create new context from statement
                 Managers managers = context.programContext().program().getManagers();
-                predicateExecution = managers.getPredicateManager().executable(statement.getPredicate(),
-                        //copy statement args to rule context
+                predicateExecution = managers.getPredicateManager().context(statement.getPredicate(),
+                        //copy statement args to getRule context
                         statement.getArgs().stream()
                                 .map(value -> value.forContext(context))
                                 .collect(Collectors.toList()),
                         context);
+                //Save context and all variables backups
                 st.executions.add(
                         new ExecutedStatement(
                                 predicateExecution,
-                                //ToDo: ERROR! Arg can be list or functor containing variables which will not be backupped!
                                 predicateExecution.getArgs().stream()
-                                        .filter(v -> v instanceof Variable)
-                                        .map(v->managers.getBackupManager().backup((Variable)v))
+                                        .map(Value::innerFreeVariables)//Get lists of all variables in args (including ones in lists or functors)
+                                        .reduce(new ArrayList<>(), //Concatenating lists of variables
+                                                (v1, v2) -> {
+                                            v1.addAll(v2);
+                                            return v1;})
+                                        .stream()//Making backups of all variables
+                                        .map(v->managers.getBackupManager().backup(v))
                                         .collect(Collectors.toList())
                 ));
             }
@@ -73,64 +105,36 @@ public class StatementExecutorRule extends AbstractRule {
         return st.currentStatement > st.cutIndex;
     }
 
+    @Override
+    public Collection<ModelStateException> exceptions() {
+        Collection<ModelStateException> exceptions = super.exceptions();
+        for(Statement s : statements){
+            exceptions.addAll(s.exceptions());
+        }
+        return exceptions;
+    }
+
+    @Override
+    public ModelObject fix() {
+        super.fix();
+        statements = Collections.unmodifiableList(new ArrayList<>(statements));
+        statements.forEach(Statement::fix);
+        return this;
+    }
+
     private boolean isCutPredicate(Predicate predicate){
         return predicate.getName().equals("!") || predicate.getName().equals("cut");
     }
 
-    public static class Builder implements Rule.RuleBuilder<StatementExecutorRule>{
-        private final String name;
-        private List<Value> toUnifyList;
-        private StatementExecutorRule created;
-        private List<Statement.StatementBuilder> statements;
-        private boolean closed = false;
-
-        public Builder(String name) {
-            this.name = name;
-        }
-
-        @Override
-        @SuppressWarnings("Duplicates")
-        public void setPredicate(Predicate predicate) {
-            if(created==null) throw new IllegalStateException("Rule not created");
-            if(!predicate.getName().equals(name)) throw new IllegalArgumentException("Predicate functorName does not match rule functorName");
-            if(predicate.getArgTypes().size()!=toUnifyList.size()) throw new IllegalArgumentException("Predicate args list has different size");
-            for (int i = 0; i < predicate.getArgTypes().size(); i++) {
-                Type predicateArgType = predicate.getTypeStorage().get(predicate.getArgTypes().get(i));
-                Type ruleArgType = toUnifyList.get(i).getType();
-                if(!predicateArgType.equals(ruleArgType)){
-                    throw new WrongTypeException("Type of predicate and rule argument do not match.", predicateArgType, ruleArgType);
-                }
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder(super.toString());
+        if(!statements.isEmpty()){
+            sb.append(statements.get(0));
+            for (int i=1;i<statements.size();i++){
+                sb.append(", ").append(statements.get(i));
             }
-            created.predicate = predicate;
         }
-
-        @Override
-        public void addUnifyValue(Value val) {
-            if(toUnifyList ==null) toUnifyList = new ArrayList<>();
-            toUnifyList.add(val);
-        }
-
-        @Override
-        public List<Value> getUnifyArgs() {
-            return Collections.unmodifiableList(toUnifyList);
-        }
-
-        @Override
-        public StatementExecutorRule close() {
-            closed = true;
-            return create();
-        }
-
-        @Override
-        public StatementExecutorRule create() {
-            if(created!=null) return created;
-            if(toUnifyList==null) toUnifyList = Collections.emptyList();
-            return created = new StatementExecutorRule(toUnifyList);
-        }
-
-        @Override
-        public boolean isClosed() {
-            return closed;
-        }
+        return sb.append('.').toString();
     }
 }

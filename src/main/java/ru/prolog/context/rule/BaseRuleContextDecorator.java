@@ -2,10 +2,9 @@ package ru.prolog.context.rule;
 
 import ru.prolog.context.predicate.PredicateContext;
 import ru.prolog.context.program.ProgramContext;
-import ru.prolog.model.type.Type;
 import ru.prolog.model.rule.Rule;
 import ru.prolog.values.Value;
-import ru.prolog.values.variables.Variable;
+import ru.prolog.values.Variable;
 
 import java.util.Collection;
 import java.util.List;
@@ -28,8 +27,13 @@ public abstract class BaseRuleContextDecorator implements RuleContext {
     }
 
     @Override
-    public Variable getVariable(String name, Type type) {
-        return decorated.getVariable(name, type);
+    public Variable getVariable(String name) {
+        return decorated.getVariable(name);
+    }
+
+    @Override
+    public void addVariable(Variable variable) {
+        decorated.addVariable(variable);
     }
 
     @Override

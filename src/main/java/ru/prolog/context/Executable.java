@@ -2,7 +2,7 @@ package ru.prolog.context;
 
 public interface Executable {
     /**
-     * Executes predicate, rule or program.
+     * Executes predicate, getRule or program.
      */
     boolean execute();
 }

@@ -4,17 +4,12 @@ package ru.prolog.context.rule;
 import ru.prolog.context.predicate.PredicateContext;
 import ru.prolog.context.program.ProgramContext;
 import ru.prolog.context.rule.statements.ExecutedStatements;
-import ru.prolog.model.type.exceptions.WrongTypeException;
-import ru.prolog.model.type.Type;
 import ru.prolog.model.rule.Rule;
 import ru.prolog.values.Value;
-import ru.prolog.values.variables.Variable;
-import ru.prolog.values.variables.backup.Backup;
-import ru.prolog.values.variables.backup.RelatedBackup;
-import ru.prolog.values.variables.backup.ValueBackup;
+import ru.prolog.values.Variable;
+import ru.prolog.backup.Backup;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 public class BaseRuleContext implements RuleContext {
     private Rule rule;
@@ -45,22 +40,14 @@ public class BaseRuleContext implements RuleContext {
     }
 
     @Override
-    public Variable getVariable(String name, Type type) {
-        Variable variable;
-        if(variables == null) variables = new HashMap<>();
-        if(variables.containsKey(name)){
-            variable = variables.get(name);
-            if(variable.getType() != type)
-                throw new WrongTypeException(
-                        "Type of requested variable does not match type of stored variable",
-                        type, variable.getType());
-            return variable;
-        }
-        return null;
+    public Variable getVariable(String name) {
+        if(variables==null) return null;
+        return variables.get(name);
     }
 
     @Override
     public void addVariable(Variable variable) {
+        if(variables == null) variables = new HashMap<>();
         variables.put(variable.getName(), variable);
     }
 
@@ -93,12 +80,12 @@ public class BaseRuleContext implements RuleContext {
     }
 
     private void argBackups() {
-        backups = getArgs().stream()
-                .filter(value -> value instanceof Variable)
-                .map(value -> (Variable)value)
-                .map(ValueBackup::new)
-                .map(RelatedBackup::new)
-                .collect(Collectors.toList());
+        backups = new LinkedList<>();
+        for(Value arg : args){
+            for(Variable var : arg.innerFreeVariables()){
+                backups.add(programContext.program().getManagers().getBackupManager().backup(var));
+            }
+        }
     }
 
     public void rollback(){

@@ -3,6 +3,7 @@ package ru.prolog.context.predicate;
 import ru.prolog.context.rule.RuleContext;
 import ru.prolog.model.predicate.Predicate;
 import ru.prolog.context.program.ProgramContext;
+import ru.prolog.service.rule.RuleContextManager;
 import ru.prolog.values.Value;
 
 import java.util.List;
@@ -15,13 +16,18 @@ public abstract class BasePredicateContextDecorator implements PredicateContext 
     }
 
     @Override
-    public Predicate getPredicate() {
-        return decorated.getPredicate();
+    public Predicate predicate() {
+        return decorated.predicate();
     }
 
     @Override
     public List<Value> getArgs() {
         return decorated.getArgs();
+    }
+
+    @Override
+    public RuleContextManager getRuleManager() {
+        return decorated.getRuleManager();
     }
 
     @Override

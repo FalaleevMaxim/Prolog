@@ -1,107 +1,151 @@
 package ru.prolog.storage.database;
 
-import ru.prolog.context.rule.RuleContext;
-import ru.prolog.values.variables.backup.Backup;
-import ru.prolog.values.variables.backup.RelatedBackup;
-import ru.prolog.values.variables.backup.ValueBackup;
-import ru.prolog.model.predicate.Predicate;
+import ru.prolog.model.predicate.DatabasePredicate;
 import ru.prolog.model.rule.FactRule;
-import ru.prolog.storage.database.exceptions.AssertFreeVariableException;
+import ru.prolog.model.rule.Rule;
 import ru.prolog.storage.database.exceptions.PredicateNotInDatabaseException;
-import ru.prolog.values.Value;
-import ru.prolog.values.variables.Variable;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
+import java.util.*;
 
 public class DatabaseImpl implements Database {
-    private Map<Predicate, List<FactRule>> database = new HashMap<>();
+    private DatabaseModel model;
+    //dbName->predicate->rules
+    private Map<String, Map<DatabasePredicate,List<FactRule>>> databases = new HashMap<>();
 
-    @Override
-    public Collection<Predicate> databasePredicates() {
-        return database.keySet();
+    public DatabaseImpl(DatabaseModel model) {
+        this.model = model;
+        for(String dbName : model.databases()){
+            //Create databases
+            Map<DatabasePredicate,List<FactRule>> db = new HashMap<>();
+            databases.put(dbName, db);
+            for(DatabasePredicate predicate : model.predicates(dbName)){
+                //Create list of rules for each predicate
+                List<FactRule> rules = new ArrayList<>();
+                db.put(predicate, rules);
+                //Fill list with predicate's rules
+                for(Rule rule : predicate.getRules()){
+                    rules.add((FactRule) rule);
+                }
+            }
+        }
     }
 
     @Override
-    public boolean contains(Predicate predicate) {
-        return database.containsKey(predicate);
+    public Collection<DatabasePredicate> databasePredicates() {
+        List<DatabasePredicate> predicates = new ArrayList<>();
+        for(Map<DatabasePredicate,List<FactRule>> db : databases.values()){
+            predicates.addAll(db.keySet());
+        }
+        return predicates;
+    }
+
+    @Override
+    public Collection<DatabasePredicate> databasePredicates(String dbName) {
+        List<DatabasePredicate> predicates = new ArrayList<>();
+        for (Map<DatabasePredicate,List<FactRule>> db : databases.values()){
+            predicates.addAll(db.keySet());
+        }
+        return predicates;
+    }
+
+    @Override
+    public Collection<String> databaseNames() {
+        return databases.keySet();
+    }
+
+    @Override
+    public String databaseName(String predicateName) {
+        return model.databaseName(predicateName);
     }
 
     @Override
     public boolean contains(String predicateName) {
-        for(Predicate p : database.keySet()){
-            if(p.getName().equals(predicateName))
-                return true;
-        }
-        return false;
+        return model.contains(predicateName);
     }
 
     @Override
-    public List<FactRule> getRules(Predicate predicate) {
-        return database.get(predicate);
+    public boolean contains(String dbName, String predicateName) {
+        return model.contains(dbName, predicateName);
     }
 
     @Override
-    public Map<Predicate, List<FactRule>> allFacts() {
-        return database;
+    public DatabasePredicate get(String predicateName) {
+        String dbName = databaseName(predicateName);
+        if(dbName==null) return null;
+        return get(dbName, predicateName);
     }
 
     @Override
-    public void assertz(FactRule rule) {
-        Predicate predicate = rule.getPredicate();
-        if(!database.containsKey(predicate)) throw new PredicateNotInDatabaseException(predicate, this);
-        checkAssertFact(rule);
-        database.get(predicate).add(rule);
+    public DatabasePredicate get(String dbName, String predicateName) {
+        Map<DatabasePredicate,List<FactRule>> db = databases.get(dbName);
+        if(db==null) return null;
+        return db.keySet().stream().filter(p -> p.getName().equals(predicateName)).findFirst().orElse(null);
+    }
+
+    @Override
+    public List<FactRule> getRules(DatabasePredicate predicate) {
+        String dbName = databaseName(predicate.getName());
+        if(dbName==null) throw new PredicateNotInDatabaseException(predicate.getName(), this);
+        return databases.get(dbName).get(predicate);
+    }
+
+    @Override
+    public void assertz(FactRule fact) {
+        assert_(fact, false);
     }
 
     @Override
     public void asserta(FactRule fact) {
-        Predicate predicate = fact.getPredicate();
-        if(!database.containsKey(predicate)) throw new PredicateNotInDatabaseException(predicate, this);
-        checkAssertFact(fact);
-        database.get(predicate).add(0, fact);
+        assert_(fact, true);
+    }
+
+    private void assert_(FactRule fact, boolean a){
+        List<FactRule> rules = getRulesList(fact);
+        if(a) rules.add(0, fact);
+        else rules.add(fact);
     }
 
     @Override
-    public void retract(FactRule fact, RuleContext context) {
-        Predicate predicate = fact.getPredicate();
-        if(!database.containsKey(predicate)) throw new PredicateNotInDatabaseException(predicate, this);
-        for(FactRule dbFact : database.get(predicate)){
-            List<Backup> backups = fact.getUnifyArgs().stream()
-                    .filter(value -> value instanceof Variable)
-                    .map(value -> new RelatedBackup(new ValueBackup((Variable) value)))//ToDo: use BackupManager
-                    .collect(Collectors.toList());
-            fact.unifyArgs(dbFact.getUnifyArgs(), context);
+    public void retracta(FactRule fact) {
+        List<FactRule> rules = getRulesList(fact);
+        rules.remove(fact);
+    }
+
+    @Override
+    public void retractz(FactRule fact) {
+        List<FactRule> rules = getRulesList(fact);
+        int i;
+        for(i=rules.size()-1; i>0; i++){
+            if(rules.get(i).equals(fact))
+                break;
         }
+        if(i>0) rules.remove(i);
     }
 
     @Override
-    public void retractAll(FactRule fact) {
-        //ToDo: implement when doing retract ptedicate
+    public String save() {
+        return save(DEFAULT_DB_NAME);
     }
 
-
     @Override
-    public String toString() {
+    public String save(String dbName) {
+        Map<DatabasePredicate, List<FactRule>> db = databases.get(dbName);
+        if(db==null) throw new IllegalArgumentException("Database \""+dbName+"\" not exists");
+        if(db.isEmpty()) return "";
         StringBuilder sb = new StringBuilder();
-        for (List<FactRule> facts : database.values()){
-            for(FactRule rule : facts){
-                sb.append(rule).append('\n');
+        for(List<FactRule> ruleList : db.values()){
+            for (FactRule rule : ruleList){
+                sb.append(rule).append("\n");
             }
         }
         return sb.toString();
     }
 
-    private void checkAssertFact(FactRule fact){
-        for (Value val : fact.getUnifyArgs()){
-            if(val instanceof Variable){
-                Variable var = (Variable) val;
-                if(var.isFree())
-                    throw new AssertFreeVariableException(fact, (Variable) val);
-            }
-        }
+    private List<FactRule> getRulesList(FactRule fact) {
+        fact.fix();//Just in case if it is not fixed and has exceptions
+        DatabasePredicate predicate = (DatabasePredicate)fact.getPredicate();
+        String dbName = databaseName(predicate.getName());
+        if(dbName==null) throw new PredicateNotInDatabaseException(predicate.getName(), this);
+        return databases.get(dbName).get(predicate);
     }
 }

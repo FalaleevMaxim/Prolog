@@ -11,20 +11,11 @@ import java.util.List;
 
 public class Fail extends AbstractPredicate {
     public Fail() {
-        super("fail", Collections.emptyList());
+        super("fail");
     }
 
     @Override
     public int run(PredicateContext context, List<Value> args, int startWith) {
         return -1;
-    }
-
-    private static Predicate instance;
-    static Predicate instance(){
-        if(instance==null) instance = new Fail();
-        return instance;
-    }
-    public static Statement statement(){
-        return new Statement(instance(), Collections.emptyList());
     }
 }

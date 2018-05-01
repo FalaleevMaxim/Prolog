@@ -1,78 +1,124 @@
 package ru.prolog.model.rule;
 
-import ru.prolog.model.type.exceptions.WrongTypeException;
-import ru.prolog.model.ModelBuilder;
+import ru.prolog.model.exceptions.ModelStateException;
+import ru.prolog.model.exceptions.statement.MissingStatementArgException;
+import ru.prolog.model.exceptions.statement.RedundantStatementArgException;
+import ru.prolog.model.exceptions.statement.StatementStateException;
+import ru.prolog.model.exceptions.statement.WrongStatementArgTypeException;
 import ru.prolog.model.ModelObject;
 import ru.prolog.model.predicate.Predicate;
 import ru.prolog.model.type.Type;
-import ru.prolog.values.Value;
+import ru.prolog.std.Not;
+import ru.prolog.util.ToStringUtil;
+import ru.prolog.values.model.ValueModel;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 public class Statement implements ModelObject {
     private Predicate predicate;
-    private List<Value> args;
+    private String predicateName;
+    private List<ValueModel> args;
+    private boolean fixed = false;
 
-    public Statement(Predicate predicate, List<Value> args){
+    public Statement(String predicateName) {
+        this.predicateName = predicateName;
+        args = new ArrayList<>();
+    }
+
+    public Statement(Predicate predicate, List<ValueModel> args){
         this.predicate = predicate;
-        this.args = new ArrayList<>(args);
+        this.args = args;
     }
 
     public Predicate getPredicate() {
         return predicate;
     }
 
-    public List<Value> getArgs() {
+    public String getPredicateName() {
+        return predicateName;
+    }
+
+    public List<ValueModel> getArgs() {
         return Collections.unmodifiableList(args);
     }
 
-    public static class StatementBuilder implements ModelBuilder<Statement>{
-        private final String name;
-        private List<Value> args;
-        private Predicate predicate;
+    public void setPredicate(Predicate predicate) {
+        if(fixed) throw new IllegalStateException("State is fixed. You can not change it anymore.");
+        this.predicate = predicate;
+        this.predicateName = predicate.getName();
+    }
 
-        public StatementBuilder(String name){
-            this.name = name;
+    public void addArg(ValueModel arg){
+        if(fixed) throw new IllegalStateException("State is fixed. You can not change it anymore.");
+        args.add(arg);
+    }
+
+    @Override
+    @SuppressWarnings("Duplicates")
+    public Collection<ModelStateException> exceptions() {
+        Collection<ModelStateException> exceptions = new ArrayList<>();
+        if(predicate==null) {
+            exceptions.add(new StatementStateException(this, "Predicate of statement is null"));
+            return exceptions;
         }
-
-        public void addArg(Value arg){
-            if(predicate!=null) throw new IllegalStateException("Predicate already set. Can not modify args list anymore.");
-            if(args==null) args = new ArrayList<>();
-            args.add(arg);
-        }
-
-        public String getName() {
-            return name;
-        }
-
-        public List<Value> getArgs(){
-            if(args==null) return Collections.emptyList();
-            return Collections.unmodifiableList(args);
-        }
-
-        public void setPredicate(Predicate predicate) {
-            if(!predicate.getName().equals(name)) throw new IllegalArgumentException("Wrong predicate functorName. Expected: " + name);
-            if(args==null) args = Collections.emptyList();
-            if(predicate.getArgTypes().size()!=args.size())
-                throw new IllegalArgumentException("Arguments counts are different in predicate and in statement." +
-                        " In predicate: " + predicate.getArgTypes().size() +
-                        " In statement: " + args.size());
-            for (int i = 0; i < predicate.getArgTypes().size(); i++) {
-                Type predicateArgType = predicate.getTypeStorage().get(predicate.getArgTypes().get(i));
-                Type statementArgType = args.get(i).getType();
-                if(!predicateArgType.equals(statementArgType)){
-                    throw new WrongTypeException("Type of predicate and statement argument do not match.", predicateArgType, statementArgType);
+        boolean vararg = false; //Sets true after vararg type in predicate. Any arguments in statement can follow vararg.
+        for(int i = 0; i<predicate.getArgTypeNames().size() && i<args.size(); i++){
+            if(!vararg && i>=predicate.getArgTypeNames().size()){
+                exceptions.add(new RedundantStatementArgException(this, i));
+            }else if(i>=args.size()){
+                exceptions.add(new MissingStatementArgException(this, predicate, i));
+            }else {
+                Type predType = predicate.getTypeStorage().get(predicate.getArgTypeNames().get(i));
+                Type statType = args.get(i).getType();
+                if(predType.isVarArg())
+                    vararg = true;
+                if (!vararg && !predType.isAnyType() && statType.equals(predType)) {
+                    exceptions.add(new WrongStatementArgTypeException(predicate, this, i));
                 }
             }
-            this.predicate = predicate;
         }
+        return exceptions;
+    }
 
-        @Override
-        public Statement create() {
-            if(predicate==null) throw new IllegalStateException("Predicate not defined.");
-            return new Statement(predicate, args!=null?args:Collections.emptyList());
+    @Override
+    @SuppressWarnings("Duplicates")
+    public ModelObject fix() {
+        if(fixed) return this;
+        Collection<ModelStateException> exceptions = exceptions();
+        if(!exceptions.isEmpty()) throw exceptions.iterator().next();
+        fixed = true;
+        args = Collections.unmodifiableList(new ArrayList<>(args));
+        args.forEach(ValueModel::fix);
+        return this;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Statement)) return false;
+
+        Statement statement = (Statement) o;
+
+        if (!predicate.getName().equals(statement.predicate.getName())) return false;
+        return args.equals(statement.args);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = predicate.hashCode();
+        result = 31 * result + args.hashCode();
+        return result;
+    }
+
+    @Override
+    public String toString() {
+        if(Arrays.asList("=",">","<",">=","<=","<>").contains(predicate.getName())){
+            return args.get(0).toString() + " " + predicateName + " " + args.get(1);
         }
+        String s = ToStringUtil.funcToString(predicate.getName(), args);
+        if(predicate instanceof Not){
+            return "not("+s+")";
+        }
+        return s;
     }
 }

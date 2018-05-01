@@ -1,8 +1,10 @@
 package ru.prolog.context.predicate;
 
 import ru.prolog.context.rule.RuleContext;
+import ru.prolog.model.ModelObject;
 import ru.prolog.model.predicate.Predicate;
 import ru.prolog.context.program.ProgramContext;
+import ru.prolog.service.rule.RuleContextManager;
 import ru.prolog.values.Value;
 
 import java.util.Collections;
@@ -26,7 +28,7 @@ public class BasePredicateContext implements PredicateContext {
     }
 
     public BasePredicateContext(Predicate predicate, List<Value> args, ProgramContext program) {
-        if(predicate == null) throw new IllegalArgumentException("Can not create executable of null predicate");
+        if(predicate == null) throw new IllegalArgumentException("Can not create context of null predicate");
         this.programContext = program;
         this.predicate = predicate;
         if(args == null) args = Collections.emptyList();
@@ -34,13 +36,18 @@ public class BasePredicateContext implements PredicateContext {
     }
 
     @Override
-    public Predicate getPredicate() {
+    public Predicate predicate() {
         return predicate;
     }
 
     @Override
     public List<Value> getArgs() {
         return args;
+    }
+
+    @Override
+    public RuleContextManager getRuleManager() {
+        return programContext.program().getManagers().getRuleManager();
     }
 
     @Override

@@ -45,13 +45,14 @@ equality:left=eqVal operator='=' right=eqVal;
 eqVal:value
       |expr
       ;
-expr:left=expr operator=('*'|'/'|'div'|'mod') right=expr
+expr:negative
+    |left=expr operator=('*'|'/'|'div'|'mod') right=expr
     |left=expr operator=('+'|'-') right=expr
     |'(' expr ')'
+    |NAME '(' expr ')'
     |real
     |integer
     |VARNAME
-    |negative
     ;
 negative:'-' '(' expr ')'
         | '-' VARNAME
@@ -110,8 +111,11 @@ VARNAME:UPPER NAMECHAR*
        |'_'
        ;
 
-REAL:INT '.' INT;
-INTEGER:INT;
+REAL:INT '.' INT
+    |'$' HEX_INT '.' HEX_INT;
+INTEGER:INT
+       |'$' HEX_INT
+       ;
 STRING:'"' (ESC|~'"')* '"';
 
 LSQBR:'[';
@@ -125,11 +129,12 @@ LINE_COMMENT:'//' ~[\r\n]* -> channel(HIDDEN);
 WS:[ \t]->skip;
 NL:'\r'?'\n'->skip;
 
-fragment LOWER:'a'..'z';
-fragment UPPER:'A'..'Z';
+fragment LOWER:'a'..'z'|'а'..'я'|'ё';
+fragment UPPER:'A'..'Z'|'А'..'Я'|'Ё';
 fragment DIGIT:'0'..'9';
 fragment NAMECHAR: (LOWER|UPPER|DIGIT|'_');
 fragment INT:DIGIT+;
+fragment HEX_INT:HEX+;
 fragment HEX:DIGIT
             |'A'..'F'
             |'a'..'f'

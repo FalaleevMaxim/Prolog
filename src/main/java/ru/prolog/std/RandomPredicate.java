@@ -4,9 +4,9 @@ import ru.prolog.context.predicate.PredicateContext;
 import ru.prolog.exceprions.FreeVariableException;
 import ru.prolog.model.predicate.AbstractPredicate;
 import ru.prolog.storage.type.TypeStorage;
-import ru.prolog.values.SimpleValue;
+import ru.prolog.values.simple.SimpleValue;
 import ru.prolog.values.Value;
-import ru.prolog.values.variables.Variable;
+import ru.prolog.values.Variable;
 
 import java.util.Arrays;
 import java.util.List;

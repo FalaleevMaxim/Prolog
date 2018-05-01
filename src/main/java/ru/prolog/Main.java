@@ -1,12 +1,5 @@
 package ru.prolog;
 
-import ru.prolog.model.type.Type;
-import ru.prolog.values.PrologList;
-import ru.prolog.values.SimpleValue;
-import ru.prolog.values.Value;
-import ru.prolog.values.variables.SimpleVariable;
-import ru.prolog.values.variables.Variable;
-
 import java.io.IOException;
 
 public class Main {
@@ -19,7 +12,7 @@ public class Main {
         ParseTreeWalker walker = new ParseTreeWalker();
         walker.walk(new SyntaxListener(), parseTree);*/
 
-        Type integerType = Type.getType("integer");
+        /*Type integerType = Type.getType("integer");
         //X=1, write(X).
         {
             Variable x = new SimpleVariable(integerType, "X");
@@ -89,6 +82,6 @@ public class Main {
             if(!list.isEmpty())
                 System.out.print(',');
         }
-        System.out.println(']');
+        System.out.println(']');*/
     }
 }

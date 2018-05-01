@@ -2,11 +2,15 @@ package ru.prolog.std;
 
 import ru.prolog.context.predicate.PredicateContext;
 import ru.prolog.exceprions.FreeVariableException;
+import ru.prolog.model.ModelObject;
+import ru.prolog.model.exceptions.ModelStateException;
 import ru.prolog.model.predicate.Predicate;
+import ru.prolog.model.type.Type;
 import ru.prolog.storage.type.TypeStorage;
 import ru.prolog.values.Value;
-import ru.prolog.values.variables.Variable;
+import ru.prolog.values.Variable;
 
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -22,11 +26,16 @@ public class Not implements Predicate {
 
     @Override
     public String getName() {
-        return "not";
+        return inner.getName();
     }
 
     @Override
-    public List<String> getArgTypes() {
+    public List<String> getArgTypeNames() {
+        return inner.getArgTypeNames();
+    }
+
+    @Override
+    public List<Type> getArgTypes() {
         return inner.getArgTypes();
     }
 
@@ -39,7 +48,7 @@ public class Not implements Predicate {
     public int run(PredicateContext context, List<Value> args, int startWith) {
         //Does not work on backtracking
         if(startWith>0) return -1;
-        //Does not allow free variables as atgs of inner predicate
+        //Does not allow free variables as args of inner predicate
         for(Value arg : args){
             if (arg instanceof Variable && ((Variable)arg).isFree())
                 throw new FreeVariableException((Variable)arg);
@@ -51,5 +60,15 @@ public class Not implements Predicate {
     @Override
     public String toString() {
         return "not(" + inner + ")";
+    }
+
+    @Override
+    public Collection<ModelStateException> exceptions() {
+        return inner.exceptions();
+    }
+
+    @Override
+    public ModelObject fix() {
+        return inner.fix();
     }
 }

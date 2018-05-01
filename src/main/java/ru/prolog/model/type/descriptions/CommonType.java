@@ -13,6 +13,21 @@ public class CommonType {
 
     public enum Type{
         ANY,//one argument of any type
-        ANYCOUNT//unlimited count of arguments of any types
+        VARARG//one or more arguments of any types
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof CommonType)) return false;
+
+        CommonType that = (CommonType) o;
+
+        return type == that.type;
+    }
+
+    @Override
+    public int hashCode() {
+        return type.hashCode();
     }
 }

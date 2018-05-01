@@ -36,9 +36,4 @@ public abstract class AbstractValue implements Value{
         if(other.getType()!=type) throw new WrongTypeException("Wrong type of value to unify", type, other.getType());
         return true;
     }
-
-    @Override
-    public Value forContext(RuleContext context) {
-        return this;
-    }
 }

@@ -1,11 +1,18 @@
 package ru.prolog.model.rule;
 
+import ru.prolog.model.exceptions.ModelStateException;
+import ru.prolog.model.exceptions.rule.RuleStateException;
+import ru.prolog.model.exceptions.rule.VariableInFactException;
 import ru.prolog.model.type.exceptions.WrongTypeException;
 import ru.prolog.model.predicate.Predicate;
 import ru.prolog.model.type.Type;
 import ru.prolog.values.Value;
+import ru.prolog.values.Variable;
+import ru.prolog.values.model.ValueModel;
+import ru.prolog.values.model.VariableModel;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
@@ -15,65 +22,24 @@ import java.util.List;
  * This class is made to separate facts from rules with body because facts have different purposes and rules do not extend them. For example, only facts are allowed to be put in database.
  */
 public class FactRule extends AbstractRule {
-    public FactRule(Predicate predicate, List<Value> toUnificateList) {
+    public FactRule() {
+    }
+
+    public FactRule(Predicate predicate, List<ValueModel> toUnificateList) {
         super(predicate, toUnificateList);
     }
 
-    public static class Builder implements RuleBuilder<FactRule>{
-        private String name;
-        private List<Value> toUnifyList;
-        private FactRule created;
-        boolean closed = false;
-
-        public Builder(String name){
-            this.name = name;
-        }
-
-        @Override
-        public FactRule create() {
-            if(created!=null) return created;
-            if(toUnifyList ==null) toUnifyList = Collections.emptyList();
-            created = new FactRule(null, toUnifyList);
-            return created;
-        }
-
-        @Override
-        @SuppressWarnings("Duplicates")
-        public void setPredicate(Predicate predicate) {
-            if(closed) throw new IllegalStateException("Builder is closed");
-            if(!predicate.getName().equals(name)) throw new IllegalArgumentException("Predicate functorName does not match rule functorName");
-            if(predicate.getArgTypes().size()!=toUnifyList.size()) throw new IllegalArgumentException("Predicate args list has different size");
-            for (int i = 0; i < predicate.getArgTypes().size(); i++) {
-                Type predicateArgType = predicate.getTypeStorage().get(predicate.getArgTypes().get(i));
-                Type ruleArgType = toUnifyList.get(i).getType();
-                if(!predicateArgType.equals(ruleArgType)){
-                    throw new WrongTypeException("Type of predicate and rule argument do not match.", predicateArgType, ruleArgType);
-                }
+    @Override
+    public Collection<ModelStateException> exceptions() {
+        if(fixed) return Collections.emptyList();
+        Collection<ModelStateException> exceptions = super.exceptions();
+        if(predicate==null)
+            exceptions.add(new RuleStateException(this, "Predicate not set for fact rule"));
+        for(ValueModel arg : toUnifyList){
+            for(VariableModel var : arg.innerModelVariables()){
+                exceptions.add(new VariableInFactException(this, var));
             }
-            if(created==null) create();
-            created.predicate = predicate;
         }
-
-        @Override
-        public void addUnifyValue(Value val) {
-            if(toUnifyList ==null) toUnifyList = new ArrayList<>();
-            toUnifyList.add(val);
-        }
-
-        @Override
-        public List<Value> getUnifyArgs() {
-            return Collections.unmodifiableList(toUnifyList);
-        }
-
-        @Override
-        public FactRule close() {
-            closed = true;
-            return create();
-        }
-
-        @Override
-        public boolean isClosed() {
-            return closed;
-        }
+        return exceptions;
     }
 }

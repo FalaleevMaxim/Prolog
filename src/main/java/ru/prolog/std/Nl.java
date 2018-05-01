@@ -11,7 +11,7 @@ import java.util.List;
 
 public class Nl extends AbstractPredicate {
     public Nl() {
-        super("nl", Collections.emptyList());
+        super("nl");
     }
 
     @Override
@@ -19,14 +19,5 @@ public class Nl extends AbstractPredicate {
         if(startWith>0) return -1;
         System.out.println();
         return 0;
-    }
-
-    private static Predicate instance;
-    static Predicate instance(){
-        if(instance==null) instance = new Nl();
-        return instance;
-    }
-    public static Statement statement(){
-        return new Statement(instance(), Collections.emptyList());
     }
 }

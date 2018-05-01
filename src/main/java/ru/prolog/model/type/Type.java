@@ -2,75 +2,163 @@ package ru.prolog.model.type;
 
 import ru.prolog.context.rule.RuleContext;
 import ru.prolog.model.ModelObject;
+import ru.prolog.model.exceptions.ModelStateException;
 import ru.prolog.model.type.descriptions.CommonType;
-import ru.prolog.model.type.descriptions.FunctorType;
-import ru.prolog.model.type.descriptions.PrimitiveType;
-import ru.prolog.values.variables.ListVariable;
-import ru.prolog.values.variables.SimpleVariable;
-import ru.prolog.values.variables.Variable;
+import ru.prolog.model.type.descriptions.CompoundType;
+import ru.prolog.model.type.exceptions.NoValuesTypeException;
+import ru.prolog.values.Variable;
+import ru.prolog.values.functor.FunctorVariable;
+import ru.prolog.values.list.ListVariable;
+import ru.prolog.values.simple.SimpleVariable;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 public final class Type implements ModelObject {
-    private String name;
     private PrimitiveType primitiveType;
     private Type listType;
-    private FunctorType functorType;
+    private String listTypeName;
+    private CompoundType compoundType;
     private CommonType commonType;
+    private boolean fixed = false;
 
-    private Type(){}
     public Type(PrimitiveType primitive){
-        this.name = primitive.getName();
         this.primitiveType = primitive;
     }
 
-    public Type(String alias, PrimitiveType primitive){
-        this.name = alias;
-        this.primitiveType = primitive;
+    public Type(String listTypeName){
+        this.listTypeName = listTypeName;
     }
 
-    public Type(String name, Type listType){
-        this.name = name;
+    public Type(Type listType, String listTypeName){
         this.listType = listType;
+        this.listTypeName = listTypeName;
     }
 
-    public Type(String name, FunctorType functorType){
-        this.name = name;
-        this.functorType = functorType;
+    public Type(CompoundType compoundType){
+        this.compoundType = compoundType;
     }
 
-    public String getName() {
-        return name;
+    public Type(CommonType commonType){
+        this.commonType = commonType;
     }
 
     public boolean isList() {
-        return listType !=null;
+        return listTypeName !=null;
     }
 
     public Type getListType() {
         return listType;
     }
 
+    public String getListTypeName() {
+        return listTypeName;
+    }
+
+    public void setListType(Type listType) {
+        if(fixed) throw new IllegalStateException("Type is fixed. You can not change it anymore");
+        this.listType = listType;
+    }
+
     public boolean isPrimitive(){
         return primitiveType!=null;
+    }
+
+    public boolean isCommonType(){return commonType!=null;}
+
+    public boolean isAnyType(){
+        return isCommonType() && commonType.type== CommonType.Type.ANY;
+    }
+
+    public boolean isVarArg(){
+        return isCommonType() && commonType.type== CommonType.Type.VARARG;
     }
 
     public PrimitiveType getPrimitiveType() {
         return primitiveType;
     }
 
-    public boolean isFunctorType(){
-        return functorType!=null;
+    public boolean isCompoundType(){
+        return compoundType !=null;
     }
 
-    public FunctorType getFunctorType() {
-        return functorType;
+    public CompoundType getCompoundType() {
+        return compoundType;
     }
 
-    public boolean anyType(){
-        return !isList() && !isPrimitive() && !isFunctorType();
+    public CommonType getCommonType() {
+        return commonType;
+    }
+
+    public Variable createVariable(String name, RuleContext context){
+        if(isPrimitive())
+            return new SimpleVariable(this, name, context);
+        if(isList())
+            return new ListVariable(this, name, context);
+        if(isCompoundType())
+            return new FunctorVariable(this, name, context);
+        throw new NoValuesTypeException(this);
+    }
+
+    @Override
+    public Collection<ModelStateException> exceptions() {
+        Collection<ModelStateException> exceptions = new ArrayList<>();
+        if(isList() && listType==null)
+            exceptions.add(new ModelStateException(this, "List type not set"));
+        if(isCompoundType())
+            exceptions.addAll(compoundType.exceptions());
+        return exceptions;
+    }
+
+    @Override
+    public ModelObject fix() {
+        if(fixed) return this;
+        Collection<ModelStateException> exceptions = exceptions();
+        if(!exceptions.isEmpty()) throw exceptions.iterator().next();
+        fixed = true;
+        if(isCompoundType())
+            compoundType.fix();
+        return this;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Type)) return false;
+
+        Type type = (Type) o;
+
+        if (primitiveType != null ? !primitiveType.equals(type.primitiveType) : type.primitiveType != null)
+            return false;
+        if (listType != null ? !listType.equals(type.listType) : type.listType != null) return false;
+        if (compoundType != null ? !compoundType.equals(type.compoundType) : type.compoundType != null) return false;
+        return commonType != null ? commonType.equals(type.commonType) : type.commonType == null;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = primitiveType != null ? primitiveType.hashCode() : 0;
+        result = 31 * result + (listType != null ? listType.hashCode() : 0);
+        result = 31 * result + (compoundType != null ? compoundType.hashCode() : 0);
+        result = 31 * result + (commonType != null ? commonType.hashCode() : 0);
+        return result;
+    }
+
+    @Override
+    public String toString() {
+        if(isPrimitive())
+            return primitiveType.getName();
+        if(isList())
+            return listTypeName+"*";
+        if(isCompoundType())
+            return compoundType.toString();
+        if(isCommonType()){
+            if(commonType.type== CommonType.Type.ANY){
+                return "_";
+            }else{
+                return "...";
+            }
+        }
+        return "<Unknown>";
     }
 
     public static final Map<String, Type> primitives;
@@ -93,36 +181,77 @@ public final class Type implements ModelObject {
         primitive = new PrimitiveType("char", false, false, true, false);
         pool.put("char", new Type(primitive));
 
+        CommonType commonType = new CommonType(CommonType.Type.ANY);
+        pool.put("_", new Type(commonType));
+
+        commonType = new CommonType(CommonType.Type.VARARG);
+        pool.put("...", new Type(commonType));
+
         primitives = Collections.unmodifiableMap(pool);
     }
 
-    public static class TypeBuilder{
-        private Type newType = new Type();
-        private boolean created = false;
+    public static final class PrimitiveType {
+        private final String name;
 
-        public TypeBuilder setListType(Type listType){
-            checkTypeSet();
-            newType.listType = listType;
-            return this;
+        private boolean isInteger;
+        private boolean isReal;
+        private boolean isChar;
+        private boolean isString;
+
+        private PrimitiveType(String name, boolean isInteger, boolean isReal, boolean isChar, boolean isString){
+            this.name = name;
+            this.isInteger = isInteger;
+            this.isReal = isReal;
+            this.isChar = isChar;
+            this.isString = isString;
+
         }
 
-        public TypeBuilder setPrimitiveType(PrimitiveType primitive){
-            checkTypeSet();
-            newType.primitiveType = primitive;
-            return this;
+        public String getName() {
+            return name;
         }
 
-        public Type create(){
-            if(!newType.isPrimitive() && !newType.isList())
-                throw new IllegalStateException("Type must be primitive or list");
-            created = true;
-            return newType;
+        public boolean isNumber() {
+            return isInteger || isReal;
         }
 
-        private void checkTypeSet() {
-            if(created) throw new IllegalStateException("Can not modify type after it is created");
-            if(newType.isList()) throw new IllegalStateException("List type already set");
-            if(newType.isPrimitive()) throw new IllegalStateException("Type is already primitive.");
+        public boolean isInteger() {
+            return isInteger;
+        }
+
+        public boolean isReal() {
+            return isReal;
+        }
+
+        public boolean isChar() {
+            return isChar;
+        }
+        public boolean isString() {
+            return isString;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (!(o instanceof PrimitiveType)) return false;
+
+            PrimitiveType that = (PrimitiveType) o;
+
+            if (isInteger != that.isInteger) return false;
+            if (isReal != that.isReal) return false;
+            if (isChar != that.isChar) return false;
+            if (isString != that.isString) return false;
+            return name.equals(that.name);
+        }
+
+        @Override
+        public int hashCode() {
+            int result = name.hashCode();
+            result = 31 * result + (isInteger ? 1 : 0);
+            result = 31 * result + (isReal ? 1 : 0);
+            result = 31 * result + (isChar ? 1 : 0);
+            result = 31 * result + (isString ? 1 : 0);
+            return result;
         }
     }
 }

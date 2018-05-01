@@ -1,17 +1,26 @@
 package ru.prolog.service;
 
+import ru.prolog.model.ModelObject;
+import ru.prolog.model.exceptions.ModelStateException;
 import ru.prolog.service.option.Option;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
-public abstract class AbstractManager<T> {
-    private final List<Option<T>> options;
+public abstract class AbstractManager<T> implements Manager<T> {
+    private List<Option<T>> options;
+    private boolean fixed = false;
+
+    public AbstractManager() {
+    }
 
     public AbstractManager(List<Option<T>> options) {
         this.options = options;
     }
 
-    protected List<Option<T>> getOptions() {
+    public List<Option<T>> getOptions() {
         return options;
     }
 
@@ -20,5 +29,28 @@ public abstract class AbstractManager<T> {
             base = option.decorate(base);
         }
         return base;
+    }
+
+    @Override
+    public void addOption(Option<T> option) {
+        if(fixed) throw new IllegalStateException("State is fixed. You can not change it anymore.");
+        if(options==null) options = new ArrayList<>();
+        options.add(option);
+    }
+
+    @Override
+    public Collection<ModelStateException> exceptions() {
+        return Collections.emptyList();
+    }
+
+    @Override
+    public ModelObject fix() {
+        if(fixed) return this;
+        Collection<ModelStateException> exceptions = exceptions();
+        if(!exceptions.isEmpty()) throw exceptions.iterator().next();
+        fixed = true;
+        if(options==null) options = Collections.emptyList();
+        else options = Collections.unmodifiableList(new ArrayList<>(options));
+        return this;
     }
 }
