@@ -7,7 +7,7 @@ import ru.prolog.model.exceptions.ModelStateException;
 import ru.prolog.model.predicate.Predicate;
 import ru.prolog.context.rule.RuleContext;
 import ru.prolog.context.rule.statements.ExecutedStatement;
-import ru.prolog.service.Managers;
+import ru.prolog.managers.Managers;
 import ru.prolog.values.Value;
 import ru.prolog.values.model.ValueModel;
 
@@ -43,12 +43,14 @@ public class StatementExecutorRule extends AbstractRule {
         this.statements = new ArrayList<>(statements);
     }
 
-    void addStatement(Statement statement){
+    public void addStatement(Statement statement){
         if(fixed) throw new IllegalStateException("Rule state is fixed. You can not change it anymore.");
         statements.add(statement);
     }
 
-
+    public List<Statement> getStatements() {
+        return statements;
+    }
 
     @Override
     public boolean body(RuleContext context) {
@@ -60,7 +62,7 @@ public class StatementExecutorRule extends AbstractRule {
             if((st.currentStatement-st.cutIndex) == st.executions.size()){
                 ExecutedStatement executedStatement = st.executions.get(st.executions.size() - 1);
                 executedStatement.rollback();
-                predicateExecution = executedStatement.predicateContext;
+                predicateExecution = executedStatement.getPredicateContext();
             }else{
                 Statement statement = this.statements.get(st.currentStatement);
                 //if statement is cut, remove all executions and save cut index

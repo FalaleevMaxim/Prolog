@@ -5,7 +5,7 @@ import ru.prolog.context.RuntimeObject;
 import ru.prolog.context.rule.RuleContext;
 import ru.prolog.model.predicate.Predicate;
 import ru.prolog.context.program.ProgramContext;
-import ru.prolog.service.rule.RuleContextManager;
+import ru.prolog.managers.rule.RuleContextManager;
 import ru.prolog.values.Value;
 
 import java.util.List;

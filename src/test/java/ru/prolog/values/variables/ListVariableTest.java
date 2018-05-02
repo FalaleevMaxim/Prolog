@@ -6,7 +6,7 @@ import ru.prolog.values.simple.SimpleVariable;
 import ru.prolog.values.list.PrologList;
 import ru.prolog.values.list.ListValue;
 import ru.prolog.values.simple.SimpleValue;
-import ru.prolog.values.list.ListVariable;
+import ru.prolog.values.list.ListVariableImpl;
 
 import java.util.Arrays;
 
@@ -20,9 +20,9 @@ public class ListVariableTest {
     //X=[1,Y,3|T], T=[4], Y=2, write(X).
     public void unify() throws Exception {
         SimpleVariable y = new SimpleVariable(integerType, "Y", null);
-        ListVariable t = new ListVariable(intListType, "T", null);
+        ListVariableImpl t = new ListVariableImpl(intListType, "T", null);
         PrologList list = PrologList.asList(t, new SimpleValue(integerType, 1), y, new SimpleValue(integerType, 3) );
-        ListVariable x = new ListVariable(intListType, "X", null);
+        ListVariableImpl x = new ListVariableImpl(intListType, "X", null);
         x.unify(list);
         t.unify(new ListValue(intListType, new SimpleValue(integerType, 4)));
         y.unify(new SimpleValue(integerType, 2));

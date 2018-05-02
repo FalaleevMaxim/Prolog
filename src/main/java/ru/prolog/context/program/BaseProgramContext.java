@@ -1,24 +1,20 @@
 package ru.prolog.context.program;
 
 import ru.prolog.model.program.Program;
-import ru.prolog.service.Managers;
 import ru.prolog.storage.database.Database;
 import ru.prolog.storage.database.DatabaseImpl;
 
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
 public class BaseProgramContext implements ProgramContext {
     private final Program program;
     private final Database database;
-    private final Map<String, Database> namedDatabases;
     private Map<String, Object> contextData;
 
     public BaseProgramContext(Program program) {
         this.program = program;
         //ToDo: create new database objects as ones in program will be unmodifiable
-        this.namedDatabases = program.getNamedDatabases();
         this.database = new DatabaseImpl(program.getDatabase());
     }
 
@@ -46,6 +42,6 @@ public class BaseProgramContext implements ProgramContext {
 
     @Override
     public boolean execute() {
-        return program.goal();
+        return program.run(this);
     }
 }

@@ -3,11 +3,7 @@ package ru.prolog.context.program;
 import ru.prolog.context.Executable;
 import ru.prolog.context.RuntimeObject;
 import ru.prolog.model.program.Program;
-import ru.prolog.model.rule.Rule;
-import ru.prolog.service.Managers;
 import ru.prolog.storage.database.Database;
-
-import java.util.Map;
 
 public interface ProgramContext extends RuntimeObject, Executable {
     Program program();

@@ -2,7 +2,6 @@ package ru.prolog.model.exceptions.value.functor;
 
 import ru.prolog.model.type.Type;
 import ru.prolog.model.type.descriptions.Functor;
-import ru.prolog.model.type.descriptions.FunctorType;
 import ru.prolog.values.model.FunctorValueModel;
 import ru.prolog.values.model.ValueModel;
 
@@ -13,7 +12,7 @@ public class WrongFunctorSubObjectTypeException extends FunctorValueException {
     public WrongFunctorSubObjectTypeException(Functor functor, FunctorValueModel functorValue, int argNum) {
         this(functor, functorValue, argNum,
                 "Wrong subObject type. " +
-                        functorValue.getSubObjects().get(argNum) + " is not of type " + functor.getArgTypes().get(argNum));
+                        functorValue.getArgs().get(argNum) + " is not of type " + functor.getArgTypes().get(argNum));
     }
 
     public WrongFunctorSubObjectTypeException(Functor functor, FunctorValueModel functorValue, int argNum, String message) {
@@ -27,7 +26,7 @@ public class WrongFunctorSubObjectTypeException extends FunctorValueException {
     }
 
     public ValueModel getArg() {
-        return getFunctorValue().getSubObjects().get(argNum);
+        return getFunctorValue().getArgs().get(argNum);
     }
 
     public Type getExpectedType() {

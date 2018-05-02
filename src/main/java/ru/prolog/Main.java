@@ -1,9 +1,21 @@
 package ru.prolog;
 
-import java.io.IOException;
+import org.antlr.v4.runtime.BufferedTokenStream;
+import org.antlr.v4.runtime.CharStreams;
+import org.antlr.v4.runtime.tree.ParseTreeWalker;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
+@SuppressWarnings("Duplicates")
 public class Main {
     public static void main(String[] args) throws IOException {
+
         /*CharStream input = CharStreams.fromFileName("C:\\Users\\Admin\\IdeaProjects\\AntlrTest\\src\\main\\resources\\sampleCode.pl");
         PrologLexer lexer = new PrologLexer(input);
         TokenStream tokens = new BufferedTokenStream(lexer);

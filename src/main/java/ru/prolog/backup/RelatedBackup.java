@@ -1,6 +1,6 @@
 package ru.prolog.backup;
 
-import ru.prolog.service.backup.BackupManager;
+import ru.prolog.managers.backup.BackupManager;
 import ru.prolog.values.Variable;
 
 import java.util.HashSet;

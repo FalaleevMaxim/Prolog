@@ -7,6 +7,7 @@ import ru.prolog.model.exceptions.ModelStateException;
 import ru.prolog.model.predicate.Predicate;
 import ru.prolog.model.type.Type;
 import ru.prolog.storage.type.TypeStorage;
+import ru.prolog.values.AnonymousVariable;
 import ru.prolog.values.Value;
 import ru.prolog.values.Variable;
 
@@ -40,6 +41,11 @@ public class Not implements Predicate {
     }
 
     @Override
+    public int getArity() {
+        return inner.getArity();
+    }
+
+    @Override
     public TypeStorage getTypeStorage() {
         return inner.getTypeStorage();
     }
@@ -50,8 +56,11 @@ public class Not implements Predicate {
         if(startWith>0) return -1;
         //Does not allow free variables as args of inner predicate
         for(Value arg : args){
-            if (arg instanceof Variable && ((Variable)arg).isFree())
-                throw new FreeVariableException((Variable)arg);
+            for(Variable var : arg.innerFreeVariables()){
+                if(!(var instanceof AnonymousVariable)){
+                    throw new FreeVariableException("Free variables are not allowed in \"not\"", var);
+                }
+            }
         }
         //0 if predicate failed and -1 if not failed
         return inner.run(context, args, startWith)<0?0:-1;

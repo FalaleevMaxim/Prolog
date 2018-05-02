@@ -1,4 +1,4 @@
-package ru.prolog.service.option;
+package ru.prolog.managers.option;
 
 public interface Option<T> {
     /**

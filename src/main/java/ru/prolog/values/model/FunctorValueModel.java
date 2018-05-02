@@ -11,11 +11,10 @@ import ru.prolog.model.exceptions.value.functor.RedundantFunctorArgException;
 import ru.prolog.model.exceptions.value.functor.WrongFunctorSubObjectTypeException;
 import ru.prolog.model.type.Type;
 import ru.prolog.model.type.descriptions.Functor;
-import ru.prolog.model.type.descriptions.FunctorType;
 import ru.prolog.util.NameChecker;
 import ru.prolog.util.ToStringUtil;
 import ru.prolog.values.Value;
-import ru.prolog.values.functor.FunctorValue;
+import ru.prolog.values.functor.FunctorValueImpl;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -26,7 +25,7 @@ import java.util.stream.Collectors;
 public class FunctorValueModel implements ValueModel {
     private Type type;
     private String functorName;
-    private List<ValueModel> subObjects;
+    private List<ValueModel> args;
     private boolean fixed = false;
 
     public FunctorValueModel() {
@@ -45,10 +44,10 @@ public class FunctorValueModel implements ValueModel {
         this.functorName = functorName;
     }
 
-    public FunctorValueModel(Type type, String functorName, List<ValueModel> subObjects) {
+    public FunctorValueModel(Type type, String functorName, List<ValueModel> args) {
         this.type = type;
         this.functorName = functorName;
-        this.subObjects = subObjects;
+        this.args = args;
     }
 
     @Override
@@ -60,8 +59,8 @@ public class FunctorValueModel implements ValueModel {
         return functorName;
     }
 
-    public List<ValueModel> getSubObjects() {
-        return subObjects;
+    public List<ValueModel> getArgs() {
+        return args;
     }
 
     public void setType(Type type){
@@ -76,14 +75,14 @@ public class FunctorValueModel implements ValueModel {
 
     public void addSubObject(ValueModel obj){
         if(fixed) throw new IllegalStateException("State is fixed. You can not change it anymore.");
-        subObjects.add(obj);
+        args.add(obj);
     }
 
     @Override
     public Value forContext(RuleContext context) {
         if(!fixed) throw new IllegalStateException("State is not fixed. Call fix() method before using model object.");
-        return new FunctorValue(type, functorName,
-                subObjects.stream()
+        return new FunctorValueImpl(type, functorName,
+                args.stream()
                         .map(v -> v.forContext(context))
                         .collect(Collectors.toList()));
     }
@@ -91,8 +90,8 @@ public class FunctorValueModel implements ValueModel {
     @Override
     public List<VariableModel> innerModelVariables() {
         List<VariableModel> variables = new ArrayList<>();
-        for(ValueModel obj : subObjects){
-            variables.addAll(obj.innerModelVariables());
+        for(ValueModel arg : args){
+            variables.addAll(arg.innerModelVariables());
         }
         return variables;
     }
@@ -124,19 +123,19 @@ public class FunctorValueModel implements ValueModel {
         if(!exceptions.isEmpty())
             return exceptions;
 
-        for (ValueModel obj : subObjects){
-            exceptions.addAll(obj.exceptions());
+        for (ValueModel arg : args){
+            exceptions.addAll(arg.exceptions());
         }
         if(!exceptions.isEmpty())
             return exceptions;
 
-        for(int i=0; i<func.getArgTypes().size() && i<subObjects.size(); i++){
+        for(int i = 0; i<func.getArgTypes().size() && i< args.size(); i++){
             if(i>=func.getArgTypes().size()){
                 exceptions.add(new RedundantFunctorArgException(this, i));
-            }else if(i>=subObjects.size()){
+            }else if(i>= args.size()){
                 exceptions.add(new MissingFunctorArgException(this, func, i));
             }else {
-                Type type = subObjects.get(i).getType();
+                Type type = args.get(i).getType();
                 Type expected = func.getArgTypes().get(i);
                 if (type.equals(expected)) {
                     exceptions.add(new WrongFunctorSubObjectTypeException(func, this, i));
@@ -154,13 +153,13 @@ public class FunctorValueModel implements ValueModel {
             throw exceptions.iterator().next();
         }
         fixed = true;
-        subObjects.forEach(ValueModel::fix);
-        subObjects = Collections.unmodifiableList(new ArrayList<>(subObjects));
+        args.forEach(ValueModel::fix);
+        args = Collections.unmodifiableList(new ArrayList<>(args));
         return this;
     }
 
     @Override
     public String toString() {
-        return ToStringUtil.funcToString(functorName, subObjects);
+        return ToStringUtil.funcToString(functorName, args);
     }
 }

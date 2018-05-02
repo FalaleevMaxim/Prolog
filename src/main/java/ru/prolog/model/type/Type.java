@@ -7,8 +7,8 @@ import ru.prolog.model.type.descriptions.CommonType;
 import ru.prolog.model.type.descriptions.CompoundType;
 import ru.prolog.model.type.exceptions.NoValuesTypeException;
 import ru.prolog.values.Variable;
-import ru.prolog.values.functor.FunctorVariable;
-import ru.prolog.values.list.ListVariable;
+import ru.prolog.values.functor.FunctorVariableImpl;
+import ru.prolog.values.list.ListVariableImpl;
 import ru.prolog.values.simple.SimpleVariable;
 
 import java.util.*;
@@ -93,9 +93,9 @@ public final class Type implements ModelObject {
         if(isPrimitive())
             return new SimpleVariable(this, name, context);
         if(isList())
-            return new ListVariable(this, name, context);
+            return new ListVariableImpl(this, name, context);
         if(isCompoundType())
-            return new FunctorVariable(this, name, context);
+            return new FunctorVariableImpl(this, name, context);
         throw new NoValuesTypeException(this);
     }
 

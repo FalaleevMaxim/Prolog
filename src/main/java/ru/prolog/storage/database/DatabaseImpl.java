@@ -106,20 +106,9 @@ public class DatabaseImpl implements Database {
     }
 
     @Override
-    public void retracta(FactRule fact) {
+    public void retract(FactRule fact) {
         List<FactRule> rules = getRulesList(fact);
         rules.remove(fact);
-    }
-
-    @Override
-    public void retractz(FactRule fact) {
-        List<FactRule> rules = getRulesList(fact);
-        int i;
-        for(i=rules.size()-1; i>0; i++){
-            if(rules.get(i).equals(fact))
-                break;
-        }
-        if(i>0) rules.remove(i);
     }
 
     @Override

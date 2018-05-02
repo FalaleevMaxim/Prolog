@@ -17,6 +17,10 @@ public class DatabaseModelImpl implements DatabaseModel {
     private Map<String, String> dbNames = new HashMap<>();
     private boolean fixed = false;
 
+    public DatabaseModelImpl() {
+        addDatabase(DEFAULT_DB_NAME);
+    }
+
     @Override
     public Collection<String> databases() {
         return databases.keySet();
@@ -46,9 +50,14 @@ public class DatabaseModelImpl implements DatabaseModel {
 
     @Override
     public boolean contains(String dbName, String predicateName) {
+        if(!databases.containsKey(dbName)) addDatabase(dbName);
         Map<String, DatabasePredicate> db = databases.get(dbName);
-        if(db==null) throw new IllegalArgumentException("Database \""+dbName+"\" not exists");
         return db.containsKey(predicateName);
+    }
+
+    @Override
+    public void addDatabase(String name) {
+        databases.put(name, new HashMap<>());
     }
 
     @Override
@@ -77,5 +86,25 @@ public class DatabaseModelImpl implements DatabaseModel {
     public ModelObject fix() {
         fixed = true;
         return this;
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        Map<String,DatabasePredicate> defDb = databases.get(DEFAULT_DB_NAME);
+        if(!defDb.isEmpty()){
+            sb.append("database\n");
+            for(DatabasePredicate p : defDb.values()){
+                sb.append('\t').append(p).append('\n');
+            }
+        }
+        for(Map.Entry<String, Map<String,DatabasePredicate>> db : databases.entrySet()){
+            if(db.getKey().equals(DEFAULT_DB_NAME)) continue;
+            sb.append("database - ").append(db.getKey()).append('\n');
+            for(DatabasePredicate p : db.getValue().values()){
+                sb.append('\t').append(p).append('\n');
+            }
+        }
+        return sb.toString();
     }
 }

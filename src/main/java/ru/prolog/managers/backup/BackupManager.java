@@ -1,9 +1,7 @@
-package ru.prolog.service.backup;
+package ru.prolog.managers.backup;
 
 import ru.prolog.backup.Backup;
-import ru.prolog.model.ModelObject;
-import ru.prolog.service.Manager;
-import ru.prolog.service.Managers;
+import ru.prolog.managers.Manager;
 import ru.prolog.values.Variable;
 
 import java.util.List;

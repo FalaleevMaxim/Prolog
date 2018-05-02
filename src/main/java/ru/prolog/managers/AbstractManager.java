@@ -1,8 +1,8 @@
-package ru.prolog.service;
+package ru.prolog.managers;
 
 import ru.prolog.model.ModelObject;
 import ru.prolog.model.exceptions.ModelStateException;
-import ru.prolog.service.option.Option;
+import ru.prolog.managers.option.Option;
 
 import java.util.ArrayList;
 import java.util.Collection;

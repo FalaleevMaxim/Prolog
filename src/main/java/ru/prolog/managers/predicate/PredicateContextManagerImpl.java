@@ -1,12 +1,12 @@
-package ru.prolog.service.predicate;
+package ru.prolog.managers.predicate;
 
 import ru.prolog.context.predicate.BasePredicateContext;
 import ru.prolog.context.predicate.PredicateContext;
 import ru.prolog.context.program.ProgramContext;
 import ru.prolog.context.rule.RuleContext;
 import ru.prolog.model.predicate.Predicate;
-import ru.prolog.service.AbstractManager;
-import ru.prolog.service.option.Option;
+import ru.prolog.managers.AbstractManager;
+import ru.prolog.managers.option.Option;
 import ru.prolog.values.Value;
 
 import java.util.List;

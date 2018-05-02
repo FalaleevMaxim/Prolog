@@ -1,27 +1,6 @@
 package ru.prolog.model.predicate;
 
 import org.junit.Test;
-import ru.prolog.model.type.Type;
-import ru.prolog.context.predicate.PredicateContext;
-import ru.prolog.context.rule.BaseRuleContext;
-import ru.prolog.context.rule.RuleContext;
-import ru.prolog.model.rule.*;
-import ru.prolog.std.Cut;
-import ru.prolog.std.Fail;
-import ru.prolog.std.Nl;
-import ru.prolog.std.WritePredicate;
-import ru.prolog.values.*;
-import ru.prolog.values.list.ListValue;
-import ru.prolog.values.list.PrologList;
-import ru.prolog.values.AnonymousVariable;
-import ru.prolog.values.list.ListVariable;
-import ru.prolog.values.simple.SimpleValue;
-import ru.prolog.values.simple.SimpleVariable;
-import ru.prolog.values.Variable;
-
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
 
 import static org.junit.Assert.assertTrue;
 

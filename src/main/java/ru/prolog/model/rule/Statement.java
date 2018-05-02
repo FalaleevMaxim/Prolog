@@ -26,7 +26,7 @@ public class Statement implements ModelObject {
     }
 
     public Statement(Predicate predicate, List<ValueModel> args){
-        this.predicate = predicate;
+        setPredicate(predicate);
         this.args = args;
     }
 
@@ -112,11 +112,11 @@ public class Statement implements ModelObject {
 
     @Override
     public String toString() {
-        if(Arrays.asList("=",">","<",">=","<=","<>").contains(predicate.getName())){
+        if(Arrays.asList("=",">","<",">=","<=","<>").contains(predicateName)){
             return args.get(0).toString() + " " + predicateName + " " + args.get(1);
         }
-        String s = ToStringUtil.funcToString(predicate.getName(), args);
-        if(predicate instanceof Not){
+        String s = ToStringUtil.funcToString(predicateName, args);
+        if(predicate!=null && predicate instanceof Not){
             return "not("+s+")";
         }
         return s;

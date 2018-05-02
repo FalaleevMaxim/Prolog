@@ -14,6 +14,8 @@ public interface DatabaseModel extends ModelObject{
     boolean contains(String predicateName);
     boolean contains(String dbName, String predicateName);
 
+    void addDatabase(String name);
+
     /**
      * Add predicate to default database
      */

@@ -1,14 +1,11 @@
-package ru.prolog.service.backup;
+package ru.prolog.managers.backup;
 
-import ru.prolog.model.exceptions.ModelStateException;
-import ru.prolog.service.AbstractManager;
-import ru.prolog.service.option.Option;
+import ru.prolog.managers.AbstractManager;
+import ru.prolog.managers.option.Option;
 import ru.prolog.values.Variable;
 import ru.prolog.backup.Backup;
 import ru.prolog.backup.ValueBackup;
 
-import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 
 public class BackupManagerImpl extends AbstractManager<Backup> implements BackupManager{

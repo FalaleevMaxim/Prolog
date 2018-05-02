@@ -19,7 +19,7 @@ public abstract class AbstractPredicate implements Predicate {
     protected List<String> argTypes;
     protected TypeStorage typeStorage;
 
-    protected AbstractPredicate(String name){
+    public AbstractPredicate(String name){
         this.name = name;
         this.argTypes = new ArrayList<>();
     }
@@ -57,6 +57,12 @@ public abstract class AbstractPredicate implements Predicate {
                 .collect(Collectors.toList());
     }
 
+    @Override
+    public int getArity(){
+        if(getArgTypes().isEmpty()) return 0;
+        if(getArgTypes().get(getArgTypes().size()-1).isVarArg()) return Integer.MAX_VALUE;
+        return getArgTypes().size();
+    }
 
     /**
      * Checks that argument types exist in typeStorage

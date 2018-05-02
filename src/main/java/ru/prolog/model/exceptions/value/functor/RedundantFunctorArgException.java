@@ -10,7 +10,7 @@ public class RedundantFunctorArgException extends FunctorValueException {
         this(functorValue, argNum,
                 String.format("%dth argument %s is redundant. Functor %s requires %d arguments.",
                         argNum,
-                        functorValue.getSubObjects().get(argNum),
+                        functorValue.getArgs().get(argNum),
                         functorValue.getType().getCompoundType().getFunctor(functorValue.getFunctorName()),
                         functorValue.getType().getCompoundType().getFunctor(functorValue.getFunctorName()).getArgTypeNames().size()));
     }
@@ -21,7 +21,7 @@ public class RedundantFunctorArgException extends FunctorValueException {
     }
 
     public ValueModel getArg() {
-        return getFunctorValue().getSubObjects().get(argNum);
+        return getFunctorValue().getArgs().get(argNum);
     }
 
     public int getArgNum() {

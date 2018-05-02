@@ -19,8 +19,8 @@ public class TypeStorageImpl implements TypeStorage {
     private boolean fixed = false;
 
     public TypeStorageImpl() {
-        for (Type t : Type.primitives.values()){
-            addType(t.getPrimitiveType().getName(), t);
+        for (Map.Entry<String, Type> e : Type.primitives.entrySet()){
+            addType(e.getKey(), e.getValue());
         }
     }
 
@@ -107,5 +107,24 @@ public class TypeStorageImpl implements TypeStorage {
         }
         fixed = true;
         return this;
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder("domains\n");
+        for(Map.Entry<Type, List<String>> str : names.entrySet()){
+            Type t = str.getKey();
+            if(t.isCommonType()) continue;
+            boolean first=true;
+            for(String name : str.getValue()){
+                if(!(t.isPrimitive() && name.equals(t.getPrimitiveType().getName()))){
+                    if(!first) sb.append(", ");
+                    sb.append(name);
+                    if(first) first=false;
+                }
+                if(!first) sb.append(" = ").append(t).append("\n");
+            }
+        }
+        return sb.toString();
     }
 }

@@ -25,6 +25,12 @@ public interface Predicate extends ModelObject {
     List<Type> getArgTypes();
 
     /**
+     *
+     * @return Count of arguments predicate accepts. If last argument type is vararg, returns Integer.MAX_VALUE
+     */
+    int getArity();
+
+    /**
      * @return Type storage to search types from {@link #getArgTypeNames()} method. Can be null if predicate has no args. It is advised to take TypeStorage in your predicate constructor.
      */
     TypeStorage getTypeStorage();

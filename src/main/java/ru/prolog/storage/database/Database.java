@@ -81,12 +81,7 @@ public interface Database {
     /**
      * Removes first occurance of rule in list
      */
-    void retracta(FactRule fact);
-
-    /**
-     * Removes last occurance of rule in list
-     */
-    void retractz(FactRule fact);
+    void retract(FactRule fact);
 
     /**
      * @return all facts of default database as text (each fact on new line)
