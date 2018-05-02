@@ -19,7 +19,7 @@ public class BackupManagerImpl extends AbstractManager<Backup> implements Backup
     @Override
     public Backup backup(Variable variable) {
         //If variable has not changed after last backup? return last backup.
-        if(!variable.getLastBackup().variableChanged()){
+        if(variable.getLastBackup()!=null && !variable.getLastBackup().variableChanged()){
             return variable.getLastBackup();
         }
         Backup backup = new ValueBackup(variable);

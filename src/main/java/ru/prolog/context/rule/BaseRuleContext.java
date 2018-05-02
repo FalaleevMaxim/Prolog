@@ -83,7 +83,7 @@ public class BaseRuleContext implements RuleContext {
         backups = new LinkedList<>();
         for(Value arg : args){
             for(Variable var : arg.innerFreeVariables()){
-                backups.add(programContext.program().getManagers().getBackupManager().backup(var));
+                backups.add(programContext.program().managers().getBackupManager().backup(var));
             }
         }
     }

@@ -62,11 +62,13 @@ public abstract class AbstractRule implements Rule {
 
     @Override
     public final boolean run(List<Value> args, RuleContext context) {
+        if(!fixed) throw new IllegalStateException("Rule state is not fixed. Call fix() before using it.");
         return unifyArgs(args, context) && body(context);
     }
 
     @Override
     public boolean body(RuleContext context) {
+        if(!fixed) throw new IllegalStateException("Rule state is not fixed. Call fix() before using it.");
         return true;
     }
 
@@ -77,6 +79,7 @@ public abstract class AbstractRule implements Rule {
      */
     @Override
     public final boolean unifyArgs(List<Value> args, RuleContext context){
+        if(!fixed) throw new IllegalStateException("Rule state is not fixed. Call fix() before using it.");
         for(int i = 0; i < toUnifyList.size(); i++ ){
             ValueModel toUnify = toUnifyList.get(i);
             Value inContext = toUnify.forContext(context);
@@ -99,7 +102,7 @@ public abstract class AbstractRule implements Rule {
             }else {
                 Type ruleType = toUnifyList.get(i).getType();
                 Type predType = predicate.getTypeStorage().get(predicate.getArgTypeNames().get(i));
-                if (ruleType.equals(predType)) {
+                if (!ruleType.equals(predType)) {
                     exceptions.add(new WrongRuleArgTypeException(predicate, this, i));
                 }
             }

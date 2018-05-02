@@ -27,7 +27,7 @@ public class Statement implements ModelObject {
 
     public Statement(Predicate predicate, List<ValueModel> args){
         setPredicate(predicate);
-        this.args = args;
+        this.args = new ArrayList<>(args);
     }
 
     public Predicate getPredicate() {
@@ -72,7 +72,7 @@ public class Statement implements ModelObject {
                 Type statType = args.get(i).getType();
                 if(predType.isVarArg())
                     vararg = true;
-                if (!vararg && !predType.isAnyType() && statType.equals(predType)) {
+                if (!vararg && !predType.isAnyType() && !statType.equals(predType)) {
                     exceptions.add(new WrongStatementArgTypeException(predicate, this, i));
                 }
             }

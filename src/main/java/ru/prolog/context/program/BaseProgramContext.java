@@ -15,7 +15,7 @@ public class BaseProgramContext implements ProgramContext {
     public BaseProgramContext(Program program) {
         this.program = program;
         //ToDo: create new database objects as ones in program will be unmodifiable
-        this.database = new DatabaseImpl(program.getDatabase());
+        this.database = new DatabaseImpl(program.database());
     }
 
     @Override

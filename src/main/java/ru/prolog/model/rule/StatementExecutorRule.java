@@ -24,8 +24,14 @@ public class StatementExecutorRule extends AbstractRule {
         statements = new ArrayList<>();
     }
 
+    public StatementExecutorRule(Predicate predicate){
+        setPredicate(predicate);
+        this.statements = new ArrayList<>();
+    }
+
     public StatementExecutorRule(List<ValueModel> toUnify) {
         super(toUnify);
+        this.statements = new ArrayList<>();
     }
 
     public StatementExecutorRule(List<ValueModel> toUnifyList, List<Statement> statements) {
@@ -54,6 +60,7 @@ public class StatementExecutorRule extends AbstractRule {
 
     @Override
     public boolean body(RuleContext context) {
+        if(!fixed) throw new IllegalStateException("Rule state is not fixed. Call fix() before using it.");
         ExecutedStatements st = context.getStatements();
 
         while(st.currentStatement< this.statements.size() && st.currentStatement>st.cutIndex){
@@ -75,7 +82,7 @@ public class StatementExecutorRule extends AbstractRule {
                     continue;
                 }
                 //create new context from statement
-                Managers managers = context.programContext().program().getManagers();
+                Managers managers = context.programContext().program().managers();
                 predicateExecution = managers.getPredicateManager().context(statement.getPredicate(),
                         //copy statement args to getRule context
                         statement.getArgs().stream()
@@ -132,11 +139,12 @@ public class StatementExecutorRule extends AbstractRule {
     public String toString() {
         StringBuilder sb = new StringBuilder(super.toString());
         if(!statements.isEmpty()){
+            sb.append(":-");
             sb.append(statements.get(0));
             for (int i=1;i<statements.size();i++){
                 sb.append(", ").append(statements.get(i));
             }
         }
-        return sb.append('.').toString();
+        return sb.toString();
     }
 }

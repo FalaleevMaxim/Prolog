@@ -27,7 +27,7 @@ public class RetractPredicate extends AbstractPredicate{
         for(int i=startWith; i<rules.size(); i++){
             FactRule rule = rules.get(i);
             //Execute rule with arguments from functor
-            RuleContext ruleContext = context.programContext().program().getManagers().getRuleManager().context(rule, func.getArgs(), context);
+            RuleContext ruleContext = context.programContext().program().managers().getRuleManager().context(rule, func.getArgs(), context);
             if(ruleContext.execute()){
                 //If rule returned true, remove it from database
                 db.retract(rule);

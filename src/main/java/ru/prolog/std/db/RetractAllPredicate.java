@@ -38,7 +38,7 @@ public class RetractAllPredicate extends AbstractPredicate {
         List<FactRule> toRetract = new ArrayList<>();
         for(FactRule rule : rules){
             //Execute rule with arguments from functor
-            RuleContext ruleContext = context.programContext().program().getManagers().getRuleManager().context(rule, func.getArgs(), context);
+            RuleContext ruleContext = context.programContext().program().managers().getRuleManager().context(rule, func.getArgs(), context);
             if(ruleContext.execute()){
                 //If rule returned true, it should be removed from database.
                 //It will be removed after loop to avoid ConcurrentModificationException

@@ -12,11 +12,15 @@ import java.util.*;
 
 public class RuleExecutorPredicate extends AbstractPrologPredicate {
 
-    private RuleExecutorPredicate(String name){
+    public RuleExecutorPredicate(String name){
         super(name);
     }
 
-    private RuleExecutorPredicate(String name, List<String> argTypes, List<Rule> rules, TypeStorage types) {
+    public RuleExecutorPredicate(String name, List<String> argTypes, TypeStorage typeStorage) {
+        super(name, argTypes, typeStorage);
+    }
+
+    public RuleExecutorPredicate(String name, List<String> argTypes, List<Rule> rules, TypeStorage types) {
         super(name, argTypes, rules, types);
     }
 

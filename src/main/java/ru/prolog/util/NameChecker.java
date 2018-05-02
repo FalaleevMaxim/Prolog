@@ -24,7 +24,7 @@ public class NameChecker {
     }
 
     public static boolean canBeVariableName(String name){
-        return name!=null && !Pattern.matches("[A-ZА-ЯЁ][0-9a-zа-яё_]*", name);
+        return name!=null && Pattern.matches("[A-ZА-ЯЁ][0-9a-zа-яё_]*", name);
     }
 
     public static boolean canBeFunctorName(String name){

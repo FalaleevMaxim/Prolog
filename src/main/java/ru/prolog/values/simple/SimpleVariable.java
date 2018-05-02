@@ -69,7 +69,7 @@ public class SimpleVariable extends AbstractValue implements Variable {
     public ValueModel toModel() {
         if(isFree())
             return new VariableModel(getType(), getName());
-        return new SimpleValue(getType(), getValue());
+        return new SimpleValueModel(getType(), getValue());
     }
 
     @Override

@@ -96,8 +96,9 @@ public abstract class AbstractPrologPredicate extends AbstractPredicate implemen
         Collection<ModelStateException> exceptions = exceptions();
         //If no exceptions, just fix. Otherwise throw first of exceptions.
         if(exceptions.isEmpty()) {
-            rules = Collections.unmodifiableList(new ArrayList<>(rules));
             fixed = true;
+            rules = Collections.unmodifiableList(new ArrayList<>(rules));
+            rules.forEach(Rule::fix);
         } else {
             throw exceptions.iterator().next();
         }

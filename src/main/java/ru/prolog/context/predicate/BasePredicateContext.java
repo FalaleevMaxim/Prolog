@@ -46,7 +46,7 @@ public class BasePredicateContext implements PredicateContext {
 
     @Override
     public RuleContextManager getRuleManager() {
-        return programContext.program().getManagers().getRuleManager();
+        return programContext.program().managers().getRuleManager();
     }
 
     @Override

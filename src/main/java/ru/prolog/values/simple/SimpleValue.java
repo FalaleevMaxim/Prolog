@@ -18,7 +18,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
-public class SimpleValue extends AbstractValue implements ValueModel {
+public class SimpleValue extends AbstractValue{
     public SimpleValue(Type type, Object value){
         super(type, value);
     }
@@ -33,53 +33,13 @@ public class SimpleValue extends AbstractValue implements ValueModel {
     }
 
     @Override
-    public Value forContext(RuleContext context) {
-        return this;
-    }
-
-    @Override
-    public List<VariableModel> innerModelVariables() {
-        return Collections.emptyList();
-    }
-
-    @Override
     public List<Variable> innerFreeVariables() {
         return Collections.emptyList();
     }
 
     @Override
     public ValueModel toModel() {
-        return this;
-    }
-
-    @Override
-    public Collection<ModelStateException> exceptions() {
-        Collection<ModelStateException> exceptions = new ArrayList<>();
-        if(value==null)
-            exceptions.add(new NullValueException(this));
-        if(!getType().isPrimitive()){
-            exceptions.add(new TypeNotFitValueClassException(this, "Type of SimpleValue must be primitive"));
-        }else{
-            Type.PrimitiveType primitive = getType().getPrimitiveType();
-            if(primitive.isReal() && !(getValue() instanceof Double) && !(getValue() instanceof Float))
-                exceptions.add(new TypeNotFitValueObjectException(this, "Value of type 'real' contains niether Double nor Float"));
-            if(primitive.isInteger() && !(getValue() instanceof Integer))
-                exceptions.add(new TypeNotFitValueObjectException(this, "Value of type 'integer' contains not Integer object"));
-            if(primitive.isString() && !(getValue() instanceof String))
-                exceptions.add(new TypeNotFitValueObjectException(this, "Value of string type contains not String object"));
-            if(primitive.isChar() && !(getValue() instanceof Character))
-                exceptions.add(new TypeNotFitValueObjectException(this, "Value of char type contains not Character object"));
-        }
-        return exceptions;
-    }
-
-    @Override
-    public ModelObject fix() {
-        Collection<ModelStateException> exceptions = exceptions();
-        if(!exceptions.isEmpty()){
-            throw exceptions.iterator().next();
-        }
-        return this;
+        return new SimpleValueModel();
     }
 
     @Override

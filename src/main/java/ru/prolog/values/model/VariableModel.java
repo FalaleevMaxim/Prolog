@@ -79,7 +79,9 @@ public class VariableModel implements ValueModel{
             return new AnonymousVariable(type);
         Variable inContext = context.getVariable(name);
         if(inContext==null){
-            return type.createVariable(name, context);
+            inContext = type.createVariable(name, context);
+            context.addVariable(inContext);
+            return inContext;
         }
         if(inContext.getType() != type)
             throw new WrongTypeException(

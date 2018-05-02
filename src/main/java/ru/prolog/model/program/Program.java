@@ -49,28 +49,28 @@ public class Program implements ModelObject{
         return createContext().execute();
     }
 
-    public TypeStorage getTypeStorage() {
+    public TypeStorage domains() {
         return typeStorage;
     }
 
-    public PredicateStorage getPredicateStorage() {
+    public PredicateStorage predicates() {
         return predicateStorage;
     }
 
-    public GoalPredicate getGoal() {
+    public GoalPredicate getGoalPredicate() {
         return goal;
     }
 
-    public StatementExecutorRule getGoalRule(){
+    public StatementExecutorRule goal(){
         if(!(goal instanceof InnerGoalPredicate)) return null;
         return ((InnerGoalPredicate)goal).getGoalRule();
     }
 
-    public DatabaseModel getDatabase() {
+    public DatabaseModel database() {
         return database;
     }
 
-    public Managers getManagers() {
+    public Managers managers() {
         return managers;
     }
 
@@ -101,7 +101,7 @@ public class Program implements ModelObject{
         typeStorage.fix();
         database.fix();
         predicateStorage.fix();
-        if(getGoalRule().getStatements().isEmpty()){
+        if(goal().getStatements().isEmpty()){
             goal = new InteractiveGoalPredicate();
         }else{
             goal.fix();
