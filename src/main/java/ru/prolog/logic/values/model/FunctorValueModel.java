@@ -60,7 +60,7 @@ public class FunctorValueModel implements ValueModel {
     }
 
     public List<ValueModel> getArgs() {
-        return args;
+        return args!=null?args:Collections.emptyList();
     }
 
     public void setType(Type type){
@@ -75,6 +75,7 @@ public class FunctorValueModel implements ValueModel {
 
     public void addSubObject(ValueModel obj){
         if(fixed) throw new IllegalStateException("State is fixed. You can not change it anymore.");
+        if(args==null) args = new ArrayList<>();
         args.add(obj);
     }
 

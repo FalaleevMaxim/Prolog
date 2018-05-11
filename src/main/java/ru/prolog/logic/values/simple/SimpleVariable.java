@@ -53,10 +53,8 @@ public class SimpleVariable extends AbstractValue implements Variable {
                     return other.unify(this);
                 } else {
                     Variable variable = (Variable) other;
-                    if(variable.getRuleContext()==this.getRuleContext()){
-                        throw new FreeVariableException("Attempting to unify two free variables", variable);
-                    }
                     addRelated(variable);
+                    variable.addRelated(this);
                     return true;
                 }
             }
@@ -78,7 +76,9 @@ public class SimpleVariable extends AbstractValue implements Variable {
 
     @Override
     public void applyValue(Value value) {
+        if(!this.isFree()) return;
         this.value = value.getValue();
+        if(related!=null) related.forEach(var->var.applyValue(value));
     }
 
     @Override
@@ -89,11 +89,9 @@ public class SimpleVariable extends AbstractValue implements Variable {
     @Override
     public void addRelated(Variable variable) {
         if (related == null) related = new HashSet<>();
-        if (related.contains(variable)) return;
+        if(isImplicitlyRelated(variable)) return;
         related.add(variable);
-        /*if (!variable.isRelated(this)) {
-            variable.addRelated(this);
-        }*/
+        variable.addRelated(this);
     }
 
     @Override
@@ -120,17 +118,36 @@ public class SimpleVariable extends AbstractValue implements Variable {
     }
 
     @Override
-    public String toString() {
-        if(isFree()) return name;
-        return value.toString();
-    }
-
-    @Override
     public Backup getLastBackup() {
         return lastBackup;
     }
 
-    public void setLastBackup(Backup backup) {
-        this.lastBackup = backup;
+    @Override
+    public void setLastBackup(Backup lastBackup) {
+        this.lastBackup = lastBackup;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof SimpleVariable)) return false;
+
+        SimpleVariable that = (SimpleVariable) o;
+
+        if (!ruleContext.equals(that.ruleContext)) return false;
+        return name.equals(that.name);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = ruleContext.hashCode();
+        result = 31 * result + name.hashCode();
+        return result;
+    }
+
+    @Override
+    public String toString() {
+        if(isFree()) return name;
+        return value.toString();
     }
 }

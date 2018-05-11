@@ -16,11 +16,6 @@ public abstract class AbstractBackupDecorator implements Backup{
     }
 
     @Override
-    public boolean laterThan(Backup other) {
-        return decorated.laterThan(other);
-    }
-
-    @Override
     public boolean wasFree() {
         return decorated.wasFree();
     }

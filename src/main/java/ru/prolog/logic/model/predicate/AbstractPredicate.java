@@ -26,7 +26,7 @@ public abstract class AbstractPredicate implements Predicate {
 
     public AbstractPredicate(String name, List<String> argTypes, TypeStorage typeStorage) {
         this.name = name;
-        this.argTypes = Collections.unmodifiableList(new ArrayList<>(argTypes));
+        this.argTypes = new ArrayList<>(argTypes);
         this.typeStorage = typeStorage;
     }
 
@@ -52,6 +52,8 @@ public abstract class AbstractPredicate implements Predicate {
                 return Collections.emptyList();
             else return null;
         }
+        if(getArgTypeNames().isEmpty())
+            return Collections.emptyList();
         return getArgTypeNames().stream()
                 .map(s -> getTypeStorage().get(s))
                 .collect(Collectors.toList());

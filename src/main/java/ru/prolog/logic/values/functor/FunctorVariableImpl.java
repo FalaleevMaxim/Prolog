@@ -27,9 +27,6 @@ public class FunctorVariableImpl extends FunctorValueImpl implements FunctorVari
         if(isFree()){
             if(other instanceof Variable && ((Variable)other).isFree()){
                 Variable var = (Variable) other;
-                if(var.getRuleContext()==this.getRuleContext()){
-                    throw new FreeVariableException("Attempting to unify two free variables", var);
-                }
                 addRelated(var);
                 var.addRelated(this);
                 return true;
@@ -65,17 +62,7 @@ public class FunctorVariableImpl extends FunctorValueImpl implements FunctorVari
 
     @Override
     public boolean isFree() {
-        return name==null;
-    }
-
-    @Override
-    public Backup getLastBackup() {
-        return lastBackup;
-    }
-
-    @Override
-    public void setLastBackup(Backup backup) {
-        lastBackup = backup;
+        return functorName==null;
     }
 
     @Override
@@ -91,7 +78,9 @@ public class FunctorVariableImpl extends FunctorValueImpl implements FunctorVari
     @Override
     public void addRelated(Variable variable) {
         if(related==null) related = new HashSet<>();
+        if(isImplicitlyRelated(variable)) return;
         related.add(variable);
+        variable.addRelated(this);
     }
 
     @Override
@@ -101,15 +90,27 @@ public class FunctorVariableImpl extends FunctorValueImpl implements FunctorVari
 
     @Override
     public void applyValue(Value value) {
+        if(!isFree()) return;
         FunctorValue funcVal = (FunctorValue)value;
         functorName = funcVal.getFunctorName();
         args = funcVal.getValue();
+        if(related!=null) related.forEach(var->var.applyValue(value));
     }
 
     @Override
     public void setFree() {
         functorName = null;
         args = null;
+    }
+
+    @Override
+    public Backup getLastBackup() {
+        return lastBackup;
+    }
+
+    @Override
+    public void setLastBackup(Backup lastBackup) {
+        this.lastBackup = lastBackup;
     }
 
     @Override

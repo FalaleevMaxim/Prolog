@@ -28,9 +28,10 @@ public class FunctorType implements Functor{
         argTypes = new ArrayList<>();
     }
 
-    public FunctorType(String name, List<String> argTypes) {
+    public FunctorType(String name, List<String> argTypes, TypeStorage typeStorage) {
         this.name = name;
         this.argTypes = argTypes;
+        this.typeStorage = typeStorage;
     }
 
     @Override
@@ -63,6 +64,8 @@ public class FunctorType implements Functor{
 
     @Override
     public List<Type> getArgTypes() {
+        if(getArgTypeNames().isEmpty())
+            return Collections.emptyList();
         return getArgTypeNames().stream()
                 .map(s -> getTypeStorage().get(s))
                 .collect(Collectors.toList());

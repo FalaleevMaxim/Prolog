@@ -1,7 +1,7 @@
 package ru.prolog.logic.values;
 
 import ru.prolog.logic.backup.Backup;
-import ru.prolog.logic.backup.ValueBackup;
+import ru.prolog.logic.backup.BackupImpl;
 import ru.prolog.logic.context.rule.RuleContext;
 import ru.prolog.logic.model.type.Type;
 import ru.prolog.logic.values.model.ValueModel;
@@ -64,12 +64,8 @@ public class AnonymousVariable implements Variable {
     }
 
     @Override
-    public void dismiss() {
-    }
-
-    @Override
     public Backup getLastBackup() {
-        return new ValueBackup(this);
+        return null;
     }
 
     @Override

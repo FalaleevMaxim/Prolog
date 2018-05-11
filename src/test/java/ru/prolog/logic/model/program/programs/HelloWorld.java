@@ -26,8 +26,6 @@ public class HelloWorld implements TestProgram {
         Statement writeStat = new Statement(writePred, Collections.singletonList(helloStr));
         //Добавление выражения в цель программы
         program.goal().addStatement(writeStat);
-        //Закрепить состояние программы (проверяет ошибки и делает всю модель неизменяемой если ошибок нет)
-        program.fix();
     }
 
     @Override

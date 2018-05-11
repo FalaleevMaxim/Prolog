@@ -27,7 +27,7 @@ import java.util.List;
  conc([],L,L).
  conc([H|L1],L2,[H|R]):-conc(L1,L2,R).
  goal
- conc(L1,L2,[1,2,3,4]),write(L1,L2),nl,fail.
+ conc(L1,L2,[1,2,3,4,5]),write(L1,L2),nl,fail.
  */
 public class Conc3 implements TestProgram {
     private Program program = new Program();
@@ -70,7 +70,8 @@ public class Conc3 implements TestProgram {
                         new SimpleValueModel(integer, 1),
                         new SimpleValueModel(integer, 2),
                         new SimpleValueModel(integer, 3),
-                        new SimpleValueModel(integer, 4)))));
+                        new SimpleValueModel(integer, 4),
+                        new SimpleValueModel(integer, 5)))));
         program.goal().addStatement(new Statement(
                 program.predicates().getVarArgPredicate("write"),
                 Arrays.asList(

@@ -56,8 +56,6 @@ public class HelloPredicate implements TestProgram {
         Statement helloStat = new Statement(helloPred, Collections.singletonList(prologStr));
         //Добавление выражения в цель.
         program.goal().addStatement(helloStat);
-
-        program.fix();
     }
 
     @Override

@@ -17,15 +17,11 @@ import java.util.Collections;
 
 /**
  * domains
- *  человек = чел(имя, фамилия)
  *  имя = string
- *  фамилия = string
  * predicates
- *  однофамилец(человек, человек)
  *  родитель(имя, имя)
  *  предок(имя, имя)
  * clauses
- *  однофамилец(чел(_,F),чел(_,F)).
  *  предок(X,Y):-родитель(X,Y).
  *  предок(X,Y):-родитель(X,Z), предок(Z,Y).
  *  родитель("Юрий", "Дмитрий").
@@ -35,31 +31,24 @@ import java.util.Collections;
  *  родитель("Алексей", "Борис").
  * goal
  *  предок("Александр", X), write(X),nl,fail.
-
+ *  предок(X, "Борис"), write(X),nl,fail.
  */
 public class Ancestor implements TestProgram{
     private Program program = new Program();
 
-    public Ancestor() {
+    public Ancestor(boolean valueFirst) {
         domains();
         predicates();
         clauses();
-        goal();
+        goal(valueFirst);
     }
 
     /**
      * domains
-     *  человек = чел(имя, фамилия)
      *  имя = string
-     *  фамилия = string
      */
     private void domains(){
-        CompoundType humanTypeDef = new CompoundType();
-        FunctorType humanFunc = new FunctorType("чел", Arrays.asList("имя", "фамилия"));
-        humanTypeDef.addFunctor(humanFunc);
-        program.domains().addType("человек", new Type(humanTypeDef));
         program.domains().addType("имя", program.domains().get("string"));
-        program.domains().addType("фамилия", program.domains().get("string"));
     }
 
     /**
@@ -69,7 +58,6 @@ public class Ancestor implements TestProgram{
      *  предок(имя, имя)
      */
     private void predicates(){
-        program.predicates().add(new RuleExecutorPredicate("однофамилец", Arrays.asList("человек", "человек"), program.domains()));
         program.predicates().add(new RuleExecutorPredicate("родитель", Arrays.asList("имя", "имя"), program.domains()));
         program.predicates().add(new RuleExecutorPredicate("предок", Arrays.asList("имя", "имя"), program.domains()));
     }
@@ -85,24 +73,8 @@ public class Ancestor implements TestProgram{
      *  родитель("Алексей", "Кирилл")).
      */
     private void clauses(){
-        namesake_rule();
         parent_rule();
         ancestor_rule();
-    }
-
-    /**
-     *  однофамилец(чел(_,F),чел(_,F)).
-     */
-    private void namesake_rule(){
-        StatementExecutorRule namesakeRule = new StatementExecutorRule();
-        VariableModel anonVar = new VariableModel(program.domains().get("имя"), "_");
-        VariableModel var_F = new VariableModel(program.domains().get("фамилия"), "Ф");
-        VariableModel var_F2 = new VariableModel(program.domains().get("фамилия"), "Ф");
-        FunctorValueModel human1 = new FunctorValueModel(program.domains().get("человек"), "чел", Arrays.asList(anonVar, var_F));
-        FunctorValueModel human2 = new FunctorValueModel(program.domains().get("человек"), "чел", Arrays.asList(anonVar, var_F2));
-        namesakeRule.addUnifyArg(human1);
-        namesakeRule.addUnifyArg(human2);
-        ((RuleExecutorPredicate)program.predicates().get("однофамилец",2)).addRule(namesakeRule);
     }
 
     /**
@@ -177,15 +149,19 @@ public class Ancestor implements TestProgram{
      * goal
      *  предок("Александр", X), write(X),nl,fail.
      */
-    private void goal(){
+    private void goal(boolean setFirst){
         Type name = program.domains().get("имя");
-        //предок("Александр", X)
+        //предок("Александр", X) или предок(X, "Борис")
         program.goal().addStatement(
                 new Statement(
                         program.predicates().get("предок", 2),
-                        Arrays.asList(
-                                new SimpleValueModel(name, "Александр"),
-                                new VariableModel(name, "X"))));
+                        setFirst?
+                                Arrays.asList(
+                                        new SimpleValueModel(name, "Александр"),
+                                        new VariableModel(name, "X")):
+                                Arrays.asList(
+                                        new VariableModel(name, "X"),
+                                        new SimpleValueModel(name, "Борис"))));
         //write(X)
         program.goal().addStatement(
                 new Statement(

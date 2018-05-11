@@ -19,8 +19,18 @@ public class ProgramTest {
     }
 
     @Test
-    public void ancestor(){
-        runTest(new Ancestor());
+    public void ancestor1(){
+        runTest(new Ancestor(true));
+    }
+
+    @Test
+    public void ancestor2(){
+        runTest(new Ancestor(false));
+    }
+
+    @Test
+    public void namesake1(){
+        runTest(new Namesake(0));
     }
 
     @Test
@@ -43,7 +53,8 @@ public class ProgramTest {
         System.out.println("-------Program text-------");
         System.out.println(program);
         System.out.println("\n-------Run program-------");
-        program.managers().getRuleManager().addOption(DebuggerRuleContextDecorator::new);
+        //Uncomment this to enable debug
+        //program.managers().getRuleManager().addOption(DebuggerRuleContextDecorator::new);
         program.fix().run();
     }
 }

@@ -71,7 +71,7 @@ public class BaseRuleContext implements RuleContext {
     public boolean execute() {
         argBackups();
         if(rule.run(args, this)){
-            getVariables().forEach(Variable::dismiss);
+            //getVariables().forEach(Variable::dismiss);
             //rule.unifyArgs(args, this);
             return true;
         }
@@ -101,9 +101,10 @@ public class BaseRuleContext implements RuleContext {
             return false;
         }
         getStatements().currentStatement--;
-        //rollback();//ToDo: find out if this makes sense
-        if(rule.body( this)){
-            getVariables().forEach(Variable::dismiss);
+        //rollback();
+        getStatements().executions.get(getStatements().executions.size()-1).rollback();
+        if(rule.run(args, this)){
+            //getVariables().forEach(Variable::dismiss);
             //rule.unifyArgs(args, this);
             return true;
         }else{

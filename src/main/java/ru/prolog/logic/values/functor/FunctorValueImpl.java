@@ -9,6 +9,7 @@ import ru.prolog.logic.values.model.ValueModel;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class FunctorValueImpl implements FunctorValue {
     protected Type type;
@@ -63,7 +64,9 @@ public class FunctorValueImpl implements FunctorValue {
 
     @Override
     public ValueModel toModel() {
-        FunctorValueModel model = new FunctorValueModel(type, functorName);
+        FunctorValueModel model = new FunctorValueModel(type, functorName, args.stream()
+                .map(Value::toModel)
+                .collect(Collectors.toList()));
         for(Value arg : args){
             model.addSubObject(arg.toModel());
         }

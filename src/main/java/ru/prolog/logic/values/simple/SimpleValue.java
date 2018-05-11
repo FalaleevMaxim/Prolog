@@ -30,7 +30,7 @@ public class SimpleValue extends AbstractValue{
 
     @Override
     public ValueModel toModel() {
-        return new SimpleValueModel();
+        return new SimpleValueModel(type, value);
     }
 
     @Override

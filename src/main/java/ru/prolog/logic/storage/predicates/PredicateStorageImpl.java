@@ -11,6 +11,7 @@ import ru.prolog.logic.model.rule.Statement;
 import ru.prolog.logic.model.rule.StatementExecutorRule;
 import ru.prolog.logic.model.type.Type;
 import ru.prolog.logic.std.*;
+import ru.prolog.logic.std.db.*;
 import ru.prolog.logic.storage.predicates.exceptions.SamePredicateException;
 import ru.prolog.logic.storage.type.TypeStorage;
 import ru.prolog.logic.values.model.ValueModel;
@@ -150,6 +151,12 @@ public class PredicateStorageImpl implements PredicateStorage {
         add(new MoreOperatorPredicate(typeStorage));
         add(new RandomPredicate(typeStorage));
         add(new WritePredicate(typeStorage));
+        add(new AssertPredicate(typeStorage));
+        add(new AssertaPredicate(typeStorage));
+        add(new AssertzPredicate(typeStorage));
+        add(new RetractPredicate(typeStorage));
+        add(new RetractAllPredicate(typeStorage));
+        add(new SavePredicate(typeStorage));
     }
 
     private boolean isBuiltInPredicate(Predicate p){
@@ -161,6 +168,12 @@ public class PredicateStorageImpl implements PredicateStorage {
             || p instanceof LessOperatorPredicate
             || p instanceof MoreOperatorPredicate
             || p instanceof RandomPredicate
-            || p instanceof WritePredicate;
+            || p instanceof WritePredicate
+            || p instanceof AssertPredicate
+            || p instanceof AssertaPredicate
+            || p instanceof AssertzPredicate
+            || p instanceof RetractPredicate
+            || p instanceof RetractAllPredicate
+            || p instanceof SavePredicate;
     }
 }

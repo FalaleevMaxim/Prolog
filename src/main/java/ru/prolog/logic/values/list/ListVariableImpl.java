@@ -34,15 +34,12 @@ public class ListVariableImpl extends ListValue implements ListVariable {
 
     @Override
     public boolean unify(Value other) {
-        if(other.getType()!=type) throw new WrongTypeException("Wrong type of value to unify", type, other.getType());
         if(!isFree()) return super.unify(other);
         if(other instanceof ListVariableImpl){
             ListVariableImpl listVariable = (ListVariableImpl)other;
             if(listVariable.isFree()){
-                if(listVariable.getRuleContext()==this.getRuleContext()){
-                    throw new FreeVariableException("Attempting to unify two free variables", listVariable);
-                }
                 addRelated(listVariable);
+                listVariable.addRelated(this);
                 return true;
             }
         }
@@ -73,12 +70,10 @@ public class ListVariableImpl extends ListValue implements ListVariable {
 
     @Override
     public void addRelated(Variable variable) {
-        if(related != null && related.contains(variable)) return;
-        if(variable.getType()!=getType())
-            throw new WrongTypeException("Wrong type of variable to add as related", type, variable.getType());
         if(related==null) related = new HashSet<>();
+        if(isImplicitlyRelated(variable)) return;
         related.add(variable);
-        //if(!variable.isRelated(this)) variable.addRelated(this);
+        variable.addRelated(this);
     }
 
     @Override
@@ -111,6 +106,7 @@ public class ListVariableImpl extends ListValue implements ListVariable {
 
     @Override
     public void applyValue(Value value) {
+        if(!isFree()) return;
         ListValue listValue = (ListValue) value;
         if(listValue.isEmpty()){
             isEmpty = true;
@@ -120,16 +116,8 @@ public class ListVariableImpl extends ListValue implements ListVariable {
                 this.next = listValue.tail();
             }
         }
-    }
 
-    @Override
-    public Backup getLastBackup() {
-        return lastBackup;
-    }
-
-    @Override
-    public void setLastBackup(Backup backup) {
-        this.lastBackup = backup;
+        if(related!=null) related.forEach(var->var.applyValue(value));
     }
 
     @Override
@@ -145,6 +133,16 @@ public class ListVariableImpl extends ListValue implements ListVariable {
     @Override
     public String getName() {
         return name;
+    }
+
+    @Override
+    public Backup getLastBackup() {
+        return lastBackup;
+    }
+
+    @Override
+    public void setLastBackup(Backup lastBackup) {
+        this.lastBackup = lastBackup;
     }
 
     @Override

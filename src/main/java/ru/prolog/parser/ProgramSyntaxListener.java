@@ -67,7 +67,8 @@ public class ProgramSyntaxListener extends PrologBaseListener{
                 name,
                 ctx.argTypes().typeName()
                         .stream().map(RuleContext::getText)
-                        .collect(Collectors.toList()));
+                        .collect(Collectors.toList()),
+                program.domains());
     }
 
     @Override
