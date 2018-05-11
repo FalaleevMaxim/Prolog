@@ -1,6 +1,7 @@
 grammar Prolog;
 
 program:domain?
+        databases?
         predicates?
         clauses?
         goal?
@@ -9,20 +10,25 @@ program:domain?
 domain:DOMAIN typedef*;
 typedef:NAME (',' NAME)* '=' type;
 type:primitiveType=PRIMITIVE
-    |listOf=PRIMITIVE '*'
-    |listOf=NAME '*'
+    |listOf=typeName '*'
     |functorType
     ;
 functorType:functor (';' functor)*;
 functor:functorName=NAME
-       |functorName=NAME '(' type (',' type)*')'
+       |functorName=NAME '(' argTypes ')'
        ;
-
+typeName:NAME
+        |PRIMITIVE
+        ;
+databases:database+;
+database:DATABASE predDef+
+        |DATABASE '-' NAME predDef+
+        ;
 predicates:PREDICATES predDef*;
 predDef:NAME
        |NAME '(' argTypes ')'
        ;
-argTypes: NAME (',' NAME)*;
+argTypes: typeName (',' typeName)*;
 
 clauses:CLAUSES (clause '.')*;
 clause:ruleLeft=predExec
@@ -67,8 +73,8 @@ value:VARNAME
      |list
      |struct
      ;
-real:'-'? REAL;
-integer:'-'? INTEGER;
+real:minus='-'? REAL;
+integer:minus='-'? INTEGER;
 list: '[' rb=']'
     | '[' listValues ('|' tail=VARNAME)? ']'
     ;
@@ -90,6 +96,7 @@ cut:'!'
    ;
 
 DOMAIN    :'domains';
+DATABASE  :'database';
 PREDICATES:'predicates';
 CLAUSES   :'clauses';
 GOAL      :'goal';
@@ -111,8 +118,7 @@ VARNAME:UPPER NAMECHAR*
        |'_'
        ;
 
-REAL:INT '.' INT
-    |'$' HEX_INT '.' HEX_INT;
+REAL:INT '.' INT;
 INTEGER:INT
        |'$' HEX_INT
        ;
