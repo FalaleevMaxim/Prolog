@@ -45,7 +45,6 @@ public class FunctorVariableImpl extends FunctorValueImpl implements FunctorVari
         if(isFree())
             return Collections.singletonList(this);
         List<Variable> variables = new ArrayList<>();
-        variables.add(this);
         variables.addAll(super.innerFreeVariables());
         return variables;
     }

@@ -35,6 +35,14 @@ public class DatabasePredicate extends AbstractPrologPredicate implements Functo
     public int run(PredicateContext context, List<Value> args, int startWith) {
         if(!fixed) throw new IllegalStateException("Predicate state is not fixed. Call fix() before running it.");
         List<FactRule> rules = context.programContext().database().getRules(this);
+
+        //correct rule number if rule was removed. ToDo: make better algorithm to detect changes in rules
+        int count = rules.size();
+        Integer prev_count = (Integer) context.getContextData("rule_count");
+        if(prev_count==null) prev_count=0;
+        if(count< prev_count)
+            startWith-=prev_count-count;
+        context.putContextData("rule_count", rules.size());
         for(int i=startWith; i<rules.size();i++){
             if(context.isCut()) return -1;
             RuleContext ruleContext = context.getRuleManager().context(rules.get(i), args, context);

@@ -77,6 +77,7 @@ public class BasePredicateContext implements PredicateContext {
 
     @Override
     public Object getContextData(String key) {
+        if(contextData==null) return null;
         return contextData.get(key);
     }
 

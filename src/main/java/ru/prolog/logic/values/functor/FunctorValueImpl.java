@@ -40,6 +40,8 @@ public class FunctorValueImpl implements FunctorValue {
 
     @Override
     public boolean unify(Value other) {
+        if(other instanceof Variable && ((Variable)other).isFree())
+            return other.unify(this);
         FunctorValue otherFunc = (FunctorValue) other;
         //compare functor functorName
         if(!otherFunc.getFunctorName().equals(functorName)){
@@ -64,13 +66,9 @@ public class FunctorValueImpl implements FunctorValue {
 
     @Override
     public ValueModel toModel() {
-        FunctorValueModel model = new FunctorValueModel(type, functorName, args.stream()
+        return new FunctorValueModel(type, functorName, args.stream()
                 .map(Value::toModel)
                 .collect(Collectors.toList()));
-        for(Value arg : args){
-            model.addSubObject(arg.toModel());
-        }
-        return model;
     }
 
     @Override

@@ -9,6 +9,7 @@ import ru.prolog.logic.model.rule.StatementExecutorRule;
 import ru.prolog.logic.model.type.Type;
 import ru.prolog.logic.model.type.descriptions.CompoundType;
 import ru.prolog.logic.model.type.descriptions.FunctorType;
+import ru.prolog.logic.std.Not;
 import ru.prolog.logic.values.model.FunctorValueModel;
 import ru.prolog.logic.values.model.VariableModel;
 import ru.prolog.logic.values.simple.SimpleValueModel;
@@ -39,7 +40,7 @@ import java.util.Collections;
  *  человек(чел("Александр", "Фёдоров")).
  *  человек(чел("Алексей", "Иванов")).
  * goal
- *  assert(человек(чел("Борис", "Иванов"))), однофамилец(чел("Алексей", "Фёдоров"),X),write(X),fail;
+ *  assert(человек(чел("Борис", "Иванов"))), человек(X), однофамилец(чел("Алексей", "Фёдоров"),X),write(X),nl,fail;
  *  тёзка(имя("Иван"), X), retract(человек(X)), write(X),nl,fail.
  *  retractAll(чел(_, "Иванов")), save("db.txt").
  */
@@ -62,8 +63,10 @@ public class Namesake implements TestProgram {
                 break;
             case 1:
                 goal2();
+                break;
             case 2:
                 goal3();
+                break;
         }
     }
 
@@ -224,7 +227,7 @@ public class Namesake implements TestProgram {
     }
 
     /**
-     * assert(человек(чел("Борис", "Иванов"))), однофамилец(чел("Алексей", "Фёдоров"),X),write(X),fail;
+     * assert(человек(чел("Борис", "Иванов"))), человек(X), однофамилец(чел("Олег", "Иванов"),X),write(X),nl,fail;
      */
     private void goal1(){
         program.goal().addStatement(new Statement(
@@ -244,6 +247,10 @@ public class Namesake implements TestProgram {
                                                                 program.domains().get("фамилия"),
                                                                 "Иванов"))))))));
         program.goal().addStatement(new Statement(
+                program.predicates().get("человек", 1),
+                Collections.singletonList(
+                        new VariableModel(program.domains().get("человек"), "X"))));
+        program.goal().addStatement(new Statement(
                 program.predicates().get("однофамилец", 2),
                 Arrays.asList(
                         new FunctorValueModel(
@@ -251,32 +258,83 @@ public class Namesake implements TestProgram {
                                 Arrays.asList(
                                         new SimpleValueModel(
                                                 program.domains().get("имя"),
-                                                "Алексей"),
+                                                "Олег"),
                                         new SimpleValueModel(
                                                 program.domains().get("фамилия"),
-                                                "Фёдоров"))),
+                                                "Иванов"))),
                         new VariableModel(program.domains().get("человек"), "X"))));
+        writeX_nl_fail();
+    }
+
+    /**
+     * человек(X), not(тёзка(имя("Иван"), X)), retract(человек(X)), write(X),nl,fail.
+     */
+    private void goal2(){
+        program.goal().addStatement(new Statement(
+                program.predicates().get("человек", 1),
+                Collections.singletonList(
+                        new VariableModel(program.domains().get("человек"), "X"))));
+        program.goal().addStatement(new Statement(
+                new Not(program.predicates().get("тёзка", 2)),
+                Arrays.asList(
+                        new FunctorValueModel(
+                                program.domains().get("человек"), "имя",
+                                Collections.singletonList(
+                                        new SimpleValueModel(
+                                                program.domains().get("имя"),
+                                                "Иван"))),
+                        new VariableModel(program.domains().get("человек"), "X"))));
+        program.goal().addStatement(new Statement(
+                program.predicates().get("retract", 1),
+                Collections.singletonList(
+                        new FunctorValueModel(
+                                program.domains().getDatabaseType(),
+                                "человек",
+                                Collections.singletonList(
+                                        new VariableModel(
+                                                program.domains().get("человек"),
+                                                "X"))))));
+        writeX_nl_fail();
+    }
+
+    private void writeX_nl_fail() {
         program.goal().addStatement(new Statement(
                 program.predicates().getVarArgPredicate("write"),
                 Collections.singletonList(
-                        new VariableModel(program.domains().get("человек"), "X")
-                )));
+                        new VariableModel(program.domains().get("человек"), "X"))));
+        program.goal().addStatement(new Statement(
+                program.predicates().get("nl", 0),
+                Collections.emptyList()));
         program.goal().addStatement(new Statement(
                 program.predicates().get("fail", 0),
                 Collections.emptyList()));
     }
 
     /**
-     * тёзка(имя("Иван"), X), retract(человек(X)), write(X),nl,fail.
-     */
-    private void goal2(){
-
-    }
-
-    /**
-     * retractAll(чел(_, "Иванов")), save("db.txt").
+     * retractAll(человек(чел(_, "Иванов"))), save("db.txt").
      */
     private void goal3(){
-
+        program.goal().addStatement(new Statement(
+                program.predicates().get("retractAll", 1),
+                Collections.singletonList(
+                        new FunctorValueModel(
+                                program.domains().getDatabaseType(),
+                                "человек",
+                                Collections.singletonList(
+                                        new FunctorValueModel(
+                                                program.domains().get("человек"), "чел",
+                                                Arrays.asList(
+                                                        new VariableModel(
+                                                                program.domains().get("имя"),
+                                                                "_"),
+                                                        new SimpleValueModel(
+                                                                program.domains().get("фамилия"),
+                                                                "Иванов"))))))));
+        program.goal().addStatement(new Statement(
+                program.predicates().get("save",1),
+                Collections.singletonList(
+                        new SimpleValueModel(
+                                program.domains().get("string"),
+                                "db.txt"))));
     }
 }

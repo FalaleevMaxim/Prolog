@@ -17,7 +17,7 @@ public class SimpleValue extends AbstractValue{
     @Override
     public boolean unify(Value other) {
         super.unify(other);
-        if(other instanceof SimpleVariable && other.getValue()==null){
+        if(other instanceof Variable && ((Variable)other).isFree()){
             return other.unify(this);
         }
         return value.equals(other.getValue());

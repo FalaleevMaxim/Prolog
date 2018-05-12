@@ -24,6 +24,12 @@ public class RetractPredicate extends AbstractPredicate{
         Database db = context.programContext().database();
         DatabasePredicate predicate = db.get(func.getFunctorName());
         List<FactRule> rules = db.getRules(predicate);
+        int count = rules.size();
+        Integer prev_count = (Integer) context.getContextData("rule_count");
+        if(prev_count==null) prev_count=0;
+        if(count< prev_count)
+            startWith-=prev_count-count;
+        context.putContextData("rule_count", rules.size());
         for(int i=startWith; i<rules.size(); i++){
             FactRule rule = rules.get(i);
             //Execute rule with arguments from functor
@@ -31,8 +37,8 @@ public class RetractPredicate extends AbstractPredicate{
             if(ruleContext.execute()){
                 //If rule returned true, remove it from database
                 db.retract(rule);
-                //Return i-1 because current rule is removed, so next rule has number i.
-                return i-1;
+                ruleContext.rollback();
+                return i;
             }
         }
         return -1;
