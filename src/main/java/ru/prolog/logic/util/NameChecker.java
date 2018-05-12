@@ -7,7 +7,7 @@ public class NameChecker {
         return name != null &&
                 !name.equals("") &&
                 !isAllUnderscores(name) &&
-                Pattern.matches("[a-zа-яё_][0-9a-zа-яё_A-ZА-ЯЁ]*", name);
+                Pattern.matches("[a-z\\u0430-\\u044F\\u0451_][0-9a-z\\u0430-\\u044F\\u0451_A-Z\\u0410-\\u042F\\u0401]*", name);
     }
 
     //Check if name contains only '_'
@@ -27,7 +27,7 @@ public class NameChecker {
     }
 
     public static boolean canBeVariableName(String name){
-        return "_".equals(name) || (name!=null && Pattern.matches("[A-ZА-ЯЁ][0-9a-zа-яё_A-ZА-ЯЁ]*", name));
+        return "_".equals(name) || (name!=null && Pattern.matches("[A-Z\\u0410-\\u042F\\u0401][0-9a-z\\u0430-\\u044F\\u0451_A-Z\\u0410-\\u042F\\u0401]*", name));
     }
 
     public static boolean canBeFunctorName(String name){

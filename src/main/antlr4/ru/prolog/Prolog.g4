@@ -135,8 +135,8 @@ LINE_COMMENT:'//' ~[\r\n]* -> channel(HIDDEN);
 WS:[ \t]->skip;
 NL:'\r'?'\n'->skip;
 
-fragment LOWER:'a'..'z'|'а'..'я'|'ё';
-fragment UPPER:'A'..'Z'|'А'..'Я'|'Ё';
+fragment LOWER:'a'..'z'|'\u0430'..'\u044F'|'\u0451';
+fragment UPPER:'A'..'Z'|'\u0410'..'\u042F'|'\u0401';
 fragment DIGIT:'0'..'9';
 fragment NAMECHAR: (LOWER|UPPER|DIGIT|'_');
 fragment INT:DIGIT+;
