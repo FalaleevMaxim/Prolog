@@ -6,50 +6,53 @@ import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.TokenStream;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.ParseTreeWalker;
-import ru.prolog.model.Type;
-import ru.prolog.model.values.List;
-import ru.prolog.model.values.ListValue;
-import ru.prolog.model.values.SimpleValue;
-import ru.prolog.model.values.Value;
-import ru.prolog.model.values.variables.ListVariable;
-import ru.prolog.model.values.variables.SimpleVariable;
-import ru.prolog.model.values.variables.Variable;
+import ru.prolog.logic.storage.type.TypeStorage;
+import ru.prolog.parser.ProgramSyntaxListener;
 
+import java.io.BufferedReader;
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.stream.Collectors;
+import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
+@SuppressWarnings("Duplicates")
 public class Main {
     public static void main(String[] args) throws IOException {
-        /*CharStream input = CharStreams.fromFileName("C:\\Users\\Admin\\IdeaProjects\\AntlrTest\\src\\main\\resources\\sampleCode.pl");
+
+        CharStream input = CharStreams.fromFileName("C:\\Users\\Admin\\IdeaProjects\\Prolog\\src\\main\\resources\\sampleCode.pl");
         PrologLexer lexer = new PrologLexer(input);
         TokenStream tokens = new BufferedTokenStream(lexer);
         PrologParser parser = new PrologParser(tokens);
         ParseTree parseTree = parser.program();
         ParseTreeWalker walker = new ParseTreeWalker();
-        walker.walk(new SyntaxListener(), parseTree);*/
+        ProgramSyntaxListener listener = new ProgramSyntaxListener();
+        walker.walk(listener, parseTree);
+        TypeStorage domains = listener.getProgram().domains();
+        System.out.println(listener.getProgram().fix());
 
-        Type integerType = Type.getType("integer");
+        /*Type integerType = Type.getType("integer");
         //X=1, write(X).
         {
-            Variable x = new SimpleVariable(integerType);
+            Variable x = new SimpleVariable(integerType, "X");
             x.unify(new SimpleValue(integerType, 1));
             System.out.println(x.getValue());
         }
 
         //X=1, X=Y, write(Y).
         {
-            Variable x = new SimpleVariable(integerType);
+            Variable x = new SimpleVariable(integerType, "X");
             x.unify(new SimpleValue(integerType, 1));
-            Variable y = new SimpleVariable(integerType);
+            Variable y = new SimpleVariable(integerType, "Y");
             x.unify(y);
             System.out.println(y.getValue());
         }
 
         //X=Y, X=1, write(Y)
         {
-            Variable x = new SimpleVariable(integerType);
-            Variable y = new SimpleVariable(integerType);
+            Variable x = new SimpleVariable(integerType, "X");
+            Variable y = new SimpleVariable(integerType, "Y");
             x.unify(y);
             x.unify(new SimpleValue(integerType, 1));
             System.out.println(y.getValue());
@@ -57,10 +60,10 @@ public class Main {
 
         //X=Y, Y=Z, X=1, write(Z)
         {
-            Variable x = new SimpleVariable(integerType);
-            Variable y = new SimpleVariable(integerType);
+            Variable x = new SimpleVariable(integerType, "X");
+            Variable y = new SimpleVariable(integerType, "Y");
             x.unify(y);
-            Variable z = new SimpleVariable(integerType);
+            Variable z = new SimpleVariable(integerType, "Z");
             y.unify(z);
             x.unify(new SimpleValue(integerType, 1));
             System.out.println(z.getValue());
@@ -69,9 +72,9 @@ public class Main {
         // p(X,Z), X=1, write(Z).
         // p(Y,Y).
         {
-            Variable x = new SimpleVariable(integerType);
-            Variable z = new SimpleVariable(integerType);
-            Variable y = new SimpleVariable(integerType);
+            Variable x = new SimpleVariable(integerType, "X");
+            Variable z = new SimpleVariable(integerType, "Y");
+            Variable y = new SimpleVariable(integerType, "Z");
             x.unify(y);
             z.unify(y);
             y.dismiss();
@@ -87,11 +90,11 @@ public class Main {
             for (int i = 0; i < intValues.length; i++) {
                 values[i] = new SimpleValue(integerType, intValues[i]);
             }
-            printList(List.asList(intListType, values));
+            printList(PrologList.asList(intListType, values));
         }
     }
 
-    private static void printList(List list){
+    public static void printList(PrologList list){
         System.out.print('[');
         while (!list.isEmpty()){
             System.out.print(list.head().getValue());
@@ -99,6 +102,6 @@ public class Main {
             if(!list.isEmpty())
                 System.out.print(',');
         }
-        System.out.println(']');
+        System.out.println(']');*/
     }
 }

@@ -1,6 +1,7 @@
 grammar Prolog;
 
 program:domain?
+        databases?
         predicates?
         clauses?
         goal?
@@ -8,17 +9,26 @@ program:domain?
 
 domain:DOMAIN typedef*;
 typedef:NAME (',' NAME)* '=' type;
-type:typeName=NAME
-    |listOf=NAME '*'
-    |structType
+type:primitiveType=PRIMITIVE
+    |listOf=typeName '*'
+    |functorType
     ;
-structType:NAME '(' type (',' type)*')';
-
+functorType:functor (';' functor)*;
+functor:functorName=NAME
+       |functorName=NAME '(' argTypes ')'
+       ;
+typeName:NAME
+        |PRIMITIVE
+        ;
+databases:database+;
+database:DATABASE predDef+
+        |DATABASE '-' NAME predDef+
+        ;
 predicates:PREDICATES predDef*;
 predDef:NAME
        |NAME '(' argTypes ')'
        ;
-argTypes: NAME (',' NAME)*;
+argTypes: typeName (',' typeName)*;
 
 clauses:CLAUSES (clause '.')*;
 clause:ruleLeft=predExec
@@ -31,6 +41,7 @@ stat:predExec
     |cut
     |equality
     |compare
+    |not
     ;
 predExec:NAME
         |NAME '(' argList ')'
@@ -40,18 +51,20 @@ equality:left=eqVal operator='=' right=eqVal;
 eqVal:value
       |expr
       ;
-expr:left=expr operator=('*'|'/'|'div'|'mod') right=expr
+expr:negative
+    |left=expr operator=('*'|'/'|'div'|'mod') right=expr
     |left=expr operator=('+'|'-') right=expr
     |'(' expr ')'
+    |NAME '(' expr ')'
     |real
     |integer
     |VARNAME
-    |negative
     ;
 negative:'-' '(' expr ')'
         | '-' VARNAME
         ;
 compare:left=eqVal operator=('>'|'<'|'<='|'>=') right=eqVal;
+not:'not' '(' predExec ')';
 value:VARNAME
      |real
      |integer
@@ -60,8 +73,8 @@ value:VARNAME
      |list
      |struct
      ;
-real:'-'? REAL;
-integer:'-'? INTEGER;
+real:minus='-'? REAL;
+integer:minus='-'? INTEGER;
 list: '[' rb=']'
     | '[' listValues ('|' tail=VARNAME)? ']'
     ;
@@ -83,9 +96,17 @@ cut:'!'
    ;
 
 DOMAIN    :'domains';
+DATABASE  :'database';
 PREDICATES:'predicates';
 CLAUSES   :'clauses';
 GOAL      :'goal';
+
+PRIMITIVE:'integer'
+         |'real'
+         |'char'
+         |'string'
+         |'symbol'
+         ;
 
 ASSIGN:':-'
       |'if'
@@ -98,7 +119,9 @@ VARNAME:UPPER NAMECHAR*
        ;
 
 REAL:INT '.' INT;
-INTEGER:INT;
+INTEGER:INT
+       |'$' HEX_INT
+       ;
 STRING:'"' (ESC|~'"')* '"';
 
 LSQBR:'[';
@@ -112,11 +135,12 @@ LINE_COMMENT:'//' ~[\r\n]* -> channel(HIDDEN);
 WS:[ \t]->skip;
 NL:'\r'?'\n'->skip;
 
-fragment LOWER:'a'..'z';
-fragment UPPER:'A'..'Z';
+fragment LOWER:'a'..'z'|'а'..'я'|'ё';
+fragment UPPER:'A'..'Z'|'А'..'Я'|'Ё';
 fragment DIGIT:'0'..'9';
 fragment NAMECHAR: (LOWER|UPPER|DIGIT|'_');
 fragment INT:DIGIT+;
+fragment HEX_INT:HEX+;
 fragment HEX:DIGIT
             |'A'..'F'
             |'a'..'f'

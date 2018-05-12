@@ -1,5 +1,12 @@
 domains
-list=integer*
+list=foo*
+lst=integer*
+foo=f(integer);f1(string, integer)
+database
+db(integer)
+db1(string, foo, lst)
+database - newdb
+db2(lst)
 predicates
 divides(integer,integer)
 allDividers1(integer,integer,list,list,integer)
