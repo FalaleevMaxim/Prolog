@@ -7,9 +7,11 @@ import ru.prolog.logic.storage.type.TypeStorage;
 import java.util.List;
 
 public interface Functor extends ModelObject {
+    CompoundType getCompoundType();
     String getName();
     List<String> getArgTypeNames();
     TypeStorage getTypeStorage();
+    void setCompoundType(CompoundType type);
     void setTypeStorage(TypeStorage typeStorage);
     void addArgType(String argType);
 

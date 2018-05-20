@@ -4,7 +4,7 @@ import ru.prolog.logic.context.rule.RuleContext;
 import ru.prolog.logic.model.ModelObject;
 import ru.prolog.logic.model.predicate.Predicate;
 import ru.prolog.logic.values.Value;
-import ru.prolog.logic.values.model.ValueModel;
+import ru.prolog.logic.model.values.ValueModel;
 
 import java.util.List;
 

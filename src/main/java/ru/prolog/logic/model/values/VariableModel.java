@@ -1,6 +1,7 @@
-package ru.prolog.logic.values.model;
+package ru.prolog.logic.model.values;
 
 import ru.prolog.logic.context.rule.RuleContext;
+import ru.prolog.logic.model.AbstractModelObject;
 import ru.prolog.logic.model.ModelObject;
 import ru.prolog.logic.model.exceptions.ModelStateException;
 import ru.prolog.logic.model.exceptions.value.IllegalVariableNameException;
@@ -8,7 +9,7 @@ import ru.prolog.logic.model.exceptions.value.TypeNotFitValueClassException;
 import ru.prolog.logic.model.exceptions.value.ValueStateException;
 import ru.prolog.logic.model.type.Type;
 import ru.prolog.logic.model.type.exceptions.WrongTypeException;
-import ru.prolog.logic.util.NameChecker;
+import ru.prolog.util.NameChecker;
 import ru.prolog.logic.values.AnonymousVariable;
 import ru.prolog.logic.values.Value;
 import ru.prolog.logic.values.Variable;
@@ -18,10 +19,9 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
-public class VariableModel implements ValueModel{
+public class VariableModel extends AbstractModelObject implements ValueModel{
     protected Type type;
     protected String name;
-    protected boolean fixed = false;
 
     public VariableModel(String name) {
         this.name = name;

@@ -1,6 +1,7 @@
-package ru.prolog.logic.values.model;
+package ru.prolog.logic.model.values;
 
 import ru.prolog.logic.context.rule.RuleContext;
+import ru.prolog.logic.model.AbstractModelObject;
 import ru.prolog.logic.model.ModelObject;
 import ru.prolog.logic.model.exceptions.ModelStateException;
 import ru.prolog.logic.model.exceptions.value.TypeNotFitValueClassException;
@@ -14,11 +15,10 @@ import ru.prolog.logic.values.list.PrologList;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class ListValueModel implements ValueModel {
+public class ListValueModel extends AbstractModelObject implements ValueModel {
     private Type type;
     private List<ValueModel> heads;
     private VariableModel tail;
-    private boolean fixed = false;
 
     public ListValueModel() {
     }
@@ -26,6 +26,17 @@ public class ListValueModel implements ValueModel {
     public ListValueModel(Type type) {
         this.type = type;
         this.heads = new ArrayList<>();
+    }
+
+    public ListValueModel(Type type, List<ValueModel> heads) {
+        this.type = type;
+        this.heads = heads;
+    }
+
+    public ListValueModel(Type type, List<ValueModel> heads, VariableModel tail) {
+        this.type = type;
+        this.heads = heads;
+        this.tail = tail;
     }
 
     public ListValueModel(Type type, ValueModel... heads) {

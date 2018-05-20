@@ -4,8 +4,8 @@ import ru.prolog.logic.model.predicate.Predicate;
 import ru.prolog.logic.model.program.Program;
 import ru.prolog.logic.model.rule.Statement;
 import ru.prolog.logic.model.type.Type;
-import ru.prolog.logic.values.model.ValueModel;
-import ru.prolog.logic.values.simple.SimpleValueModel;
+import ru.prolog.logic.model.values.ValueModel;
+import ru.prolog.logic.model.values.SimpleValueModel;
 
 import java.util.Collections;
 

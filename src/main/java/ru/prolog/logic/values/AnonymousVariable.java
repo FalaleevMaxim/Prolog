@@ -1,11 +1,10 @@
 package ru.prolog.logic.values;
 
 import ru.prolog.logic.backup.Backup;
-import ru.prolog.logic.backup.BackupImpl;
 import ru.prolog.logic.context.rule.RuleContext;
 import ru.prolog.logic.model.type.Type;
-import ru.prolog.logic.values.model.ValueModel;
-import ru.prolog.logic.values.model.VariableModel;
+import ru.prolog.logic.model.values.ValueModel;
+import ru.prolog.logic.model.values.VariableModel;
 
 import java.util.Collections;
 import java.util.List;

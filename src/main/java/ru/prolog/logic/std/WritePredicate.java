@@ -22,7 +22,12 @@ public class WritePredicate extends AbstractPredicate {
             List<Variable> variables = arg.innerFreeVariables();
             if(!variables.isEmpty())
                 throw new FreeVariableException("Free variable "+variables.get(0)+" in write predicate.", variables.get(0));
-            System.out.print(arg);
+            //toString() of SimpleValue for string or char type returns string with quotes and escape-characters.
+            // That is good for printing in list or functor, but for just printing string or char you need to print value
+            if(arg.getType().isPrimitive()){
+                if (arg.getType().getPrimitiveType().isString() || arg.getType().getPrimitiveType().isChar())
+                    System.out.println(arg.getValue());
+            }else System.out.print(arg);
         }
         return 0;
     }

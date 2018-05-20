@@ -1,4 +1,4 @@
-package ru.prolog.logic.values.model;
+package ru.prolog.logic.model.values;
 
 import ru.prolog.logic.context.rule.RuleContext;
 import ru.prolog.logic.model.ModelObject;

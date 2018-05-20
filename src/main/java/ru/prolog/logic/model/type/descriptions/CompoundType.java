@@ -1,5 +1,6 @@
 package ru.prolog.logic.model.type.descriptions;
 
+import ru.prolog.logic.model.AbstractModelObject;
 import ru.prolog.logic.model.ModelObject;
 import ru.prolog.logic.model.exceptions.ModelStateException;
 import ru.prolog.logic.model.exceptions.type.CompoundTypeException;
@@ -9,9 +10,8 @@ import java.util.*;
 /**
  * Type consisting of one or more functors.
  */
-public class CompoundType implements ModelObject{
+public class CompoundType extends AbstractModelObject{
     private Map<String, Functor> functors;
-    private boolean fixed = false;
 
     public CompoundType(){
         this.functors = new HashMap<>();
@@ -19,11 +19,14 @@ public class CompoundType implements ModelObject{
 
     public CompoundType(List<Functor> functorList) {
         this.functors = new HashMap<>();
-        functorList.forEach(f -> functors.put(f.getName(), f));
+        for (Functor f : functorList) {
+            f.setCompoundType(this);
+            functors.put(f.getName(), f);
+        }
     }
 
-    public Map<String, Functor> getFunctors() {
-        return Collections.unmodifiableMap(functors);
+    public Collection<Functor> getFunctors() {
+        return functors.values();
     }
 
     public Functor getFunctor(String name){
@@ -36,14 +39,15 @@ public class CompoundType implements ModelObject{
 
     public void addFunctor(Functor functor){
         if(fixed) throw new IllegalStateException("State is fixed. You can not change it anymore.");
+        functor.setCompoundType(this);
         functors.put(functor.getName(), functor);
     }
 
     @Override
     public Collection<ModelStateException> exceptions() {
-        if(fixed) return Collections.emptyList();
+        if(fixed) return Collections.emptyList();/*
         if(functors.isEmpty())
-            return Collections.singletonList(new CompoundTypeException(this, "No functors in this compound type."));
+            return Collections.singletonList(new CompoundTypeException(this, "No functors in this compound type."));*/
 
         Collection<ModelStateException> exceptions = new ArrayList<>();
         for(Functor f : functors.values()) {

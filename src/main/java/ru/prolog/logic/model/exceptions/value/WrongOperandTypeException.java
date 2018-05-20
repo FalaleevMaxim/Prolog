@@ -1,6 +1,6 @@
 package ru.prolog.logic.model.exceptions.value;
 
-import ru.prolog.logic.values.model.ExprValueModel;
+import ru.prolog.logic.model.values.ExprValueModel;
 
 public class WrongOperandTypeException extends ValueStateException {
     private final ExprValueModel operand;

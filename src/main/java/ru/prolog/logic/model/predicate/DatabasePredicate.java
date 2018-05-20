@@ -7,9 +7,10 @@ import ru.prolog.logic.model.exceptions.predicate.IllegalPredicateNameException;
 import ru.prolog.logic.model.exceptions.predicate.DbRuleIsNotFactException;
 import ru.prolog.logic.model.rule.FactRule;
 import ru.prolog.logic.model.rule.Rule;
+import ru.prolog.logic.model.type.descriptions.CompoundType;
 import ru.prolog.logic.model.type.descriptions.Functor;
 import ru.prolog.logic.storage.type.TypeStorage;
-import ru.prolog.logic.util.NameChecker;
+import ru.prolog.util.NameChecker;
 import ru.prolog.logic.values.Value;
 
 import java.util.Collection;
@@ -64,5 +65,15 @@ public class DatabasePredicate extends AbstractPrologPredicate implements Functo
                 exceptions.add(new DbRuleIsNotFactException(this, rule));
         }
         return exceptions;
+    }
+
+    @Override
+    public CompoundType getCompoundType() {
+        return typeStorage.getDatabaseType().getCompoundType();
+    }
+
+    @Override
+    public void setCompoundType(CompoundType type) {
+
     }
 }

@@ -1,4 +1,4 @@
-package ru.prolog.logic.util;
+package ru.prolog.util;
 
 import java.util.regex.Pattern;
 

@@ -1,7 +1,7 @@
 package ru.prolog.logic.model.exceptions.value.functor;
 
 import ru.prolog.logic.model.type.Type;
-import ru.prolog.logic.values.model.FunctorValueModel;
+import ru.prolog.logic.model.values.FunctorValueModel;
 
 public class FunctorValueNameException extends FunctorValueException {
     public FunctorValueNameException(FunctorValueModel functor, String message) {

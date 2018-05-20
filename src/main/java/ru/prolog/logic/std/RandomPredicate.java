@@ -15,7 +15,7 @@ import java.util.List;
  * Предикат, получающий первым аргументом максимальное число,
  * генерирующий случайное число от 0 до максимального
  * и унифицирующий случайное число со вторым аргументом
- */
+*/
 public class RandomPredicate extends AbstractPredicate {
     public RandomPredicate(TypeStorage typeStorage) {
         super("random", Arrays.asList("integer", "integer"), typeStorage);
@@ -40,11 +40,10 @@ public class RandomPredicate extends AbstractPredicate {
 
         //Создание объекта значения со случайным числом
         SimpleValue randValue = new SimpleValue(typeStorage.get("integer"), randInt);
-        //Унификация полуенного значения со вторым аргументом
-        boolean res = args.get(1).unify(randValue);
-        //Если унификация прошла успешно, возвращается следующий номер; иначе -1(fail)
-        if(res) return 0;
-        else return -1;
+
+        //Унификация полученного значения со вторым аргументом.
+        //Если унификация прошла успешно, возвращается 0; иначе -1(fail)
+        return args.get(1).unify(randValue) ? 0 : -1;
     }
 }
 

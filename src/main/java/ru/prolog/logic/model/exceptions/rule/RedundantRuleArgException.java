@@ -1,7 +1,7 @@
 package ru.prolog.logic.model.exceptions.rule;
 
 import ru.prolog.logic.model.rule.Rule;
-import ru.prolog.logic.values.model.ValueModel;
+import ru.prolog.logic.model.values.ValueModel;
 
 public class RedundantRuleArgException extends RuleStateException{
     private final int argNum;

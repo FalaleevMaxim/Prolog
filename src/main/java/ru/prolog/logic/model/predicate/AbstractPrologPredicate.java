@@ -7,7 +7,7 @@ import ru.prolog.logic.model.exceptions.predicate.IllegalPredicateNameException;
 import ru.prolog.logic.model.rule.Rule;
 import ru.prolog.logic.model.type.Type;
 import ru.prolog.logic.storage.type.TypeStorage;
-import ru.prolog.logic.util.NameChecker;
+import ru.prolog.util.NameChecker;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -16,7 +16,6 @@ import java.util.List;
 
 public abstract class AbstractPrologPredicate extends AbstractPredicate implements PrologPredicate {
     protected List<Rule> rules;
-    protected boolean fixed = false;
 
     public void setName(String name){
         if(fixed) throw new IllegalStateException("Predicate state is fixed. You can not change it anymore.");

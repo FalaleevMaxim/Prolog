@@ -1,5 +1,6 @@
 package ru.prolog.logic.model.rule;
 
+import ru.prolog.logic.model.AbstractModelObject;
 import ru.prolog.logic.model.exceptions.ModelStateException;
 import ru.prolog.logic.model.exceptions.statement.MissingStatementArgException;
 import ru.prolog.logic.model.exceptions.statement.RedundantStatementArgException;
@@ -9,16 +10,15 @@ import ru.prolog.logic.model.ModelObject;
 import ru.prolog.logic.model.predicate.Predicate;
 import ru.prolog.logic.model.type.Type;
 import ru.prolog.logic.std.Not;
-import ru.prolog.logic.util.ToStringUtil;
-import ru.prolog.logic.values.model.ValueModel;
+import ru.prolog.util.ToStringUtil;
+import ru.prolog.logic.model.values.ValueModel;
 
 import java.util.*;
 
-public class Statement implements ModelObject {
+public class Statement extends AbstractModelObject {
     private Predicate predicate;
     private String predicateName;
     private List<ValueModel> args;
-    private boolean fixed = false;
 
     public Statement(String predicateName) {
         this.predicateName = predicateName;
@@ -39,7 +39,7 @@ public class Statement implements ModelObject {
     }
 
     public List<ValueModel> getArgs() {
-        return Collections.unmodifiableList(args);
+        return args;
     }
 
     public void setPredicate(Predicate predicate) {
@@ -62,8 +62,9 @@ public class Statement implements ModelObject {
             return exceptions;
         }
         boolean vararg = false; //Sets true after vararg type in predicate. Any arguments in statement can follow vararg.
-        for(int i = 0; i<predicate.getArgTypeNames().size() && i<args.size(); i++){
-            if(!vararg && i>=predicate.getArgTypeNames().size()){
+        for(int i = 0; i<predicate.getArgTypeNames().size() || i<args.size(); i++){
+            if(vararg) continue;
+            if(i>=predicate.getArgTypeNames().size()){
                 exceptions.add(new RedundantStatementArgException(this, i));
             }else if(i>=args.size()){
                 exceptions.add(new MissingStatementArgException(this, predicate, i));
@@ -113,7 +114,7 @@ public class Statement implements ModelObject {
     @Override
     public String toString() {
         if(Arrays.asList("=",">","<",">=","<=","<>").contains(predicateName)){
-            return args.get(0).toString() + " " + predicateName + " " + args.get(1);
+            return args.get(0).toString() +predicateName + args.get(1);
         }
         String s = ToStringUtil.funcToString(predicateName, args);
         if(predicate!=null && predicate instanceof Not){

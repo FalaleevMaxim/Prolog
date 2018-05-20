@@ -50,7 +50,7 @@ public class RuleExecutorPredicate extends AbstractPrologPredicate {
         Collection<ModelStateException> exceptions = super.exceptions();
         //Checks if predicate has rules
         if(rules.isEmpty()){
-            exceptions.add(new PredicateStateException(this, "No rules defined for predicate"));
+            exceptions.add(new PredicateStateException(this, "No rules defined for predicate "+this));
         }
         return exceptions;
     }

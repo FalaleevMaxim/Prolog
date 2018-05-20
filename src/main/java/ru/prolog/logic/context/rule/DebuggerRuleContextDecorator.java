@@ -1,6 +1,6 @@
 package ru.prolog.logic.context.rule;
 
-import ru.prolog.logic.util.ToStringUtil;
+import ru.prolog.util.ToStringUtil;
 
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;

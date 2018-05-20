@@ -1,7 +1,7 @@
 package ru.prolog.logic.model.exceptions.rule;
 
 import ru.prolog.logic.model.rule.Rule;
-import ru.prolog.logic.values.model.VariableModel;
+import ru.prolog.logic.model.values.VariableModel;
 
 public class VariableInFactException extends RuleStateException {
     private final VariableModel variable;

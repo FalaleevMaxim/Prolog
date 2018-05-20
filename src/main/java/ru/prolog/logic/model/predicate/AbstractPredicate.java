@@ -1,12 +1,13 @@
 package ru.prolog.logic.model.predicate;
 
+import ru.prolog.logic.model.AbstractModelObject;
 import ru.prolog.logic.model.ModelObject;
 import ru.prolog.logic.model.exceptions.ModelStateException;
 import ru.prolog.logic.model.exceptions.predicate.PredicateArgTypeNotExistsException;
 import ru.prolog.logic.model.exceptions.predicate.VarArgNotLastException;
 import ru.prolog.logic.model.type.Type;
 import ru.prolog.logic.storage.type.TypeStorage;
-import ru.prolog.logic.util.ToStringUtil;
+import ru.prolog.util.ToStringUtil;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -14,7 +15,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public abstract class AbstractPredicate implements Predicate {
+public abstract class AbstractPredicate extends AbstractModelObject implements Predicate {
     protected String name;
     protected List<String> argTypes;
     protected TypeStorage typeStorage;
@@ -86,6 +87,7 @@ public abstract class AbstractPredicate implements Predicate {
 
     @Override
     public ModelObject fix() {
+        fixed = true;
         return this;
     }
 

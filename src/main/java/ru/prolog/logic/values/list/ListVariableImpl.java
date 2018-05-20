@@ -1,14 +1,12 @@
 package ru.prolog.logic.values.list;
 
-import ru.prolog.logic.exceprions.FreeVariableException;
-import ru.prolog.logic.model.type.exceptions.WrongTypeException;
 import ru.prolog.logic.model.type.Type;
 import ru.prolog.logic.context.rule.RuleContext;
 import ru.prolog.logic.values.Value;
 import ru.prolog.logic.values.Variable;
 import ru.prolog.logic.backup.Backup;
-import ru.prolog.logic.values.model.ValueModel;
-import ru.prolog.logic.values.model.VariableModel;
+import ru.prolog.logic.model.values.ValueModel;
+import ru.prolog.logic.model.values.VariableModel;
 
 import java.util.*;
 

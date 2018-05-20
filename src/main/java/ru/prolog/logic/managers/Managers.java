@@ -5,6 +5,7 @@ import ru.prolog.logic.managers.predicate.PredicateContextManagerImpl;
 import ru.prolog.logic.managers.program.ProgramContextManager;
 import ru.prolog.logic.managers.program.ProgramContextManagerImpl;
 import ru.prolog.logic.managers.rule.RuleContextManagerImpl;
+import ru.prolog.logic.model.AbstractModelObject;
 import ru.prolog.logic.model.ModelObject;
 import ru.prolog.logic.model.exceptions.ModelStateException;
 import ru.prolog.logic.managers.backup.BackupManager;
@@ -15,12 +16,11 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 
-public class Managers implements ModelObject {
+public class Managers extends AbstractModelObject {
     private ProgramContextManager programManager;
     private BackupManager backupManager;
     private PredicateContextManager predicateManager;
     private RuleContextManager ruleManager;
-    private boolean fixed = false;
 
     public Managers(){
         programManager = new ProgramContextManagerImpl();

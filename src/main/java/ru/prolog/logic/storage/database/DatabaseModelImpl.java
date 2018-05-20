@@ -1,5 +1,6 @@
 package ru.prolog.logic.storage.database;
 
+import ru.prolog.logic.model.AbstractModelObject;
 import ru.prolog.logic.model.ModelObject;
 import ru.prolog.logic.model.exceptions.ModelStateException;
 import ru.prolog.logic.model.predicate.DatabasePredicate;
@@ -10,12 +11,11 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-public class DatabaseModelImpl implements DatabaseModel {
+public class DatabaseModelImpl extends AbstractModelObject implements DatabaseModel {
     //dbName->predicateName->predicate
     private Map<String, Map<String,DatabasePredicate>> databases = new HashMap<>();
     //predicateName->dbName
     private Map<String, String> dbNames = new HashMap<>();
-    private boolean fixed = false;
 
     public DatabaseModelImpl() {
         addDatabase(DEFAULT_DB_NAME);

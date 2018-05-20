@@ -1,12 +1,13 @@
 package ru.prolog.logic.model.type.descriptions;
 
+import ru.prolog.logic.model.AbstractModelObject;
 import ru.prolog.logic.model.ModelObject;
 import ru.prolog.logic.model.exceptions.ModelStateException;
 import ru.prolog.logic.model.exceptions.type.FunctorArgTypeNotExistsException;
 import ru.prolog.logic.model.type.Type;
 import ru.prolog.logic.storage.type.TypeStorage;
-import ru.prolog.logic.util.NameChecker;
-import ru.prolog.logic.util.ToStringUtil;
+import ru.prolog.util.NameChecker;
+import ru.prolog.util.ToStringUtil;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -17,11 +18,11 @@ import java.util.stream.Collectors;
 /**
  * Represents single functor (name and argument types) in compound type.
  */
-public class FunctorType implements Functor{
+public class FunctorType extends AbstractModelObject implements Functor{
     public String name;
     private List<String> argTypes;
     private TypeStorage typeStorage;
-    private boolean fixed = false;
+    private CompoundType compoundType;
 
     public FunctorType(String name) {
         this.name = name;
@@ -32,6 +33,11 @@ public class FunctorType implements Functor{
         this.name = name;
         this.argTypes = argTypes;
         this.typeStorage = typeStorage;
+    }
+
+    @Override
+    public CompoundType getCompoundType() {
+        return compoundType;
     }
 
     @Override
@@ -48,6 +54,11 @@ public class FunctorType implements Functor{
     @Override
     public TypeStorage getTypeStorage() {
         return typeStorage;
+    }
+
+    @Override
+    public void setCompoundType(CompoundType type) {
+        this.compoundType = type;
     }
 
     @Override
