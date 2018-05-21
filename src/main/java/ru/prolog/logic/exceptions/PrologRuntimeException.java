@@ -1,4 +1,4 @@
-package ru.prolog.logic.exceprions;
+package ru.prolog.logic.exceptions;
 
 public class PrologRuntimeException extends RuntimeException {
     public PrologRuntimeException(String message) {

@@ -23,6 +23,7 @@ public class StatementExecutorRule extends AbstractRule {
 
     public StatementExecutorRule() {
         statements = new ArrayList<>();
+        statements.add(new ArrayList<>());
     }
 
     public StatementExecutorRule(Predicate predicate){
@@ -42,6 +43,8 @@ public class StatementExecutorRule extends AbstractRule {
         this.statements = new ArrayList<>();
         this.statements.add(new ArrayList<>(statements));
     }
+
+
 
     public StatementExecutorRule(Predicate predicate, List<ValueModel> toUnifyList) {
         super(predicate, toUnifyList);
@@ -90,7 +93,7 @@ public class StatementExecutorRule extends AbstractRule {
         if(!fixed) throw new IllegalStateException("Rule state is not fixed. Call fix() before using it.");
         ExecutedStatements st = context.getStatements();
 
-        /*while (st.currentList<this.statements.size()) {*/
+        while (st.currentList<this.statements.size()) {
             List<Statement> statList = statements.get(0); //getStatements(st.currentList);
             while (st.currentStatement < statList.size() && st.currentStatement > st.cutIndex) {
                 PredicateContext predicateExecution;
@@ -140,14 +143,15 @@ public class StatementExecutorRule extends AbstractRule {
                     st.executions.remove(st.executions.size() - 1);
                     st.currentStatement--;
                 }
-            }/*
+            }
+            if(st.currentStatement > st.cutIndex) return true;
             if(st.cutIndex>=0) return false;
             if(!st.executions.isEmpty()) st.executions.get(0).rollback();
             st.executions.clear();
             st.currentStatement=0;
             st.currentList++;
-        }*/
-        return st.currentStatement > st.cutIndex;
+        }
+        return false;
     }
 
     @Override

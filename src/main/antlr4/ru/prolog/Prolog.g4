@@ -84,6 +84,8 @@ functorVal:NAME LPAR argList? RPAR
           ;
 goal:GOAL ruleBody '.'?;
 
+outerGoal: ruleBody '.'?;
+
 and:','
    |'and'
    |'AND'

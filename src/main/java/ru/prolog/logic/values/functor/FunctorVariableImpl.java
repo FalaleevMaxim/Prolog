@@ -1,7 +1,6 @@
 package ru.prolog.logic.values.functor;
 
 import ru.prolog.logic.context.rule.RuleContext;
-import ru.prolog.logic.exceprions.FreeVariableException;
 import ru.prolog.logic.model.type.Type;
 import ru.prolog.logic.values.Value;
 import ru.prolog.logic.values.Variable;

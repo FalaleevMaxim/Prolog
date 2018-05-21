@@ -1,7 +1,7 @@
 package ru.prolog.logic.std;
 
 import ru.prolog.logic.context.predicate.PredicateContext;
-import ru.prolog.logic.exceprions.FreeVariableException;
+import ru.prolog.logic.exceptions.FreeVariableException;
 import ru.prolog.logic.model.AbstractModelObject;
 import ru.prolog.logic.model.ModelObject;
 import ru.prolog.logic.model.exceptions.ModelStateException;

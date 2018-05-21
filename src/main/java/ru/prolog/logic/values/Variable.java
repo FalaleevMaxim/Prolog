@@ -2,10 +2,8 @@ package ru.prolog.logic.values;
 
 import ru.prolog.logic.context.rule.RuleContext;
 import ru.prolog.logic.backup.Backup;
-import ru.prolog.logic.exceprions.FreeVariableException;
 
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Set;
 import java.util.Stack;
 

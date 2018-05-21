@@ -1,7 +1,11 @@
 package ru.prolog.logic.context.rule;
 
+import ru.prolog.logic.context.program.ProgramContext;
 import ru.prolog.util.ToStringUtil;
 
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.PrintWriter;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -26,41 +30,60 @@ public class DebuggerRuleContextDecorator extends BaseRuleContextDecorator {
 
     @Override
     public boolean redo() {
-        System.out.println(offset + "Redo rule "+getRule());
-        System.out.println(offset + ToStringUtil.funcToString(getRule().getPredicate().getName(), getArgs()));
-        programContext().putContextData(LEVEL_KEY, level);
-        boolean ret = super.redo();
-        //programContext().putContextData(LEVEL_KEY, level);
-        if(ret) {
-            System.out.println(offset + "Return from redo " + getRule());
-            System.out.println(offset + ToStringUtil.funcToString(getRule().getPredicate().getName(), getArgs()));
+        String fileName = (String) programContext().getContextData(ProgramContext.KEY_DEBUG_FILE);
+        if(fileName==null) return decorated.execute();
+        try (PrintWriter pw = new PrintWriter(new FileOutputStream(fileName, true))) {
+            pw.println(offset + "Redo rule " + getRule());
+            pw.println(offset + ToStringUtil.funcToString(getRule().getPredicate().getName(), getArgs()));
+            pw.close();
             programContext().putContextData(LEVEL_KEY, level);
-            return true;
-        }else{
-            System.out.println(offset + "Redo failed. Return from " + getRule());
-            System.out.println(offset + ToStringUtil.funcToString(getRule().getPredicate().getName(), getArgs()));
-            programContext().putContextData(LEVEL_KEY, level-1);
-            return false;
-        }
+        } catch (FileNotFoundException e) { }
+
+        boolean ret = super.redo();
+
+        try (PrintWriter pw = new PrintWriter(new FileOutputStream(fileName, true))) {
+            if (ret) {
+                pw.println(offset + "Return from redo " + getRule());
+                pw.println(offset + ToStringUtil.funcToString(getRule().getPredicate().getName(), getArgs()));
+                programContext().putContextData(LEVEL_KEY, level);
+                return true;
+            } else {
+                pw.println(offset + "Redo failed. Return from " + getRule());
+                pw.println(offset + ToStringUtil.funcToString(getRule().getPredicate().getName(), getArgs()));
+                programContext().putContextData(LEVEL_KEY, level - 1);
+                return false;
+            }
+        } catch (FileNotFoundException e) { }
+
+        return ret;
     }
 
     @Override
     public boolean execute() {
-        System.out.println(offset + "Execute rule "+getRule());
-        System.out.println(offset + ToStringUtil.funcToString(getRule().getPredicate().getName(), getArgs()));
-        programContext().putContextData(LEVEL_KEY, level);
-        boolean ret = decorated.execute();
-        //programContext().putContextData(LEVEL_KEY, level);
-        if(ret) {
-            System.out.println(offset + "Return from " + getRule());
-            System.out.println(offset + ToStringUtil.funcToString(getRule().getPredicate().getName(), getArgs()));
+        String fileName = (String) programContext().getContextData(ProgramContext.KEY_DEBUG_FILE);
+        if(fileName==null) return decorated.execute();
+        try (PrintWriter pw = new PrintWriter(new FileOutputStream(fileName, true))) {
+            pw.println(offset + "Execute rule " + getRule());
+            pw.println(offset + ToStringUtil.funcToString(getRule().getPredicate().getName(), getArgs()));
             programContext().putContextData(LEVEL_KEY, level);
-            return true;
-        }else{
-            System.out.println(offset + "Rule failed. Return from " + getRule());
-            System.out.println(offset + ToStringUtil.funcToString(getRule().getPredicate().getName(), getArgs()));
-            programContext().putContextData(LEVEL_KEY, level-1);
-            return false;
-        }
+        } catch (FileNotFoundException e) { }
+
+        boolean ret = decorated.execute();
+
+        try (PrintWriter pw = new PrintWriter(new FileOutputStream(fileName, true))) {
+            if (ret) {
+                pw.println(offset + "Return from " + getRule());
+                pw.println(offset + ToStringUtil.funcToString(getRule().getPredicate().getName(), getArgs()));
+                programContext().putContextData(LEVEL_KEY, level);
+                return true;
+            } else {
+                pw.println(offset + "Rule failed. Return from " + getRule());
+                pw.println(offset + ToStringUtil.funcToString(getRule().getPredicate().getName(), getArgs()));
+                programContext().putContextData(LEVEL_KEY, level - 1);
+                return false;
+            }
+        } catch (FileNotFoundException e) { }
+
+        return ret;
     }
 }

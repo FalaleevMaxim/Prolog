@@ -9,6 +9,7 @@ predicates
 	имя(человек, имя)
 	p(integer)
 	p1(char)
+	s(string)
 	sum(integer, integer)
 clauses
     однофамилец(чел(_, F), чел(_, F)).
@@ -22,8 +23,9 @@ clauses
 	имя(имя(N), N).
 	p('\u0030').
 	p1('\u0030').
-	sum(0,0).
+	sum(0,0):-!.
 	sum(X,R):-X1=X-1, sum(X1,R1), R=R1+X.
+	s(_).
 goal
-/*retractAll(человек(чел(_, "Иванов"))), save("db.txt").*/
-write(5).
+//retractAll(человек(чел(_, "Иванов"))), save("db.txt").
+sum(10,X), write(X), s(Y), write(Y).

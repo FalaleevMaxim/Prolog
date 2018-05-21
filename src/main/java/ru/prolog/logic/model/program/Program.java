@@ -7,7 +7,7 @@ import ru.prolog.logic.model.exceptions.ModelStateException;
 import ru.prolog.logic.model.predicate.GoalPredicate;
 import ru.prolog.logic.model.predicate.InnerGoalPredicate;
 import ru.prolog.logic.model.rule.StatementExecutorRule;
-import ru.prolog.logic.std.InteractiveGoalPredicate;
+import ru.prolog.logic.model.predicate.InteractiveGoalPredicate;
 import ru.prolog.logic.storage.database.DatabaseModel;
 import ru.prolog.logic.storage.database.DatabaseModelImpl;
 import ru.prolog.logic.storage.predicates.PredicateStorage;
@@ -19,7 +19,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 
-public class Program  extends AbstractModelObject {
+public class Program  extends AbstractModelObject implements Runnable {
     private TypeStorage typeStorage;
     private PredicateStorage predicateStorage;
     private GoalPredicate goal;
@@ -44,8 +44,8 @@ public class Program  extends AbstractModelObject {
         return managers.getPredicateManager().context(goal, Collections.emptyList(), context).execute();
     }
 
-    public boolean run(){
-        return createContext().execute();
+    public void run(){
+        createContext().execute();
     }
 
     public TypeStorage domains() {

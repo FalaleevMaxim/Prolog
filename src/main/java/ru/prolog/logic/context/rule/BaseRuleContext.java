@@ -99,6 +99,7 @@ public class BaseRuleContext implements RuleContext {
             return false;
         }
         getStatements().currentStatement--;
+        getStatements().executions.get(getStatements().executions.size()-1).rollback();
         if(rule.run(args, this)){
             return true;
         }else{

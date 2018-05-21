@@ -9,7 +9,7 @@ import ru.prolog.logic.values.Value;
 import java.util.List;
 
 public abstract class BasePredicateContextDecorator implements PredicateContext {
-    private PredicateContext decorated;
+    protected final PredicateContext decorated;
 
     public BasePredicateContextDecorator(PredicateContext decorated) {
         this.decorated = decorated;
@@ -18,6 +18,11 @@ public abstract class BasePredicateContextDecorator implements PredicateContext 
     @Override
     public Predicate predicate() {
         return decorated.predicate();
+    }
+
+    @Override
+    public RuleContext getRuleContext() {
+        return decorated.getRuleContext();
     }
 
     @Override
@@ -53,6 +58,11 @@ public abstract class BasePredicateContextDecorator implements PredicateContext 
     @Override
     public boolean isCut() {
         return decorated.isCut();
+    }
+
+    @Override
+    public void setLastExecutedRuleContext(RuleContext lastExecutedRuleContext) {
+        decorated.setLastExecutedRuleContext(lastExecutedRuleContext);
     }
 
     @Override

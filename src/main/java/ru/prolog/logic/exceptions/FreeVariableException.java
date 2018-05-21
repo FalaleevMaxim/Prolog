@@ -1,4 +1,4 @@
-package ru.prolog.logic.exceprions;
+package ru.prolog.logic.exceptions;
 
 import ru.prolog.logic.values.Variable;
 

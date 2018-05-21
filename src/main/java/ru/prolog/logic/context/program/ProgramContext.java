@@ -6,6 +6,13 @@ import ru.prolog.logic.model.program.Program;
 import ru.prolog.logic.storage.database.Database;
 
 public interface ProgramContext extends RuntimeObject, Executable {
+    String KEY_INPUT_DEVICE = "InputDevice";
+    String KEY_OUTPUT_DEVICE = "OutputDevice";
+    String KEY_DEBUG_FILE = "DebugFile";
+    String KEY_DEBUG_OUTPUT_DEVICE = "DebugOutput";
+    String KEY_DEBUG_INPUT_DEVICE = "DebugInput";
+    String KEY_ERROR_LISTENER = "ErrorListener";
+
     Program program();
     Database database();
 
