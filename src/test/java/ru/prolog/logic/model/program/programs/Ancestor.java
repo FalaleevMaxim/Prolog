@@ -1,16 +1,12 @@
 package ru.prolog.logic.model.program.programs;
 
-import ru.prolog.logic.context.rule.DebuggerRuleContextDecorator;
 import ru.prolog.logic.model.predicate.RuleExecutorPredicate;
 import ru.prolog.logic.model.program.Program;
 import ru.prolog.logic.model.rule.Statement;
 import ru.prolog.logic.model.rule.StatementExecutorRule;
 import ru.prolog.logic.model.type.Type;
-import ru.prolog.logic.model.type.descriptions.CompoundType;
-import ru.prolog.logic.model.type.descriptions.FunctorType;
-import ru.prolog.logic.values.model.FunctorValueModel;
-import ru.prolog.logic.values.model.VariableModel;
-import ru.prolog.logic.values.simple.SimpleValueModel;
+import ru.prolog.logic.model.values.VariableModel;
+import ru.prolog.logic.model.values.SimpleValueModel;
 
 import java.util.Arrays;
 import java.util.Collections;

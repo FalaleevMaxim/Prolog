@@ -1,6 +1,7 @@
-package ru.prolog.logic.values.simple;
+package ru.prolog.logic.model.values;
 
 import ru.prolog.logic.context.rule.RuleContext;
+import ru.prolog.logic.model.AbstractModelObject;
 import ru.prolog.logic.model.ModelObject;
 import ru.prolog.logic.model.exceptions.ModelStateException;
 import ru.prolog.logic.model.exceptions.value.NullValueException;
@@ -9,18 +10,17 @@ import ru.prolog.logic.model.exceptions.value.TypeNotFitValueObjectException;
 import ru.prolog.logic.model.exceptions.value.ValueStateException;
 import ru.prolog.logic.model.type.Type;
 import ru.prolog.logic.values.Value;
-import ru.prolog.logic.values.model.ValueModel;
-import ru.prolog.logic.values.model.VariableModel;
+import ru.prolog.logic.values.simple.SimpleValue;
+import ru.prolog.util.ToStringUtil;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
-public class SimpleValueModel implements ValueModel{
+public class SimpleValueModel extends AbstractModelObject implements ValueModel{
     private Type type;
     private Object value;
-    private boolean fixed = false;
 
     public SimpleValueModel() {
     }
@@ -103,14 +103,7 @@ public class SimpleValueModel implements ValueModel{
 
     @Override
     public String toString() {
-        switch (type.getPrimitiveType().getName()){
-            case "string":
-                return "\""+value+"\"";
-            case "character":
-                return "'"+value+"'";
-            default:
-                return value.toString();
-        }
+        return ToStringUtil.simpleToString(type, value);
     }
 
     @Override

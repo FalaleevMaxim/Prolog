@@ -3,6 +3,7 @@ package ru.prolog.logic.context.program;
 import ru.prolog.logic.model.program.Program;
 import ru.prolog.logic.storage.database.Database;
 import ru.prolog.logic.storage.database.DatabaseImpl;
+import ru.prolog.util.io.*;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -10,12 +11,14 @@ import java.util.Map;
 public class BaseProgramContext implements ProgramContext {
     private final Program program;
     private final Database database;
-    private Map<String, Object> contextData;
+    private Map<String, Object> contextData = new HashMap<>();
 
     public BaseProgramContext(Program program) {
         this.program = program;
-        //ToDo: create new database objects as ones in program will be unmodifiable
         this.database = new DatabaseImpl(program.database());
+        contextData.put(KEY_INPUT_DEVICE, new Stdin());
+        contextData.put(KEY_OUTPUT_DEVICE, new OutputDeviceHub(new StdOut()));
+        contextData.put(KEY_ERROR_LISTENER, new ErrorListenerHub(new StdErr()));
     }
 
     @Override

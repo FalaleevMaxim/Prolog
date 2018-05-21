@@ -1,7 +1,8 @@
 package ru.prolog.logic.std;
 
 import ru.prolog.logic.context.predicate.PredicateContext;
-import ru.prolog.logic.exceprions.FreeVariableException;
+import ru.prolog.logic.exceptions.FreeVariableException;
+import ru.prolog.logic.model.AbstractModelObject;
 import ru.prolog.logic.model.ModelObject;
 import ru.prolog.logic.model.exceptions.ModelStateException;
 import ru.prolog.logic.model.predicate.Predicate;
@@ -18,7 +19,7 @@ import java.util.List;
  * Wraps other predicate? and fails if it succeeds? succeeds if predicate failed.
  * Does not allow free variables as atgs of inner predicate
  */
-public class Not implements Predicate {
+public class Not extends AbstractModelObject implements Predicate {
     public Predicate inner;
 
     public Not(Predicate inner) {

@@ -1,6 +1,8 @@
-package ru.prolog.logic.values.model;
+package ru.prolog.logic.model.values;
 
+import ru.prolog.compiler.position.ModelCodeIntervals;
 import ru.prolog.logic.context.rule.RuleContext;
+import ru.prolog.logic.model.AbstractModelObject;
 import ru.prolog.logic.model.ModelObject;
 import ru.prolog.logic.model.exceptions.ModelStateException;
 import ru.prolog.logic.model.exceptions.value.ValueStateException;
@@ -13,15 +15,15 @@ import ru.prolog.logic.values.expression.unary.*;
 
 import java.util.*;
 
-public class ExprValueModel implements ValueModel{
+public class ExprValueModel extends AbstractModelObject implements ValueModel{
     private String name;
     private ExprValueModel left;
     private ExprValueModel right;
     private ValueModel value;
-    private boolean fixed = false;
 
     public ExprValueModel(ValueModel value) {
-        this.value = value;
+        setValue(value);
+        name="";
     }
 
     public ExprValueModel(String name) {
@@ -68,6 +70,8 @@ public class ExprValueModel implements ValueModel{
     public void setValue(ValueModel value) {
         if(fixed) throw new IllegalStateException("State is fixed. You can not change it anymore.");
         this.value = value;
+        if(value.getCodeIntervals()!=null)
+            intervals = new ModelCodeIntervals(value.getCodeIntervals().getFullInterval(), -1, -1);
     }
 
     @Override
@@ -154,10 +158,12 @@ public class ExprValueModel implements ValueModel{
         if(fixed) return Collections.emptyList();
         Collection<ModelStateException> exceptions = new ArrayList<>();
         //Check name is not null and is existing operator name
-        if(name==null)
-            exceptions.add(new ValueStateException(this, "Operator name is null"));
-        else if(!Arrays.asList("","sin", "cos", "tan", "abs", "+", "-", "*", "/", "div", "mod").contains(name)){
-            exceptions.add(new ValueStateException(this, "Expression \"" + name + "\" does not exist"));
+        if(value==null) {
+            if (name == null)
+                exceptions.add(new ValueStateException(this, "Operator name is null"));
+            else if (!Arrays.asList("", "sin", "cos", "tan", "abs", "+", "-", "*", "/", "div", "mod").contains(name)) {
+                exceptions.add(new ValueStateException(this, "Expression \"" + name + "\" does not exist"));
+            }
         }
         //Check expression is value or has at least one operand
         if(value==null && left==null) {
@@ -234,7 +240,7 @@ public class ExprValueModel implements ValueModel{
             throw exceptions.iterator().next();
         }
         fixed = true;
-        if(value!=null) value.fix();
+        if(value!=null)value.fix();
         if(left!=null) left.fix();
         if(right!=null) right.fix();
         return this;

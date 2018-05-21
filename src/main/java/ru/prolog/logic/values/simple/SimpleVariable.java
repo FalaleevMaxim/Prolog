@@ -1,15 +1,16 @@
 package ru.prolog.logic.values.simple;
 
-import ru.prolog.logic.exceprions.FreeVariableException;
 import ru.prolog.logic.model.type.Type;
+import ru.prolog.logic.model.values.SimpleValueModel;
 import ru.prolog.logic.values.AbstractValue;
 import ru.prolog.logic.values.AnonymousVariable;
 import ru.prolog.logic.values.Value;
 import ru.prolog.logic.values.Variable;
 import ru.prolog.logic.backup.Backup;
 import ru.prolog.logic.context.rule.RuleContext;
-import ru.prolog.logic.values.model.ValueModel;
-import ru.prolog.logic.values.model.VariableModel;
+import ru.prolog.logic.model.values.ValueModel;
+import ru.prolog.logic.model.values.VariableModel;
+import ru.prolog.util.ToStringUtil;
 
 import java.util.*;
 
@@ -148,6 +149,6 @@ public class SimpleVariable extends AbstractValue implements Variable {
     @Override
     public String toString() {
         if(isFree()) return name;
-        return value.toString();
+        return ToStringUtil.simpleToString(type, value);
     }
 }

@@ -11,11 +11,11 @@ domain:DOMAIN typedef*;
 typedef:NAME (',' NAME)* '=' type;
 type:primitiveType=PRIMITIVE
     |listOf=typeName '*'
-    |functorType
+    |compoundType
     ;
-functorType:functor (';' functor)*;
+compoundType:functor (';' functor)*;
 functor:functorName=NAME
-       |functorName=NAME '(' argTypes ')'
+       |functorName=NAME LPAR argTypes RPAR
        ;
 typeName:NAME
         |PRIMITIVE
@@ -26,7 +26,7 @@ database:DATABASE predDef+
         ;
 predicates:PREDICATES predDef*;
 predDef:NAME
-       |NAME '(' argTypes ')'
+       |NAME LPAR argTypes? RPAR
        ;
 argTypes: typeName (',' typeName)*;
 
@@ -34,54 +34,57 @@ clauses:CLAUSES (clause '.')*;
 clause:ruleLeft=predExec
       |ruleLeft=predExec ASSIGN ruleBody
       ;
-ruleBody:ruleBody (or ruleBody)+
+ruleBody:ruleBody or ruleBody
         |stat (and stat)*
         ;
 stat:predExec
     |cut
-    |equality
     |compare
     |not
     ;
 predExec:NAME
-        |NAME '(' argList ')'
+        |NAME LPAR argList? RPAR
         ;
 argList:value (',' value)*;
-equality:left=eqVal operator='=' right=eqVal;
-eqVal:value
-      |expr
-      ;
+compare:left=compVal operator=('='|'>'|'<'|'<='|'>=') right=compVal;
+compVal:value
+     |expr
+     ;
 expr:negative
     |left=expr operator=('*'|'/'|'div'|'mod') right=expr
     |left=expr operator=('+'|'-') right=expr
-    |'(' expr ')'
-    |NAME '(' expr ')'
+    |LPAR inner=expr RPAR
+    |funcExpr
     |real
     |integer
     |VARNAME
     ;
-negative:'-' '(' expr ')'
-        | '-' VARNAME
+negative:minus='-' LPAR expr RPAR
+        |minus='-' VARNAME
+        |minus='-' funcExpr
         ;
-compare:left=eqVal operator=('>'|'<'|'<='|'>=') right=eqVal;
-not:'not' '(' predExec ')';
+funcExpr:FUNCTION LPAR expr RPAR;
+not:'not' LPAR predExec RPAR;
 value:VARNAME
      |real
      |integer
      |STRING
+     |CHAR
      |symbol=NAME
      |list
-     |struct
+     |functorVal
      ;
 real:minus='-'? REAL;
 integer:minus='-'? INTEGER;
-list: '[' rb=']'
-    | '[' listValues ('|' tail=VARNAME)? ']'
+list: LSQ RSQ
+    | LSQ listValues ('|' tail=VARNAME)? RSQ
     ;
 listValues:value (',' value)*;
-struct:NAME '(' value (',' value)* ')';
+functorVal:NAME LPAR argList? RPAR
+          ;
+goal:GOAL ruleBody '.'?;
 
-goal:GOAL ruleBody;
+outerGoal: ruleBody '.'?;
 
 and:','
    |'and'
@@ -94,7 +97,11 @@ or :';'
 cut:'!'
    |'cut'
    ;
-
+FUNCTION:'sin'
+        |'cos'
+        |'tan'
+        |'abs'
+        ;
 DOMAIN    :'domains';
 DATABASE  :'database';
 PREDICATES:'predicates';
@@ -123,14 +130,15 @@ INTEGER:INT
        |'$' HEX_INT
        ;
 STRING:'"' (ESC|~'"')* '"';
+CHAR: '\'' (ESC|~'\'') '\'';
 
-LSQBR:'[';
-RSQBR:']';
+LSQ:'[';
+RSQ:']';
 LPAR :'(';
 RPAR :')';
 
-COMMENT: '/*' ('/'*? COMMENT | ('/'* | '*'*) ~[/*])*? '*'*? '*/' -> channel(HIDDEN);
-LINE_COMMENT:'//' ~[\r\n]* -> channel(HIDDEN);
+COMMENT: '/*' ('/'*? COMMENT | ('/'* | '*'*) ~[/*])*? '*'*? '*/' -> skip;
+LINE_COMMENT:'//' ~[\r\n]* -> skip;
 
 WS:[ \t]->skip;
 NL:'\r'?'\n'->skip;

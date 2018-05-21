@@ -1,6 +1,7 @@
-package ru.prolog.logic.values.model;
+package ru.prolog.logic.model.values;
 
 import ru.prolog.logic.context.rule.RuleContext;
+import ru.prolog.logic.model.AbstractModelObject;
 import ru.prolog.logic.model.ModelObject;
 import ru.prolog.logic.model.exceptions.ModelStateException;
 import ru.prolog.logic.model.exceptions.value.functor.FunctorValueNameException;
@@ -11,8 +12,8 @@ import ru.prolog.logic.model.exceptions.value.functor.RedundantFunctorArgExcepti
 import ru.prolog.logic.model.exceptions.value.functor.WrongFunctorSubObjectTypeException;
 import ru.prolog.logic.model.type.Type;
 import ru.prolog.logic.model.type.descriptions.Functor;
-import ru.prolog.logic.util.NameChecker;
-import ru.prolog.logic.util.ToStringUtil;
+import ru.prolog.util.NameChecker;
+import ru.prolog.util.ToStringUtil;
 import ru.prolog.logic.values.Value;
 import ru.prolog.logic.values.functor.FunctorValueImpl;
 
@@ -22,11 +23,10 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class FunctorValueModel implements ValueModel {
+public class FunctorValueModel extends AbstractModelObject implements ValueModel {
     private Type type;
     private String functorName;
     private List<ValueModel> args;
-    private boolean fixed = false;
 
     public FunctorValueModel() {
     }
@@ -130,7 +130,7 @@ public class FunctorValueModel implements ValueModel {
         if(!exceptions.isEmpty())
             return exceptions;
 
-        for(int i = 0; i<func.getArgTypes().size() && i< args.size(); i++){
+        for(int i = 0; i<func.getArgTypes().size() || i< args.size(); i++){
             if(i>=func.getArgTypes().size()){
                 exceptions.add(new RedundantFunctorArgException(this, i));
             }else if(i>= args.size()){

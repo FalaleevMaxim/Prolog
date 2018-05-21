@@ -61,11 +61,12 @@ public class InnerGoalPredicate extends GoalPredicate{
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder("goal\n");
-        List<Statement> statements = goalRule.getStatements();
-        if(!statements.isEmpty()){
-            sb.append(statements.get(0));
-            for (int i=1;i<statements.size();i++){
-                sb.append(", ").append(statements.get(i));
+        List<List<Statement>> statements = goalRule.getStatements();
+        for (int i = 0; i < statements.size(); i++) {
+            if(i!=0) sb.append("; ");
+            for (int j=0;j<statements.get(i).size();j++){
+                if(j!=0) sb.append(", ");
+                sb.append(statements.get(i).get(j));
             }
         }
         return sb.append('.').toString();

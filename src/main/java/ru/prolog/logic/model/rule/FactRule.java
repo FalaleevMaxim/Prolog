@@ -4,8 +4,8 @@ import ru.prolog.logic.model.exceptions.ModelStateException;
 import ru.prolog.logic.model.exceptions.rule.RuleStateException;
 import ru.prolog.logic.model.exceptions.rule.VariableInFactException;
 import ru.prolog.logic.model.predicate.Predicate;
-import ru.prolog.logic.values.model.ValueModel;
-import ru.prolog.logic.values.model.VariableModel;
+import ru.prolog.logic.model.values.ValueModel;
+import ru.prolog.logic.model.values.VariableModel;
 
 import java.util.Collection;
 import java.util.Collections;

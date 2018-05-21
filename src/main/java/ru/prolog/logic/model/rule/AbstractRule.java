@@ -1,5 +1,6 @@
 package ru.prolog.logic.model.rule;
 
+import ru.prolog.logic.model.AbstractModelObject;
 import ru.prolog.logic.model.ModelObject;
 import ru.prolog.logic.model.exceptions.ModelStateException;
 import ru.prolog.logic.model.exceptions.rule.MissingRuleArgException;
@@ -8,9 +9,9 @@ import ru.prolog.logic.model.exceptions.rule.WrongRuleArgTypeException;
 import ru.prolog.logic.model.predicate.Predicate;
 import ru.prolog.logic.context.rule.RuleContext;
 import ru.prolog.logic.model.type.Type;
-import ru.prolog.logic.util.ToStringUtil;
+import ru.prolog.util.ToStringUtil;
 import ru.prolog.logic.values.Value;
-import ru.prolog.logic.values.model.ValueModel;
+import ru.prolog.logic.model.values.ValueModel;
 
 import java.util.*;
 
@@ -18,10 +19,9 @@ import java.util.*;
  * Base class for all rules.
  * Implements method unifyArgs.
  */
-public abstract class AbstractRule implements Rule {
+public abstract class AbstractRule extends AbstractModelObject implements Rule {
     protected List<ValueModel> toUnifyList;
     protected Predicate predicate;
-    protected boolean fixed = false;
 
     protected AbstractRule(){
         toUnifyList = new ArrayList<>();

@@ -4,8 +4,8 @@ import ru.prolog.logic.model.type.Type;
 import ru.prolog.logic.model.type.exceptions.WrongTypeException;
 import ru.prolog.logic.values.Value;
 import ru.prolog.logic.values.Variable;
-import ru.prolog.logic.values.model.ListValueModel;
-import ru.prolog.logic.values.model.ValueModel;
+import ru.prolog.logic.model.values.ListValueModel;
+import ru.prolog.logic.model.values.ValueModel;
 
 import java.util.ArrayList;
 import java.util.List;

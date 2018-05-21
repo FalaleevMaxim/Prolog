@@ -4,14 +4,20 @@ import ru.prolog.logic.context.predicate.PredicateContext;
 import ru.prolog.logic.context.program.ProgramContext;
 import ru.prolog.logic.context.rule.BaseRuleContext;
 import ru.prolog.logic.context.rule.RuleContext;
+import ru.prolog.logic.context.rule.TerminatingRuleContext;
 import ru.prolog.logic.model.rule.Rule;
 import ru.prolog.logic.managers.AbstractManager;
 import ru.prolog.logic.managers.option.Option;
 import ru.prolog.logic.values.Value;
 
+import java.util.Collections;
 import java.util.List;
 
 public class RuleContextManagerImpl extends AbstractManager<RuleContext> implements RuleContextManager {
+    {
+        addOption(TerminatingRuleContext::new);
+    }
+
     public RuleContextManagerImpl() {
     }
 

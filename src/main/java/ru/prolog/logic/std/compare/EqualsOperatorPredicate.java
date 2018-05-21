@@ -1,4 +1,4 @@
-package ru.prolog.logic.std;
+package ru.prolog.logic.std.compare;
 
 import ru.prolog.logic.context.predicate.PredicateContext;
 import ru.prolog.logic.model.predicate.AbstractPredicate;

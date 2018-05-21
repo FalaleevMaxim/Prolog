@@ -1,6 +1,7 @@
 package ru.prolog.logic.model;
 
 import ru.prolog.logic.model.exceptions.ModelStateException;
+import ru.prolog.compiler.position.ModelCodeIntervals;
 
 import java.util.Collection;
 
@@ -17,4 +18,7 @@ public interface ModelObject {
      * It is recommended to call {@link #exceptions()} before calling this. If its return is not empty, any of the returned exceptions can be thrown.
      */
     ModelObject fix();
+
+    ModelCodeIntervals getCodeIntervals();
+    void setCodeIntervals(ModelCodeIntervals pos);
 }

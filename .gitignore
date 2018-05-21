@@ -89,3 +89,5 @@ hs_err_pid*
 /Prolog.iml
 /prolog-main.iml
 /.idea/
+
+/src/main/resources/sampleCode.pl

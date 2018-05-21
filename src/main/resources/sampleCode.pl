@@ -1,24 +1,31 @@
 domains
-list=foo*
-lst=integer*
-foo=f(integer);f1(string, integer)
+имя, фамилия = string
+человек = имя(имя); чел(имя, фамилия)
 database
-db(integer)
-db1(string, foo, lst)
-database - newdb
-db2(lst)
+	человек(человек)
 predicates
-divides(integer,integer)
-allDividers1(integer,integer,list,list,integer)
-allDividers(integer,integer,list)
+	однофамилец(человек, человек)
+	тёзка(человек, человек)
+	имя(человек, имя)
+	p(integer)
+	p1(char)
+	s(string)
+	sum(integer, integer)
 clauses
-divides(X,1).
-divides(X,X).
-divides(X,D):-R1=X mod D,R1=0.
-allDividers(X,Y,R):-X>0,Y>0,allDividers1(X,Y,[],R,1).
-allDividers1(X,Y,B,R,D):-D>X,R=B.
-allDividers1(X,Y,B,R,D):-D>Y,R=B.
-allDividers1(X,Y,B,R,D):-D<=X,D<=Y,divides(X,D),divides(Y,D),D1=D+1,allDividers1(X,Y,[D|B],R,D1).
-allDividers1(X,Y,B,R,D):-D<=X,D<=Y,D1=D+1,allDividers1(X,Y,B,R,D1).
+    однофамилец(чел(_, F), чел(_, F)).
+	человек(чел("Иван", "Иванов")).
+	человек(чел("Иван", "Фёдоров")).
+	человек(чел("Дмитрий", "Иванов")).
+	человек(чел("Александр\n", "Фёдоров")).
+	человек(чел("Алексей", "Иванов")).
+	тёзка(X, Y):-имя(X, N), имя(Y, N).
+	имя(чел(N, _), N).
+	имя(имя(N), N).
+	p('\u0030').
+	p1('\u0030').
+	sum(0,0):-!.
+	sum(X,R):-X1=X-1, sum(X1,R1), R=R1+X.
+	s(_).
 goal
-allDividers(12,60,R),write(R)
+//retractAll(человек(чел(_, "Иванов"))), save("db.txt").
+sum(10,X), write(X), s(Y), write(Y).

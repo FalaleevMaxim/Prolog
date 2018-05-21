@@ -1,6 +1,7 @@
 package ru.prolog.logic.storage.type;
 
 import ru.prolog.logic.model.ModelObject;
+import ru.prolog.logic.model.NameModel;
 import ru.prolog.logic.model.predicate.DatabasePredicate;
 import ru.prolog.logic.model.type.Type;
 import ru.prolog.logic.model.type.descriptions.Functor;
@@ -15,4 +16,6 @@ public interface TypeStorage extends ModelObject {
     boolean contains(String typeName);
     Type getDatabaseType();
     void addDatabasePredicate(DatabasePredicate predicate);
+    void putNameModel(NameModel nameModel);
+    NameModel typeNameModel(String typeName);
 }

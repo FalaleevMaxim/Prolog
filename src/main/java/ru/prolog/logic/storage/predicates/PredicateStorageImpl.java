@@ -1,5 +1,6 @@
 package ru.prolog.logic.storage.predicates;
 
+import ru.prolog.logic.model.AbstractModelObject;
 import ru.prolog.logic.model.ModelObject;
 import ru.prolog.logic.model.exceptions.ModelStateException;
 import ru.prolog.logic.model.predicate.DatabasePredicate;
@@ -11,18 +12,18 @@ import ru.prolog.logic.model.rule.Statement;
 import ru.prolog.logic.model.rule.StatementExecutorRule;
 import ru.prolog.logic.model.type.Type;
 import ru.prolog.logic.std.*;
+import ru.prolog.logic.std.compare.*;
 import ru.prolog.logic.std.db.*;
 import ru.prolog.logic.storage.predicates.exceptions.SamePredicateException;
 import ru.prolog.logic.storage.type.TypeStorage;
-import ru.prolog.logic.values.model.ValueModel;
+import ru.prolog.logic.model.values.ValueModel;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class PredicateStorageImpl implements PredicateStorage {
+public class PredicateStorageImpl extends AbstractModelObject implements PredicateStorage {
     private Map<String, SortedMap<Integer, Predicate>> predicates = new HashMap<>();
     private TypeStorage typeStorage;
-    private boolean fixed = false;
 
     public PredicateStorageImpl(TypeStorage typeStorage) {
         this.typeStorage = typeStorage;
@@ -56,17 +57,35 @@ public class PredicateStorageImpl implements PredicateStorage {
 
     @Override
     public Predicate getFitting(String name, List<Type> types) {
+        if(!predicates.containsKey(name)) return null;
         Predicate p = get(name, types.size());
         if(p==null) p = getVarArgPredicate(name);
-        if(p==null) return null;
-        for(int i = 0; i<p.getArgTypeNames().size(); i++){
-            Type predType = p.getTypeStorage().get(p.getArgTypeNames().get(i));
-            Type reqType = types.get(i);
-            if (!predType.isCommonType() && reqType.equals(predType)) {
-                return null;
+        if(p!=null){
+            if(matchArgTypes(p, types)==types.size())
+                return p;
+            else p=null;
+        }
+        int match = 0;
+        for (Map.Entry<Integer, Predicate> entry : predicates.get(name).entrySet()) {
+            int m = matchArgTypes(entry.getValue(), types);
+            if(m>match){
+                match = m;
+                p = entry.getValue();
             }
         }
         return p;
+    }
+
+    private int matchArgTypes(Predicate p, List<Type> types){
+        int count = 0;
+        for(int i = 0; i<p.getArgTypeNames().size(); i++){
+            Type predType = p.getTypeStorage().get(p.getArgTypeNames().get(i));
+            Type reqType = types.get(i);
+            if (predType.isCommonType() || predType.equals(reqType)) {
+                count++;
+            }
+        }
+        return count;
     }
 
     @Override
@@ -92,19 +111,26 @@ public class PredicateStorageImpl implements PredicateStorage {
     public Collection<ModelStateException> exceptions() {
         if(fixed) return Collections.emptyList();
         Collection<ModelStateException> exceptions = new ArrayList<>();
-
+        /*for (Map.Entry<String, SortedMap<Integer, Predicate>> entry : predicates.entrySet()) {
+            if(entry.getValue().size()>1 && entry.getValue().lastKey().equals(Integer.MAX_VALUE))
+                exceptions.add(new PredicateStateException(
+                        entry.getValue().get(Integer.MAX_VALUE),
+                        "VarArg predicate can not have versions with other count of arguments"));
+        }*/
         for(Predicate p : all()){
             //This horrible construction sets predicates to statements in rules if they are not set.
             if(p instanceof RuleExecutorPredicate){
                 for(Rule r : ((RuleExecutorPredicate) p).getRules()) {
                     if (r instanceof StatementExecutorRule) {
-                        for (Statement st : ((StatementExecutorRule)r).getStatements()){
-                            if(st.getPredicate()==null){
-                                st.setPredicate(getFitting(
-                                        st.getPredicateName(),
-                                        st.getArgs().stream()
-                                                .map(ValueModel::getType)
-                                                .collect(Collectors.toList())));
+                        for (List<Statement> list : ((StatementExecutorRule) r).getStatements()) {
+                            for (Statement st : list){
+                                if(st.getPredicate()==null){
+                                    st.setPredicate(getFitting(
+                                            st.getPredicateName(),
+                                            st.getArgs().stream()
+                                                    .map(ValueModel::getType)
+                                                    .collect(Collectors.toList())));
+                                }
                             }
                         }
                     }
@@ -149,6 +175,8 @@ public class PredicateStorageImpl implements PredicateStorage {
         add(new EqualsOperatorPredicate(typeStorage));
         add(new LessOperatorPredicate(typeStorage));
         add(new MoreOperatorPredicate(typeStorage));
+        add(new MoreEqualsOperatorPredicate(typeStorage));
+        add(new LessEqualsOperatorPredicate(typeStorage));
         add(new RandomPredicate(typeStorage));
         add(new WritePredicate(typeStorage));
         add(new AssertPredicate(typeStorage));
@@ -167,6 +195,8 @@ public class PredicateStorageImpl implements PredicateStorage {
             || p instanceof EqualsOperatorPredicate
             || p instanceof LessOperatorPredicate
             || p instanceof MoreOperatorPredicate
+            || p instanceof MoreEqualsOperatorPredicate
+            || p instanceof LessEqualsOperatorPredicate
             || p instanceof RandomPredicate
             || p instanceof WritePredicate
             || p instanceof AssertPredicate

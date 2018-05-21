@@ -1,6 +1,8 @@
 package ru.prolog.logic.storage.type;
 
+import ru.prolog.logic.model.AbstractModelObject;
 import ru.prolog.logic.model.ModelObject;
+import ru.prolog.logic.model.NameModel;
 import ru.prolog.logic.model.exceptions.ModelStateException;
 import ru.prolog.logic.model.predicate.DatabasePredicate;
 import ru.prolog.logic.model.type.Type;
@@ -11,12 +13,12 @@ import ru.prolog.logic.storage.type.exception.TypeAlreadyExistsException;
 
 import java.util.*;
 
-public class TypeStorageImpl implements TypeStorage {
+public class TypeStorageImpl extends AbstractModelObject implements TypeStorage {
     private Map<String, Type> types = new HashMap<>();
     private Map<Type, List<String>> names = new HashMap<>();
     private Map<String, Functor> functors;
+    private Map<String, NameModel> nameCodeMappings = new HashMap<>();
     private Type databaseType = new Type(new CompoundType());
-    private boolean fixed = false;
 
     public TypeStorageImpl() {
         for (Map.Entry<String, Type> e : Type.primitives.entrySet()){
@@ -38,12 +40,27 @@ public class TypeStorageImpl implements TypeStorage {
             else return;
         }
         types.put(name, type);
+        if(type.isCompoundType()){
+            for (Functor func : type.getCompoundType().getFunctors()) {
+                addFunctor(func);
+            }
+        }
         if(!names.containsKey(type)){
             List<String> typeNames = new ArrayList<>();
             typeNames.add(name);
             names.put(type, typeNames);
         }else{
             names.get(type).add(name);
+        }
+    }
+
+    private void addFunctor(Functor func) {
+        if(functors==null) functors = new HashMap<>();
+        if(func.getTypeStorage()==null) func.setTypeStorage(this);
+        if(!functors.containsKey(func.getName())){
+            functors.put(func.getName(), func);
+        }else{
+            throw new FunctorAlreadyUsedException(func, functors.get(func.getName()));
         }
     }
 
@@ -60,6 +77,20 @@ public class TypeStorageImpl implements TypeStorage {
     @Override
     public void addDatabasePredicate(DatabasePredicate predicate) {
         databaseType.getCompoundType().addFunctor(predicate);
+        addFunctor(predicate);
+    }
+
+    @Override
+    public void putNameModel(NameModel nameModel) {
+        if(fixed) throw new IllegalStateException("State is fixed. You can not change it anymore.");
+        if(!contains(nameModel.getName()))
+            throw new IllegalArgumentException("Type "+ nameModel.getName() + " does not exist");
+        nameCodeMappings.put(nameModel.getName(), nameModel);
+    }
+
+    @Override
+    public NameModel typeNameModel(String typeName) {
+        return nameCodeMappings.get(typeName);
     }
 
     @Override
@@ -69,6 +100,17 @@ public class TypeStorageImpl implements TypeStorage {
 
     @Override
     public Functor getFunctor(String name) {
+        if(functors==null) return null;
+        for (Type type : types.values()){
+            if(type.isCompoundType()){
+                for (Functor func : type.getCompoundType().getFunctors()){
+                    if(func.getTypeStorage()==null) func.setTypeStorage(this);
+                    if(!functors.containsKey(func.getName())){
+                        functors.put(func.getName(), func);
+                    }
+                }
+            }
+        }
         return functors.get(name);
     }
 
@@ -76,7 +118,6 @@ public class TypeStorageImpl implements TypeStorage {
     public Collection<ModelStateException> exceptions() {
         if(fixed) return Collections.emptyList();
         Collection<ModelStateException> exceptions = new ArrayList<>();
-        functors = new HashMap<>();
         for (Type type : types.values()){
             if(type.isList() && type.getListType()==null){
                 Type listType = types.get(type.getListTypeName());
@@ -87,15 +128,7 @@ public class TypeStorageImpl implements TypeStorage {
                 else type.setListType(listType);
             }
             if(type.isCompoundType()){
-                for (Functor func : type.getCompoundType().getFunctors().values()){
-                    if(func.getTypeStorage()==null) func.setTypeStorage(this);
-                    exceptions.addAll(func.exceptions());
-                    if(functors.containsKey(func.getName())){
-                        exceptions.add(new FunctorAlreadyUsedException(func, functors.get(func.getName())));
-                    }else{
-                        functors.put(func.getName(), func);
-                    }
-                }
+                exceptions.addAll(type.getCompoundType().exceptions());
             }
         }
         return exceptions;

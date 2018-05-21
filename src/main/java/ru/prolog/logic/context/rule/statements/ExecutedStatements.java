@@ -7,4 +7,5 @@ public class ExecutedStatements {
     public List<ExecutedStatement> executions = new ArrayList<>();
     public int cutIndex = -1;
     public int currentStatement=0;
+    public int currentList = 0;
 }

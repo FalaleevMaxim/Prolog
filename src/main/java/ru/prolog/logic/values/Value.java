@@ -2,7 +2,7 @@ package ru.prolog.logic.values;
 
 import ru.prolog.logic.context.RuntimeObject;
 import ru.prolog.logic.model.type.Type;
-import ru.prolog.logic.values.model.ValueModel;
+import ru.prolog.logic.model.values.ValueModel;
 
 import java.util.List;
 

@@ -1,6 +1,7 @@
 package ru.prolog.logic.model.type;
 
 import ru.prolog.logic.context.rule.RuleContext;
+import ru.prolog.logic.model.AbstractModelObject;
 import ru.prolog.logic.model.ModelObject;
 import ru.prolog.logic.model.exceptions.ModelStateException;
 import ru.prolog.logic.model.type.descriptions.CommonType;
@@ -13,13 +14,12 @@ import ru.prolog.logic.values.simple.SimpleVariable;
 
 import java.util.*;
 
-public final class Type implements ModelObject {
+public final class Type extends AbstractModelObject{
     private PrimitiveType primitiveType;
     private Type listType;
     private String listTypeName;
     private CompoundType compoundType;
     private CommonType commonType;
-    private boolean fixed = false;
 
     public Type(PrimitiveType primitive){
         this.primitiveType = primitive;

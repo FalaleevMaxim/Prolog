@@ -3,7 +3,7 @@ package ru.prolog.logic.values.expression;
 import ru.prolog.logic.model.type.Type;
 import ru.prolog.logic.values.Value;
 import ru.prolog.logic.values.Variable;
-import ru.prolog.logic.values.model.ExprValueModel;
+import ru.prolog.logic.model.values.ExprValueModel;
 
 import java.util.List;
 

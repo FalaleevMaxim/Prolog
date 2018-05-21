@@ -1,7 +1,7 @@
 package ru.prolog.logic.std.db;
 
 import ru.prolog.logic.context.predicate.PredicateContext;
-import ru.prolog.logic.exceprions.FreeVariableException;
+import ru.prolog.logic.exceptions.FreeVariableException;
 import ru.prolog.logic.model.predicate.AbstractPredicate;
 import ru.prolog.logic.model.predicate.DatabasePredicate;
 import ru.prolog.logic.model.rule.FactRule;

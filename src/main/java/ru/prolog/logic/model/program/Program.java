@@ -2,12 +2,12 @@ package ru.prolog.logic.model.program;
 
 import ru.prolog.logic.context.program.ProgramContext;
 import ru.prolog.logic.managers.Managers;
-import ru.prolog.logic.model.ModelObject;
+import ru.prolog.logic.model.AbstractModelObject;
 import ru.prolog.logic.model.exceptions.ModelStateException;
 import ru.prolog.logic.model.predicate.GoalPredicate;
 import ru.prolog.logic.model.predicate.InnerGoalPredicate;
 import ru.prolog.logic.model.rule.StatementExecutorRule;
-import ru.prolog.logic.std.InteractiveGoalPredicate;
+import ru.prolog.logic.model.predicate.InteractiveGoalPredicate;
 import ru.prolog.logic.storage.database.DatabaseModel;
 import ru.prolog.logic.storage.database.DatabaseModelImpl;
 import ru.prolog.logic.storage.predicates.PredicateStorage;
@@ -19,13 +19,12 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 
-public class Program implements ModelObject{
+public class Program  extends AbstractModelObject implements Runnable {
     private TypeStorage typeStorage;
     private PredicateStorage predicateStorage;
     private GoalPredicate goal;
     private DatabaseModel database;
     private Managers managers;
-    private boolean fixed = false;
 
     public Program(){
         typeStorage = new TypeStorageImpl();
@@ -45,8 +44,8 @@ public class Program implements ModelObject{
         return managers.getPredicateManager().context(goal, Collections.emptyList(), context).execute();
     }
 
-    public boolean run(){
-        return createContext().execute();
+    public void run(){
+        createContext().execute();
     }
 
     public TypeStorage domains() {
@@ -101,7 +100,7 @@ public class Program implements ModelObject{
         typeStorage.fix();
         database.fix();
         predicateStorage.fix();
-        if(goal().getStatements().isEmpty()){
+        if(!goal().hasStatements()){
             goal = new InteractiveGoalPredicate();
         }
         goal.fix();

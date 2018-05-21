@@ -1,8 +1,8 @@
 package ru.prolog.logic.model.exceptions.value;
 
 import ru.prolog.logic.model.type.Type;
-import ru.prolog.logic.values.model.ValueModel;
-import ru.prolog.logic.values.model.ListValueModel;
+import ru.prolog.logic.model.values.ValueModel;
+import ru.prolog.logic.model.values.ListValueModel;
 
 public class WrongListElementTypeException extends ValueStateException {
     private final ValueModel element;

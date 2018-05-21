@@ -1,5 +1,6 @@
 package ru.prolog.logic.managers;
 
+import ru.prolog.logic.model.AbstractModelObject;
 import ru.prolog.logic.model.ModelObject;
 import ru.prolog.logic.model.exceptions.ModelStateException;
 import ru.prolog.logic.managers.option.Option;
@@ -9,9 +10,8 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
-public abstract class AbstractManager<T> implements Manager<T> {
+public abstract class AbstractManager<T>  extends AbstractModelObject implements Manager<T> {
     private List<Option<T>> options;
-    private boolean fixed = false;
 
     public AbstractManager() {
     }

@@ -3,7 +3,7 @@ package ru.prolog.logic.model.exceptions.rule;
 import ru.prolog.logic.model.predicate.Predicate;
 import ru.prolog.logic.model.rule.Rule;
 import ru.prolog.logic.model.type.Type;
-import ru.prolog.logic.values.model.ValueModel;
+import ru.prolog.logic.model.values.ValueModel;
 
 public class WrongRuleArgTypeException extends RuleStateException {
     private final Predicate predicate;

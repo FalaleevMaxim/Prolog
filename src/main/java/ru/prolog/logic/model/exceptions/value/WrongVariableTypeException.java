@@ -1,7 +1,7 @@
 package ru.prolog.logic.model.exceptions.value;
 
 import ru.prolog.logic.model.type.Type;
-import ru.prolog.logic.values.model.VariableModel;
+import ru.prolog.logic.model.values.VariableModel;
 
 public class WrongVariableTypeException extends ValueStateException{
     private final Type expectedType;

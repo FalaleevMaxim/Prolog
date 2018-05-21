@@ -1,7 +1,7 @@
 package ru.prolog.logic.model.exceptions.value.functor;
 
 import ru.prolog.logic.model.exceptions.value.ValueStateException;
-import ru.prolog.logic.values.model.FunctorValueModel;
+import ru.prolog.logic.model.values.FunctorValueModel;
 
 public class FunctorValueException extends ValueStateException {
     public FunctorValueException(FunctorValueModel functor, String message) {
