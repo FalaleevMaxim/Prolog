@@ -1,6 +1,10 @@
 # Prolog
 Интерпретатор Turbo Prolog на Java.
 
-Внутренняя логика интерпретатора готова. Используя классы модели внутреннего представления, можно составить и запустить программу.  
-Тестовые программы можно найти в [/src/test/java/ru/prolog/logic/model/program](https://github.com/FalaleevMaxim/Prolog/tree/master/src/test/java/ru/prolog/logic/model/program)  
-Перед сборкой может потребоваться запустить команду `mvn antlr4:antlr4` чтобы сгенерировать некоторые классы.
+Интерпретатор готов и работает из командной строки. Чтобы собрать проект, используйте `mvn compile assembly:single.` В папке target появится Prolog.jar, который можно запускать из командной строки.  
+Аргументом командной строки нужно передать путь к текстовому файлу с кодом программы на Turbo Prolog.  
+Для записи лога можно дополнительно указать аргументы -d и путь к файлу, куда писать лог.  
+Примеры запуска:  
+`java -jar Prolog.jar code.txt`  
+`java -jar Prolog.jar "C:\Users\Admin\IdeaProjects\Prolog\code.txt"`  
+`java -jar Prolog.jar code.txt -d log.txt`  
