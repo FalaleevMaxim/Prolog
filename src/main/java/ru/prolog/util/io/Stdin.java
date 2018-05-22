@@ -12,7 +12,7 @@ public class Stdin implements InputDevice{
     }
 
     @Override
-    public char getch() throws IOException {
-        return (char) System.in.read();
+    public char readChar() throws IOException {
+        return sc.nextLine().charAt(0);
     }
 }

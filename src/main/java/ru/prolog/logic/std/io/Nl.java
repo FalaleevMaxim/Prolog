@@ -1,4 +1,4 @@
-package ru.prolog.logic.std;
+package ru.prolog.logic.std.io;
 
 import ru.prolog.logic.context.predicate.PredicateContext;
 import ru.prolog.logic.context.program.ProgramContext;
@@ -16,7 +16,7 @@ public class Nl extends AbstractPredicate {
     @Override
     public int run(PredicateContext context, List<Value> args, int startWith) {
         if(startWith>0) return -1;
-        OutputDevice out = (OutputDevice) context.programContext().getContextData(ProgramContext.KEY_OUTPUT_DEVICE);
+        OutputDevice out = context.programContext().getOutputDevices();
         out.print("\n");
         return 0;
     }

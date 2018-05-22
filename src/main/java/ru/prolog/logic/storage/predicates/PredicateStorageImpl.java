@@ -14,6 +14,9 @@ import ru.prolog.logic.model.type.Type;
 import ru.prolog.logic.std.*;
 import ru.prolog.logic.std.compare.*;
 import ru.prolog.logic.std.db.*;
+import ru.prolog.logic.std.io.*;
+import ru.prolog.logic.std.string.FormatPredicate;
+import ru.prolog.logic.std.string.FrontCharPredicate;
 import ru.prolog.logic.storage.predicates.exceptions.SamePredicateException;
 import ru.prolog.logic.storage.type.TypeStorage;
 import ru.prolog.logic.model.values.ValueModel;
@@ -179,12 +182,20 @@ public class PredicateStorageImpl extends AbstractModelObject implements Predica
         add(new LessEqualsOperatorPredicate(typeStorage));
         add(new RandomPredicate(typeStorage));
         add(new WritePredicate(typeStorage));
+        add(new WriteFPredicate(typeStorage));
+        add(new ReadLnPredicate(typeStorage));
+        add(new ReadCharPredicate(typeStorage));
+        add(new ReadIntPredicate(typeStorage));
+        add(new ReadRealPredicate(typeStorage));
+        add(new FormatPredicate(typeStorage));
+        add(new FrontCharPredicate(typeStorage));
         add(new AssertPredicate(typeStorage));
         add(new AssertaPredicate(typeStorage));
         add(new AssertzPredicate(typeStorage));
         add(new RetractPredicate(typeStorage));
         add(new RetractAllPredicate(typeStorage));
         add(new SavePredicate(typeStorage));
+        add(new ConsultPredicate(typeStorage));
     }
 
     private boolean isBuiltInPredicate(Predicate p){
@@ -199,11 +210,19 @@ public class PredicateStorageImpl extends AbstractModelObject implements Predica
             || p instanceof LessEqualsOperatorPredicate
             || p instanceof RandomPredicate
             || p instanceof WritePredicate
+            || p instanceof WriteFPredicate
+            || p instanceof ReadLnPredicate
+            || p instanceof ReadCharPredicate
+            || p instanceof ReadIntPredicate
+            || p instanceof ReadRealPredicate
+            || p instanceof FormatPredicate
+            || p instanceof FrontCharPredicate
             || p instanceof AssertPredicate
             || p instanceof AssertaPredicate
             || p instanceof AssertzPredicate
             || p instanceof RetractPredicate
             || p instanceof RetractAllPredicate
+            || p instanceof ConsultPredicate
             || p instanceof SavePredicate;
     }
 }

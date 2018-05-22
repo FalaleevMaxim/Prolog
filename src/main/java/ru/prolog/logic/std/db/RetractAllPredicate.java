@@ -8,7 +8,6 @@ import ru.prolog.logic.model.predicate.DatabasePredicate;
 import ru.prolog.logic.model.rule.FactRule;
 import ru.prolog.logic.storage.database.Database;
 import ru.prolog.logic.storage.type.TypeStorage;
-import ru.prolog.logic.values.AnonymousVariable;
 import ru.prolog.logic.values.Value;
 import ru.prolog.logic.values.Variable;
 import ru.prolog.logic.values.functor.FunctorValue;
@@ -28,7 +27,7 @@ public class RetractAllPredicate extends AbstractPredicate {
 
         FunctorValue func = (FunctorValue) args.get(0);
         for(Variable var : func.innerFreeVariables()){
-            if(!(var instanceof AnonymousVariable)){
+            if(!var.getName().equals("_")){
                 throw new FreeVariableException("Free variables are not allowed in \"retractAll\"", var);
             }
         }

@@ -29,6 +29,7 @@ import ru.prolog.compiler.position.CodeInterval;
 import ru.prolog.compiler.position.CodePos;
 import ru.prolog.compiler.position.ModelCodeIntervals;
 
+import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -68,6 +69,12 @@ public class PrologParseListener extends PrologBaseListener implements ANTLRErro
         }
     }
 
+    @Override
+    public void exitDomain(PrologParser.DomainContext ctx) {
+        //Validate types
+        program.domains().exceptions();
+    }
+
     private Type parseType(PrologParser.TypeContext ctx){
         if(ctx.primitiveType!=null)
             return program.domains().get(ctx.primitiveType.getText());
@@ -100,7 +107,17 @@ public class PrologParseListener extends PrologBaseListener implements ANTLRErro
     private Functor parseFunctor(PrologParser.FunctorContext ctx){
         String name = ctx.NAME().getText();
         if(ctx.argTypes()==null) {
-            return new FunctorType(name);
+            FunctorType func = new FunctorType(name);
+            if(ctx.LPAR()!=null){
+                func.setCodeIntervals(new ModelCodeIntervals(
+                        tokenInterval(ctx.NAME().getSymbol()),
+                        fullInterval(ctx.getStart(), ctx.getStop()),
+                        ctx.LPAR().getSymbol().getStartIndex(),
+                        ctx.RPAR().getSymbol().getStartIndex()));
+            }else {
+                func.setCodeIntervals(new ModelCodeIntervals(tokenInterval(ctx.NAME().getSymbol())));
+            }
+            return func;
         }
         FunctorType func = new FunctorType(
                 name,
@@ -111,7 +128,7 @@ public class PrologParseListener extends PrologBaseListener implements ANTLRErro
         func.setCodeIntervals(new ModelCodeIntervals(
                 tokenInterval(ctx.NAME().getSymbol()),
                 fullInterval(ctx.getStart(), ctx.getStop()),
-                ctx.argTypes().typeName().stream().map(ParserRuleContext::getStart).map(this::tokenInterval).collect(Collectors.toList()),
+                ctx.argTypes().typeName().stream().map(ParserRuleContext::getStart).map(PrologParseListener::tokenInterval).collect(Collectors.toList()),
                 ctx.LPAR().getSymbol().getStartIndex(),
                 ctx.RPAR().getSymbol().getStartIndex()));
         return func;
@@ -129,19 +146,35 @@ public class PrologParseListener extends PrologBaseListener implements ANTLRErro
         }
     }
 
+    @SuppressWarnings("Duplicates")
     private void parseDatabasePredicate(PrologParser.PredDefContext ctx, String dbName){
-        DatabasePredicate predicate = new DatabasePredicate(
-                ctx.NAME().getText(),
-                args(ctx.argTypes()),
-                program.domains());
-
-        predicate.setCodeIntervals(new ModelCodeIntervals(
-                tokenInterval(ctx.NAME().getSymbol()),
-                fullInterval(ctx.getStart(), ctx.getStop()),
-                ctx.argTypes().typeName().stream().map(ParserRuleContext::getStart).map(this::tokenInterval).collect(Collectors.toList()),
-                ctx.LPAR().getSymbol().getStartIndex(),
-                ctx.RPAR().getSymbol().getStartIndex()
-        ));
+        DatabasePredicate predicate;
+        if(ctx.argTypes()!=null){
+            predicate = new DatabasePredicate(
+                    ctx.NAME().getText(),
+                    args(ctx.argTypes()),
+                    program.domains());
+            predicate.setCodeIntervals(new ModelCodeIntervals(
+                    tokenInterval(ctx.NAME().getSymbol()),
+                    fullInterval(ctx.getStart(), ctx.getStop()),
+                    ctx.argTypes().typeName().stream().map(ParserRuleContext::getStart).map(PrologParseListener::tokenInterval).collect(Collectors.toList()),
+                    ctx.LPAR().getSymbol().getStartIndex(),
+                    ctx.RPAR().getSymbol().getStartIndex()));
+        }else{
+            predicate = new DatabasePredicate(
+                    ctx.NAME().getText(),
+                    Collections.emptyList(),
+                    program.domains());
+            if(ctx.LPAR()!=null){
+                predicate.setCodeIntervals(new ModelCodeIntervals(
+                        tokenInterval(ctx.NAME().getSymbol()),
+                        fullInterval(ctx.getStart(), ctx.getStop()),
+                        ctx.LPAR().getSymbol().getStartIndex(),
+                        ctx.RPAR().getSymbol().getStartIndex()));
+            }else {
+                predicate.setCodeIntervals(new ModelCodeIntervals(tokenInterval(ctx.NAME().getSymbol())));
+            }
+        }
 
         program.database().addPredicate(predicate, dbName);
         program.domains().addDatabasePredicate(predicate);
@@ -155,18 +188,33 @@ public class PrologParseListener extends PrologBaseListener implements ANTLRErro
     }
 
     private void parsePredicate(PrologParser.PredDefContext ctx){
-        RuleExecutorPredicate predicate = new RuleExecutorPredicate(
-                ctx.NAME().getText(),
-                args(ctx.argTypes()),
-                program.domains());
-
-        predicate.setCodeIntervals(new ModelCodeIntervals(
-                tokenInterval(ctx.NAME().getSymbol()),
-                fullInterval(ctx.getStart(), ctx.getStop()),
-                ctx.argTypes().typeName().stream().map(ParserRuleContext::getStart).map(this::tokenInterval).collect(Collectors.toList()),
-                ctx.LPAR().getSymbol().getStartIndex(),
-                ctx.RPAR().getSymbol().getStartIndex()
-        ));
+        RuleExecutorPredicate predicate;
+        if(ctx.argTypes()!=null){
+            predicate = new RuleExecutorPredicate(
+                    ctx.NAME().getText(),
+                    args(ctx.argTypes()),
+                    program.domains());
+            predicate.setCodeIntervals(new ModelCodeIntervals(
+                    tokenInterval(ctx.NAME().getSymbol()),
+                    fullInterval(ctx.getStart(), ctx.getStop()),
+                    ctx.argTypes().typeName().stream().map(ParserRuleContext::getStart).map(PrologParseListener::tokenInterval).collect(Collectors.toList()),
+                    ctx.LPAR().getSymbol().getStartIndex(),
+                    ctx.RPAR().getSymbol().getStartIndex()));
+        }else{
+            predicate = new RuleExecutorPredicate(
+                    ctx.NAME().getText(),
+                    Collections.emptyList(),
+                    program.domains());
+            if(ctx.LPAR()!=null){
+                predicate.setCodeIntervals(new ModelCodeIntervals(
+                        tokenInterval(ctx.NAME().getSymbol()),
+                        fullInterval(ctx.getStart(), ctx.getStop()),
+                        ctx.LPAR().getSymbol().getStartIndex(),
+                        ctx.RPAR().getSymbol().getStartIndex()));
+            }else {
+                predicate.setCodeIntervals(new ModelCodeIntervals(tokenInterval(ctx.NAME().getSymbol())));
+            }
+        }
 
         program.predicates().add(predicate);
     }
@@ -311,6 +359,11 @@ public class PrologParseListener extends PrologBaseListener implements ANTLRErro
         }
 
         int argCount = ctx.argList().value().size();
+        if(program.predicates().get(name).isEmpty()){
+            Statement st = new Statement(name);
+            st.setCodeIntervals(new ModelCodeIntervals(tokenInterval(ctx.NAME().getSymbol())));
+            return st;
+        }
         Predicate predicate = program.predicates().get(name, argCount);
         if(predicate==null) predicate = program.predicates().getVarArgPredicate(name);
 
@@ -402,7 +455,7 @@ public class PrologParseListener extends PrologBaseListener implements ANTLRErro
         if(ctx==null || ctx.value()==null) return Collections.emptyList();
         List<ValueModel> args = new ArrayList<>(ctx.value().size());
         for (int i = 0; i < ctx.value().size(); i++) {
-            if(i<expected.size()){
+            if(expected!=null && i<expected.size()){
                 args.add(parseValue(ctx.value().get(i), variables, expected.get(i)));
             }else args.add(parseValue(ctx.value().get(i), variables, null));
         }
@@ -682,7 +735,7 @@ public class PrologParseListener extends PrologBaseListener implements ANTLRErro
     public void reportContextSensitivity(Parser recognizer, DFA dfa, int startIndex, int stopIndex, int prediction, ATNConfigSet configs) {
     }
 
-    private CodeInterval tokenInterval(Token token){
+    private static CodeInterval tokenInterval(Token token){
         return new CodeInterval(
                 new CodePos(
                         token.getLine(),
@@ -692,7 +745,7 @@ public class PrologParseListener extends PrologBaseListener implements ANTLRErro
                 token.getStopIndex());
     }
 
-    private CodeInterval fullInterval(Token first, Token last){
+    private static CodeInterval fullInterval(Token first, Token last){
         return new CodeInterval(
                 new CodePos(
                         first.getLine(),
@@ -742,6 +795,76 @@ public class PrologParseListener extends PrologBaseListener implements ANTLRErro
         }
 
         return goal;
+    }
+
+    public static List<FactRule> parseDbFile(Program program, String dbFile, Collection<CompileException> exceptions) throws IOException {
+        if(!program.exceptions().isEmpty()){
+            exceptions.addAll(program.exceptions());
+            return null;
+        }
+        CharStream input = CharStreams.fromFileName(dbFile);
+        PrologLexer lexer = new PrologLexer(input);
+        TokenStream tokens = new BufferedTokenStream(lexer);
+        PrologParser parser = new PrologParser(tokens);
+        PrologParseListener compiler = new PrologParseListener(program);
+        parser.removeErrorListeners();
+        parser.addErrorListener(compiler);
+        lexer.removeErrorListeners();
+        lexer.addErrorListener(compiler);
+        PrologParser.ConsultContext consultCtx = parser.consult();
+        if(!compiler.exceptions().isEmpty()){
+            exceptions.addAll(compiler.exceptions());
+            return null;
+        }
+
+        List<FactRule> facts = new ArrayList<>(consultCtx.predExec().size());
+        for (PrologParser.PredExecContext factCtx : consultCtx.predExec()) {
+            String name = factCtx.NAME().getText();
+            DatabasePredicate predicate = program.database().getPredicate(name);
+            if(predicate==null){
+                exceptions.add(
+                        new CompileException(
+                                tokenInterval(factCtx.NAME().getSymbol()),
+                                "Database predicate "+name+" not found"));
+                continue;
+            }
+            FactRule fact;
+            if(factCtx.argList()==null){
+                fact = new FactRule(predicate, Collections.emptyList());
+                if(factCtx.LPAR()==null){
+                    //If rule without args does not have parentheses, in only contains of name.
+                    fact.setCodeIntervals(new ModelCodeIntervals(tokenInterval(factCtx.NAME().getSymbol())));
+                }else{
+                    //For rule written with empty parentheses
+                    fact.setCodeIntervals(new ModelCodeIntervals(
+                            tokenInterval(factCtx.NAME().getSymbol()),
+                            fullInterval(factCtx.getStart(), factCtx.getStop()),
+                            factCtx.LPAR().getSymbol().getStartIndex(),
+                            factCtx.RPAR().getSymbol().getStartIndex()));
+                }
+            }else{
+                fact = new FactRule(predicate, compiler.parseArgs(factCtx.argList(), new VariableStorage(), predicate.getArgTypes()));
+                fact.setCodeIntervals(new ModelCodeIntervals(
+                        tokenInterval(factCtx.NAME().getSymbol()),
+                        fullInterval(factCtx.getStart(), factCtx.getStop()),
+                        factCtx.LPAR().getSymbol().getStartIndex(),
+                        factCtx.RPAR().getSymbol().getStartIndex()));
+            }
+            Collection<ModelStateException> factExceptions = fact.exceptions();
+            if(factExceptions.isEmpty()){
+                fact.fix();
+                facts.add(fact);
+            }else{
+                exceptions.addAll(factExceptions);
+            }
+        }
+
+        if(!compiler.exceptions().isEmpty()){
+            exceptions.addAll(compiler.exceptions());
+        }
+
+        if(!exceptions.isEmpty()) return null;
+        return facts;
     }
 
     private static class VariableStorage{

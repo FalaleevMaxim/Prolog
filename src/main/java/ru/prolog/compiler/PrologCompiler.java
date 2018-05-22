@@ -11,15 +11,14 @@ import ru.prolog.logic.context.predicate.DebuggerPredicateContextDecorator;
 import ru.prolog.logic.context.program.ProgramContext;
 import ru.prolog.logic.context.rule.DebuggerRuleContextDecorator;
 import ru.prolog.logic.model.program.Program;
+import ru.prolog.logic.model.rule.FactRule;
 import ru.prolog.logic.model.rule.StatementExecutorRule;
 import ru.prolog.util.io.ErrorListenerHub;
 import ru.prolog.util.io.FileOutputDevice;
 import ru.prolog.util.io.LogFileOutput;
 import ru.prolog.util.io.OutputDeviceHub;
 
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.PrintWriter;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -77,10 +76,8 @@ public class PrologCompiler {
                         context.putContextData(ProgramContext.KEY_DEBUG_FILE, debugFileName);
                         //Write all output and exceptions to debug file
                         LogFileOutput fileWriter = new LogFileOutput(debugFileName);
-                        ((ErrorListenerHub) context.getContextData(ProgramContext.KEY_ERROR_LISTENER))
-                                .add(fileWriter);
-                        ((OutputDeviceHub) context.getContextData(ProgramContext.KEY_OUTPUT_DEVICE))
-                                .add(fileWriter);
+                        context.getErrorListeners().add(fileWriter);
+                        context.getOutputDevices().add(fileWriter);
                         return context;
                     });
         }
@@ -103,5 +100,9 @@ public class PrologCompiler {
 
     public static StatementExecutorRule parseOuterGoal(Program program, String goal, Collection<CompileException> exceptions){
         return PrologParseListener.parseOuterGoal(program, goal, exceptions);
+    }
+
+    public static List<FactRule> consult(Program program, String dbFile, Collection<CompileException> exceptions) throws IOException {
+        return PrologParseListener.parseDbFile(program, dbFile, exceptions);
     }
 }

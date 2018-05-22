@@ -7,6 +7,8 @@ import ru.prolog.logic.model.exceptions.predicate.PredicateArgTypeNotExistsExcep
 import ru.prolog.logic.model.exceptions.predicate.VarArgNotLastException;
 import ru.prolog.logic.model.type.Type;
 import ru.prolog.logic.storage.type.TypeStorage;
+import ru.prolog.logic.values.Value;
+import ru.prolog.logic.values.Variable;
 import ru.prolog.util.ToStringUtil;
 
 import java.util.ArrayList;
@@ -112,5 +114,9 @@ public abstract class AbstractPredicate extends AbstractModelObject implements P
     @Override
     public String toString() {
         return ToStringUtil.funcToString(name, argTypes);
+    }
+
+    protected boolean isFreeVariable(Value arg){
+        return arg instanceof Variable && ((Variable) arg).isFree();
     }
 }

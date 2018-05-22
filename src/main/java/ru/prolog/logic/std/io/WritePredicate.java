@@ -1,4 +1,4 @@
-package ru.prolog.logic.std;
+package ru.prolog.logic.std.io;
 
 import ru.prolog.logic.context.predicate.PredicateContext;
 import ru.prolog.logic.context.program.ProgramContext;
@@ -26,7 +26,7 @@ public class WritePredicate extends AbstractPredicate {
             if(!variables.isEmpty())
                 throw new FreeVariableException("Free variable "+variables.get(0)+" in write predicate.", variables.get(0));
 
-            OutputDevice out = (OutputDevice) context.programContext().getContextData(ProgramContext.KEY_OUTPUT_DEVICE);
+            OutputDevice out = context.programContext().getOutputDevices();
 
             //toString() of SimpleValue for string or char type returns string with quotes and escape-characters.
             // That is good for printing in list or functor, but for just printing string or char you need to print value

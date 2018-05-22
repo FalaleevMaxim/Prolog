@@ -1,5 +1,7 @@
 package ru.prolog.logic.context.predicate;
 
+import ru.prolog.logic.context.program.ExceptionsCatcherProgramContext;
+
 public class TerminatingPredicateContext extends BasePredicateContextDecorator {
     public TerminatingPredicateContext(PredicateContext decorated) {
         super(decorated);
@@ -7,15 +9,15 @@ public class TerminatingPredicateContext extends BasePredicateContextDecorator {
 
     @Override
     public boolean execute() {
-        if(Thread.interrupted()){
-            Thread.currentThread().interrupt();
-            return false;
-        }
+        checkInterrupted();
         if(!decorated.execute()) return false;
-        if(Thread.interrupted()){
-            Thread.currentThread().interrupt();
-            return false;
-        }
+        checkInterrupted();
         return true;
+    }
+
+    private void checkInterrupted() {
+        if(Thread.interrupted()){
+            throw new ExceptionsCatcherProgramContext.ProgramInterruptedException();
+        }
     }
 }

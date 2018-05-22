@@ -8,7 +8,6 @@ import ru.prolog.logic.model.exceptions.ModelStateException;
 import ru.prolog.logic.model.predicate.Predicate;
 import ru.prolog.logic.model.type.Type;
 import ru.prolog.logic.storage.type.TypeStorage;
-import ru.prolog.logic.values.AnonymousVariable;
 import ru.prolog.logic.values.Value;
 import ru.prolog.logic.values.Variable;
 
@@ -20,7 +19,7 @@ import java.util.List;
  * Does not allow free variables as atgs of inner predicate
  */
 public class Not extends AbstractModelObject implements Predicate {
-    public Predicate inner;
+    private Predicate inner;
 
     public Not(Predicate inner) {
         this.inner = inner;
@@ -58,7 +57,7 @@ public class Not extends AbstractModelObject implements Predicate {
         //Does not allow free variables as args of inner predicate
         for(Value arg : args){
             for(Variable var : arg.innerFreeVariables()){
-                if(!(var instanceof AnonymousVariable)){
+                if(!var.getName().equals("_")){
                     throw new FreeVariableException("Free variables are not allowed in \"not\"", var);
                 }
             }

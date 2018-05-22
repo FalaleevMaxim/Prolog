@@ -17,7 +17,7 @@ public abstract class AbstractManager<T>  extends AbstractModelObject implements
     }
 
     public AbstractManager(List<Option<T>> options) {
-        this.options = options;
+        this.options = new ArrayList<>(options);
     }
 
     public List<Option<T>> getOptions() {

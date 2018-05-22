@@ -1,6 +1,7 @@
 package ru.prolog.util;
 
 import ru.prolog.logic.model.type.Type;
+import ru.prolog.logic.values.Value;
 
 import java.util.List;
 
@@ -75,5 +76,23 @@ public class ToStringUtil {
             default:
                 return value.toString();
         }
+    }
+
+    public static String prologFormat(String format, List<Value> args){
+        StringBuilder sb = new StringBuilder();
+        int i=0;
+        for (char c : format.toCharArray()) {
+            if(c=='%'){
+                if(i>=args.size()){
+                    sb.append(c);
+                    continue;
+                }
+                Value arg = args.get(i++);
+                sb.append(arg.getValue());
+            }else{
+                sb.append(c);
+            }
+        }
+        return sb.toString();
     }
 }

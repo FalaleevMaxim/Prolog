@@ -86,6 +86,8 @@ goal:GOAL ruleBody '.'?;
 
 outerGoal: ruleBody '.'?;
 
+consult: predExec+;
+
 and:','
    |'and'
    |'AND'

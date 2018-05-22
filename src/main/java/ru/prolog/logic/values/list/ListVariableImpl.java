@@ -67,7 +67,9 @@ public class ListVariableImpl extends ListValue implements ListVariable {
     }
 
     @Override
+    @SuppressWarnings("Duplicates")
     public void addRelated(Variable variable) {
+        if(name.equals("_") || variable.getName().equals("_")) return;
         if(related==null) related = new HashSet<>();
         if(isImplicitlyRelated(variable)) return;
         related.add(variable);
@@ -76,8 +78,11 @@ public class ListVariableImpl extends ListValue implements ListVariable {
 
     @Override
     public void removeRelated(Variable variable) {
+        if(related==null) return;
         related.remove(variable);
-        if(variable.isRelated(this)) variable.removeRelated(this);
+        if (variable.isRelated(this)) {
+            variable.removeRelated(this);
+        }
     }
 
     @Override

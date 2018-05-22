@@ -9,10 +9,9 @@ import ru.prolog.logic.model.exceptions.value.TypeNotFitValueClassException;
 import ru.prolog.logic.model.exceptions.value.ValueStateException;
 import ru.prolog.logic.model.type.Type;
 import ru.prolog.logic.model.type.exceptions.WrongTypeException;
-import ru.prolog.util.NameChecker;
-import ru.prolog.logic.values.AnonymousVariable;
 import ru.prolog.logic.values.Value;
 import ru.prolog.logic.values.Variable;
+import ru.prolog.util.NameChecker;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -75,8 +74,9 @@ public class VariableModel extends AbstractModelObject implements ValueModel{
     @Override
     public Value forContext(RuleContext context) {
         if(!fixed) throw new IllegalStateException("State is not fixed. Call fix() method before using model object.");
-        if(name.equals("_"))
-            return new AnonymousVariable(type);
+        if(name.equals("_")) {
+            return type.createVariable(name, context);
+        }
         Variable inContext = context.getVariable(name);
         if(inContext==null){
             inContext = type.createVariable(name, context);

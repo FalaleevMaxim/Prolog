@@ -7,18 +7,19 @@ import ru.prolog.util.io.*;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class BaseProgramContext implements ProgramContext {
     private final Program program;
     private final Database database;
-    private Map<String, Object> contextData = new HashMap<>();
+    private Map<String, Object> contextData = new ConcurrentHashMap<>();
+    private InputDevice inputDevice = new Stdin();
+    private OutputDeviceHub outputDevices = new OutputDeviceHub(new StdOut());
+    private ErrorListenerHub errorListeners = new ErrorListenerHub(new StdErr());
 
     public BaseProgramContext(Program program) {
         this.program = program;
         this.database = new DatabaseImpl(program.database());
-        contextData.put(KEY_INPUT_DEVICE, new Stdin());
-        contextData.put(KEY_OUTPUT_DEVICE, new OutputDeviceHub(new StdOut()));
-        contextData.put(KEY_ERROR_LISTENER, new ErrorListenerHub(new StdErr()));
     }
 
     @Override
@@ -46,5 +47,20 @@ public class BaseProgramContext implements ProgramContext {
     @Override
     public boolean execute() {
         return program.run(this);
+    }
+
+    @Override
+    public InputDevice getInputDevice() {
+        return inputDevice;
+    }
+
+    @Override
+    public OutputDeviceHub getOutputDevices() {
+        return outputDevices;
+    }
+
+    @Override
+    public ErrorListenerHub getErrorListeners() {
+        return errorListeners;
     }
 }

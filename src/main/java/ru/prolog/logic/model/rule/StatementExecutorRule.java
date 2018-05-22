@@ -94,7 +94,7 @@ public class StatementExecutorRule extends AbstractRule {
         ExecutedStatements st = context.getStatements();
 
         while (st.currentList<this.statements.size()) {
-            List<Statement> statList = statements.get(0); //getStatements(st.currentList);
+            List<Statement> statList = getStatements(st.currentList);
             while (st.currentStatement < statList.size() && st.currentStatement > st.cutIndex) {
                 PredicateContext predicateExecution;
                 //if backtracked to executed statement, run same context
@@ -126,7 +126,7 @@ public class StatementExecutorRule extends AbstractRule {
                             new ExecutedStatement(
                                     predicateExecution,
                                     predicateExecution.getArgs().stream()
-                                            .map(Value::innerFreeVariables)//Get lists of all variables in args (including ones in lists or functors)
+                                            .map(Value::innerFreeVariables)//Get lists of all free variables in args (including ones in lists or functors)
                                             .reduce(new ArrayList<>(), //Concatenating lists of variables
                                                     (v1, v2) -> {
                                                         v1.addAll(v2);

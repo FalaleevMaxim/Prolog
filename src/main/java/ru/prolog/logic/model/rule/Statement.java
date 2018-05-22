@@ -10,6 +10,7 @@ import ru.prolog.logic.model.ModelObject;
 import ru.prolog.logic.model.predicate.Predicate;
 import ru.prolog.logic.model.type.Type;
 import ru.prolog.logic.std.Not;
+import ru.prolog.logic.std.compare.EqualsOperatorPredicate;
 import ru.prolog.util.ToStringUtil;
 import ru.prolog.logic.model.values.ValueModel;
 
@@ -57,6 +58,9 @@ public class Statement extends AbstractModelObject {
     @SuppressWarnings("Duplicates")
     public Collection<ModelStateException> exceptions() {
         Collection<ModelStateException> exceptions = new ArrayList<>();
+        for (ValueModel arg : args) {
+            exceptions.addAll(arg.exceptions());
+        }
         if(predicate==null) {
             exceptions.add(new StatementStateException(this, "Predicate of statement is null"));
             return exceptions;
