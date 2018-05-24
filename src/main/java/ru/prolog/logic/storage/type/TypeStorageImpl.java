@@ -34,8 +34,9 @@ public class TypeStorageImpl extends AbstractModelObject implements TypeStorage 
     @Override
     public void addType(String name, Type type){
         if(fixed) throw new IllegalStateException("State is fixed. You can not change it anymore.");
+        if("database".equals(name)) return;
         if(types.containsKey(name)){
-            if(!type.isPrimitive())
+            if(!get(name).equals(type))
                 throw new TypeAlreadyExistsException(name);
             else return;
         }
@@ -51,6 +52,18 @@ public class TypeStorageImpl extends AbstractModelObject implements TypeStorage 
             names.put(type, typeNames);
         }else{
             names.get(type).add(name);
+        }
+    }
+
+    @Override
+    public Set<String> getAllTypeNames() {
+        return types.keySet();
+    }
+
+    @Override
+    public void addTypes(TypeStorage other) {
+        for (String name : other.getAllTypeNames()) {
+            addType(name, other.get(name));
         }
     }
 

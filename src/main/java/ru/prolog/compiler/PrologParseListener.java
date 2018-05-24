@@ -15,6 +15,7 @@ import ru.prolog.logic.model.predicate.DatabasePredicate;
 import ru.prolog.logic.model.predicate.Predicate;
 import ru.prolog.logic.model.predicate.RuleExecutorPredicate;
 import ru.prolog.logic.model.program.Program;
+import ru.prolog.logic.model.program.ProgramModule;
 import ru.prolog.logic.model.rule.FactRule;
 import ru.prolog.logic.model.rule.Statement;
 import ru.prolog.logic.model.rule.StatementExecutorRule;
@@ -28,14 +29,23 @@ import ru.prolog.logic.storage.database.DatabaseModel;
 import ru.prolog.compiler.position.CodeInterval;
 import ru.prolog.compiler.position.CodePos;
 import ru.prolog.compiler.position.ModelCodeIntervals;
+import ru.prolog.logic.storage.predicates.PredicateStorage;
+import ru.prolog.logic.storage.predicates.exceptions.SamePredicateException;
+import ru.prolog.logic.storage.type.TypeStorage;
 
 import java.io.IOException;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.util.*;
 import java.util.stream.Collectors;
 
 public class PrologParseListener extends PrologBaseListener implements ANTLRErrorListener{
     private Program program;
     private Set<CompileException> exceptions = new HashSet<>();
+    private List<IncludeStatement> includes;
     private boolean parseError = false;
 
     public PrologParseListener() {
@@ -54,6 +64,34 @@ public class PrologParseListener extends PrologBaseListener implements ANTLRErro
     public void enterProgram(PrologParser.ProgramContext ctx) {
         if(parseError) throw new IllegalStateException("Errors during parsing");
         program = new Program();
+    }
+
+    @Override
+    public void enterIncludes(PrologParser.IncludesContext ctx) {
+        includes = new ArrayList<>(ctx.include().size());
+    }
+
+    @Override
+    public void enterInclude(PrologParser.IncludeContext ctx) {
+        Token baseToken;
+        Include includeType;
+        if(ctx.PREDICATE()!=null){
+            includeType = Include.PREDICATE;
+            baseToken = ctx.PREDICATE().getSymbol();
+        }else {
+            includeType = Include.MODULE;
+            baseToken = ctx.MODULE().getSymbol();
+        }
+        String directory = ctx.directory.getText();
+        directory = directory.substring(1, directory.length()-1);
+        String className = ctx.className.getText();
+        className = className.substring(1, className.length()-1);
+        includes.add(new IncludeStatement(directory, className, includeType, new ModelCodeIntervals(
+                tokenInterval(baseToken),
+                fullInterval(ctx.getStart(), ctx.getStop()),
+                Arrays.asList(tokenInterval(ctx.directory), tokenInterval(ctx.className)),
+                ctx.LPAR().getSymbol().getStartIndex(),
+                ctx.RPAR().getSymbol().getStartIndex())));
     }
 
     @Override
@@ -215,14 +253,107 @@ public class PrologParseListener extends PrologBaseListener implements ANTLRErro
                 predicate.setCodeIntervals(new ModelCodeIntervals(tokenInterval(ctx.NAME().getSymbol())));
             }
         }
-
-        program.predicates().add(predicate);
+        try {
+            program.predicates().add(predicate);
+        }catch (SamePredicateException e){
+            exceptions.add(e);
+        }
     }
 
     private List<String> args(PrologParser.ArgTypesContext ctx){
         return ctx.typeName()
                 .stream().map(RuleContext::getText)
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public void exitPredicates(PrologParser.PredicatesContext ctx) {
+        for (IncludeStatement include : includes) {
+            try {
+                ClassLoader loader = new URLClassLoader(new URL[]{new URL("file://"+include.directory)});
+                Class<?> class_ = loader.loadClass(include.className);
+                if(include.type==Include.PREDICATE){
+                    Constructor<?> constructor = null;
+                    boolean acceptsTypeStorage = false;
+                    for (Constructor<?> c : class_.getConstructors()) {
+                        if(c.getParameterCount()==0){
+                            constructor = c;
+                            break;
+                        }
+                        if(c.getParameterCount()==1 && c.getParameterTypes()[0].equals(TypeStorage.class)){
+                            constructor = c;
+                            acceptsTypeStorage = true;
+                            break;
+                        }
+                    }
+                    if(constructor==null){
+                        exceptions.add(new CompileException(
+                                include.codeIntervals.getArgs().get(1),
+                                "Predicate class must contain empty constructor or constructor with only TypeStorage parameter"));
+                        continue;
+                    }
+                    Object o = acceptsTypeStorage?
+                            constructor.newInstance(program.domains()):
+                            constructor.newInstance();
+                    if(!(o instanceof Predicate)){
+                        exceptions.add(new CompileException(
+                                include.codeIntervals.getFullInterval(),
+                                "Class does not implement Predicate"));
+                        continue;
+                    }
+                    Predicate predicate = (Predicate) o;
+                    predicate.setCodeIntervals(include.codeIntervals);
+                    if(!predicate.exceptions().isEmpty()){
+                        exceptions.addAll(predicate.exceptions());
+                        continue;
+                    }
+                    predicate.fix();
+                    program.predicates().add(predicate);
+                }else {
+                    Object o = class_.getConstructor().newInstance();
+                    if(!(o instanceof ProgramModule)){
+                        exceptions.add(new CompileException(
+                                include.codeIntervals.getFullInterval(),
+                                "Class does not implement ProgramModule"));
+                        continue;
+                    }
+                    ProgramModule module = (ProgramModule) o;
+                    if(!module.exceptions().isEmpty()){
+                        exceptions.addAll(module.exceptions());
+                        continue;
+                    }
+                    module.fix();
+                    if(module.getTypeStorage()!=null){
+                        program.domains().addTypes(module.getTypeStorage());
+                    }
+                    if(module.getPredicates()!=null){
+                        for (Predicate p : module.getPredicates().all()) {
+                            program.predicates().add(p);
+                        }
+                    }
+                }
+            } catch (MalformedURLException e) {
+                exceptions.add(new CompileException(include.codeIntervals.getArgs().get(0), "Malformed directory/jar path", e));
+            } catch (ClassNotFoundException e) {
+                exceptions.add(new CompileException(include.codeIntervals.getArgs().get(1), "Class not found", e));
+            } catch (NoSuchMethodException e) {
+                if(include.type==Include.PREDICATE)
+                    exceptions.add(new CompileException(
+                            include.codeIntervals.getArgs().get(1),
+                            "Predicate class must contain constructor with only TypeStorage parameter", e));
+                else exceptions.add(new CompileException(
+                        include.codeIntervals.getArgs().get(1),
+                        "ProgramModule class must contain empty constructor", e));
+            } catch (IllegalAccessException e) {
+                exceptions.add(new CompileException(
+                        include.codeIntervals.getArgs().get(1),
+                        "Class constructor is not public", e));
+            } catch (InstantiationException | InvocationTargetException e) {
+                exceptions.add(new CompileException(
+                        include.codeIntervals.getArgs().get(1),
+                        "Error instantiating object", e));
+            }
+        }
     }
 
     @Override
@@ -889,6 +1020,24 @@ public class PrologParseListener extends PrologBaseListener implements ANTLRErro
                 lst.add(var);
                 variables.put(var.getName(), lst);
             }
+        }
+    }
+
+    private enum Include{
+        PREDICATE,
+        MODULE
+    }
+
+    private static class IncludeStatement{
+        String directory, className;
+        Include type;
+        ModelCodeIntervals codeIntervals;
+
+        public IncludeStatement(String directory, String className, Include type, ModelCodeIntervals intervals) {
+            this.directory = directory;
+            this.className = className;
+            this.type = type;
+            this.codeIntervals = intervals;
         }
     }
 }

@@ -21,6 +21,8 @@ import ru.prolog.logic.storage.predicates.exceptions.SamePredicateException;
 import ru.prolog.logic.storage.type.TypeStorage;
 import ru.prolog.logic.model.values.ValueModel;
 
+import static ru.prolog.logic.storage.predicates.PredicateStorage.isBuiltInPredicate;
+
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -114,12 +116,6 @@ public class PredicateStorageImpl extends AbstractModelObject implements Predica
     public Collection<ModelStateException> exceptions() {
         if(fixed) return Collections.emptyList();
         Collection<ModelStateException> exceptions = new ArrayList<>();
-        /*for (Map.Entry<String, SortedMap<Integer, Predicate>> entry : predicates.entrySet()) {
-            if(entry.getValue().size()>1 && entry.getValue().lastKey().equals(Integer.MAX_VALUE))
-                exceptions.add(new PredicateStateException(
-                        entry.getValue().get(Integer.MAX_VALUE),
-                        "VarArg predicate can not have versions with other count of arguments"));
-        }*/
         for(Predicate p : all()){
             //This horrible construction sets predicates to statements in rules if they are not set.
             if(p instanceof RuleExecutorPredicate){
@@ -196,33 +192,5 @@ public class PredicateStorageImpl extends AbstractModelObject implements Predica
         add(new RetractAllPredicate(typeStorage));
         add(new SavePredicate(typeStorage));
         add(new ConsultPredicate(typeStorage));
-    }
-
-    private boolean isBuiltInPredicate(Predicate p){
-        return p instanceof Cut
-            || p instanceof Cut2
-            || p instanceof Fail
-            || p instanceof Nl
-            || p instanceof EqualsOperatorPredicate
-            || p instanceof LessOperatorPredicate
-            || p instanceof MoreOperatorPredicate
-            || p instanceof MoreEqualsOperatorPredicate
-            || p instanceof LessEqualsOperatorPredicate
-            || p instanceof RandomPredicate
-            || p instanceof WritePredicate
-            || p instanceof WriteFPredicate
-            || p instanceof ReadLnPredicate
-            || p instanceof ReadCharPredicate
-            || p instanceof ReadIntPredicate
-            || p instanceof ReadRealPredicate
-            || p instanceof FormatPredicate
-            || p instanceof FrontCharPredicate
-            || p instanceof AssertPredicate
-            || p instanceof AssertaPredicate
-            || p instanceof AssertzPredicate
-            || p instanceof RetractPredicate
-            || p instanceof RetractAllPredicate
-            || p instanceof ConsultPredicate
-            || p instanceof SavePredicate;
     }
 }

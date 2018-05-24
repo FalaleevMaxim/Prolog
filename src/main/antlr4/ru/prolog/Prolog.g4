@@ -1,11 +1,14 @@
 grammar Prolog;
 
-program:domain?
+program:includes
+        domain?
         databases?
         predicates?
         clauses?
         goal?
         ;
+includes: INCLUDE include*;
+include: (MODULE | PREDICATE) LPAR directory=STRING ',' className=STRING RPAR;
 
 domain:DOMAIN typedef*;
 typedef:NAME (',' NAME)* '=' type;
@@ -104,6 +107,10 @@ FUNCTION:'sin'
         |'tan'
         |'abs'
         ;
+
+INCLUDE   :'include';
+MODULE    :'module';
+PREDICATE :'predicate';
 DOMAIN    :'domains';
 DATABASE  :'database';
 PREDICATES:'predicates';

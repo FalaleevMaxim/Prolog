@@ -1,3 +1,8 @@
+include
+predicate("C:/Users/Admin/IdeaProjects/Prolog/target/test-classes/", "ru.prolog.logic.model.predicate.HelloPredicate")
+predicate("C:/Users/Admin/IdeaProjects/Prolog/target/test-classes/", "ru.prolog.logic.model.predicate.Return7Predicate")
+module("C:/Users/Admin/IdeaProjects/Prolog/target/test-classes/", "ru.prolog.logic.model.predicate.IntegersListPredicateModule")
+
 domains
 имя, фамилия = string
 человек = имя(имя); чел(имя, фамилия)
@@ -25,6 +30,8 @@ predicates
 	//bubble sort
 	bubble(lst,lst)
 	swap(lst,lst)
+
+	int(integer)
 clauses
     однофамилец(чел(_, F), чел(_, F)).
 	человек(чел("Иван", "Иванов")).
@@ -48,3 +55,5 @@ clauses
         swap ( List, List1 ), ! ,
         bubble ( List1, SortedList) .
     bubble ( List, List).
+
+    int(_).
