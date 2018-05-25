@@ -2,7 +2,7 @@ package ru.prolog.logic.exceptions;
 
 import ru.prolog.logic.values.Variable;
 
-public class FreeVariableException extends RuntimeException {
+public class FreeVariableException extends PrologRuntimeException {
     private Variable freeVariable;
 
     public FreeVariableException(Variable freeVariable) {

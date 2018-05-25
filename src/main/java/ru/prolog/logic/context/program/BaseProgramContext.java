@@ -55,6 +55,11 @@ public class BaseProgramContext implements ProgramContext {
     }
 
     @Override
+    public void setInputDevice(InputDevice device) {
+        inputDevice = device;
+    }
+
+    @Override
     public OutputDeviceHub getOutputDevices() {
         return outputDevices;
     }

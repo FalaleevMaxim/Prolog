@@ -268,6 +268,7 @@ public class PrologParseListener extends PrologBaseListener implements ANTLRErro
 
     @Override
     public void exitPredicates(PrologParser.PredicatesContext ctx) {
+        if(includes==null) return;
         for (IncludeStatement include : includes) {
             try {
                 ClassLoader loader = new URLClassLoader(new URL[]{new URL("file://"+include.directory)});
@@ -386,6 +387,9 @@ public class PrologParseListener extends PrologBaseListener implements ANTLRErro
         if(argList!=null && argList.value()!=null){
             arity = argList.value().size();
         }
+        if(program.predicates().get(name).isEmpty()){
+            exceptions.add(new CompileException(tokenInterval(ctx.ruleLeft.NAME().getSymbol()), "Predicate "+name+" does not exist"));
+        }
         Predicate predicate = program.predicates().get(name, arity);
         List<Type> predTypes = predicate==null?
                         Collections.emptyList():
@@ -474,6 +478,11 @@ public class PrologParseListener extends PrologBaseListener implements ANTLRErro
         String name = ctx.NAME().getText();
         if(ctx.argList()==null){
             Predicate p = program.predicates().getFitting(name, Collections.emptyList());
+            if(p==null){
+                Statement st = new Statement(name);
+                st.setCodeIntervals(new ModelCodeIntervals(tokenInterval(ctx.NAME().getSymbol())));
+                return st;
+            }
             Statement st = new Statement(p, Collections.emptyList());
             ModelCodeIntervals intervals;
             if(ctx.LPAR()==null){

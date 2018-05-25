@@ -5,7 +5,7 @@ import ru.prolog.logic.exceptions.PrologRuntimeException;
 public class StdErr implements ErrorListener {
     @Override
     public void prologRuntimeException(PrologRuntimeException e) {
-        e.printStackTrace();
+        System.err.println(e);
     }
 
     @Override

@@ -6,6 +6,7 @@ import ru.prolog.logic.context.predicate.PredicateContext;
 import ru.prolog.logic.context.program.ExceptionsCatcherProgramContext;
 import ru.prolog.logic.context.program.ProgramContext;
 import ru.prolog.logic.context.rule.RuleContext;
+import ru.prolog.logic.exceptions.PrologRuntimeException;
 import ru.prolog.logic.model.rule.Rule;
 import ru.prolog.logic.values.Value;
 import ru.prolog.logic.values.Variable;
@@ -29,11 +30,19 @@ public class InteractiveGoalPredicate extends GoalPredicate{
             try {
                 out.println("\nWrite goal:");
                 String str = context.programContext().getInputDevice().readLine();
+                if(str==null){
+                    if(Thread.interrupted()){
+                        Thread.currentThread().interrupt();
+                        return -1;
+                    }else continue;
+                }
+                if(str.equals("")) continue;
+
                 Collection<CompileException> exceptions = new ArrayList<>();
                 Rule goal = PrologCompiler.parseOuterGoal(context.programContext().program(), str, exceptions);
                 if (goal == null) {
                     for (CompileException e : exceptions) {
-                        System.err.println(e);
+                        context.programContext().getErrorListeners().println(e.toString());
                     }
                     continue;
                 }
@@ -41,14 +50,22 @@ public class InteractiveGoalPredicate extends GoalPredicate{
                 exceptions.addAll(goal.exceptions());
                 if (!exceptions.isEmpty()) {
                     for (CompileException e : exceptions) {
-                        System.err.println(e);
+                        context.programContext().getErrorListeners().println(e.toString());
                     }
                     continue;
                 }
-
                 goal.fix();
                 RuleContext ruleContext = context.getRuleManager().context(goal, Collections.emptyList(), context);
-                boolean r = ruleContext.execute();
+                boolean r;
+                try {
+                    r = ruleContext.execute();
+                }catch (PrologRuntimeException e){
+                    context.programContext().getErrorListeners().prologRuntimeException(e);
+                    continue;
+                }catch (RuntimeException e){
+                    context.programContext().getErrorListeners().runtimeException(e);
+                    continue;
+                }
                 int solutions = 0;
                 boolean hasVars = false;
                 if(r) {
@@ -56,7 +73,15 @@ public class InteractiveGoalPredicate extends GoalPredicate{
                 }
                 else out.println("No solutions");
                 while (r){
-                    r = ruleContext.redo();
+                    try {
+                        r = ruleContext.redo();
+                    }catch (PrologRuntimeException e){
+                        context.programContext().getErrorListeners().prologRuntimeException(e);
+                        break;
+                    }catch (RuntimeException e){
+                        context.programContext().getErrorListeners().runtimeException(e);
+                        break;
+                    }
                     if(r){
                         if(hasVars || !ruleContext.getVariables().isEmpty())
                         hasVars = printVariables(out, ruleContext, ++solutions);

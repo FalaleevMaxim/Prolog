@@ -24,6 +24,7 @@ public class ReadIntPredicate extends AbstractPredicate {
         if(startWith>0) return -1;
         try {
             String str = context.programContext().getInputDevice().readLine();
+            if(str==null) return -1;
             return new SimpleValue(typeStorage.get("integer"), Integer.parseInt(str)).unify(args.get(0)) ? 0 : -1;
         } catch (IOException e) {
             context.programContext().getErrorListeners().println("Read error");

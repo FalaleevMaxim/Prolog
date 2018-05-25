@@ -1,6 +1,6 @@
 grammar Prolog;
 
-program:includes
+program:includes?
         domain?
         databases?
         predicates?

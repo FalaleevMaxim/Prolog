@@ -24,6 +24,7 @@ public class ReadCharPredicate extends AbstractPredicate {
         if(startWith>0) return -1;
         try {
             char c = context.programContext().getInputDevice().readChar();
+            if(c==27) return -1; //Escape pressed
             return new SimpleValue(typeStorage.get("char"), c).unify(args.get(0)) ? 0 : -1;
         } catch (IOException e) {
             context.programContext().getErrorListeners().println("Can not read char");

@@ -16,7 +16,8 @@ public class FileOutputDevice implements ErrorListener {
     @Override
     public void prologRuntimeException(PrologRuntimeException e) {
         try (PrintWriter pw = new PrintWriter(new FileOutputStream(fileName, true))){
-            e.printStackTrace(pw);
+            pw.write(e.toString());
+            pw.write("\n");
         } catch (FileNotFoundException ignored) { }
     }
 

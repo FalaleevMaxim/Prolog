@@ -34,6 +34,7 @@ public interface ProgramContext extends RuntimeObject, Executable {
     boolean execute();
 
     InputDevice getInputDevice();
+    void setInputDevice(InputDevice device);
     OutputDeviceHub getOutputDevices();
     ErrorListenerHub getErrorListeners();
 }

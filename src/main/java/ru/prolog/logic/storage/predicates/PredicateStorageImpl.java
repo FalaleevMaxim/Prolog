@@ -44,7 +44,7 @@ public class PredicateStorageImpl extends AbstractModelObject implements Predica
 
     @Override
     public Collection<Predicate> get(String name) {
-        if(!predicates.containsKey(name)) return null;
+        if(!predicates.containsKey(name)) return Collections.emptyList();
         return predicates.get(name).values();
     }
 
@@ -83,7 +83,7 @@ public class PredicateStorageImpl extends AbstractModelObject implements Predica
 
     private int matchArgTypes(Predicate p, List<Type> types){
         int count = 0;
-        for(int i = 0; i<p.getArgTypeNames().size(); i++){
+        for(int i = 0; i<p.getArgTypeNames().size() && i<types.size(); i++){
             Type predType = p.getTypeStorage().get(p.getArgTypeNames().get(i));
             Type reqType = types.get(i);
             if (predType.isCommonType() || predType.equals(reqType)) {

@@ -3,6 +3,7 @@ package ru.prolog.logic.model.exceptions.statement;
 import ru.prolog.logic.model.predicate.Predicate;
 import ru.prolog.logic.model.rule.Statement;
 import ru.prolog.logic.model.type.Type;
+import ru.prolog.util.ToStringUtil;
 
 public class MissingStatementArgException extends StatementStateException{
     private final Predicate predicate;
@@ -10,8 +11,8 @@ public class MissingStatementArgException extends StatementStateException{
 
     public MissingStatementArgException(Statement statement, Predicate predicate, int argNum) {
         this(statement, predicate, argNum,
-                String.format("Predicate %s requires %dth argument of type %s",
-                        predicate, argNum, predicate.getArgTypeNames().get(argNum)));
+                String.format("Predicate %s requires %s argument of type %s",
+                        predicate, ToStringUtil.ordinal(argNum), predicate.getArgTypeNames().get(argNum)));
     }
 
     public MissingStatementArgException(Statement statement, Predicate predicate, int argNum, String message) {

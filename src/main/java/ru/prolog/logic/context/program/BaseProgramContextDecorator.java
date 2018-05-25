@@ -39,6 +39,11 @@ public abstract class BaseProgramContextDecorator implements ProgramContext {
     }
 
     @Override
+    public void setInputDevice(InputDevice device) {
+        decorated.setInputDevice(device);
+    }
+
+    @Override
     public OutputDeviceHub getOutputDevices() {
         return decorated.getOutputDevices();
     }
