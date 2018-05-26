@@ -12,9 +12,11 @@ import ru.prolog.logic.model.rule.Statement;
 import ru.prolog.logic.model.rule.StatementExecutorRule;
 import ru.prolog.logic.model.type.Type;
 import ru.prolog.logic.std.*;
+import ru.prolog.logic.std.cast.*;
 import ru.prolog.logic.std.compare.*;
 import ru.prolog.logic.std.db.*;
 import ru.prolog.logic.std.io.*;
+import ru.prolog.logic.std.string.ConcatPredicate;
 import ru.prolog.logic.std.string.FormatPredicate;
 import ru.prolog.logic.std.string.FrontCharPredicate;
 import ru.prolog.logic.storage.predicates.exceptions.SamePredicateException;
@@ -185,6 +187,7 @@ public class PredicateStorageImpl extends AbstractModelObject implements Predica
         add(new ReadRealPredicate(typeStorage));
         add(new FormatPredicate(typeStorage));
         add(new FrontCharPredicate(typeStorage));
+        add(new ConcatPredicate(typeStorage));
         add(new AssertPredicate(typeStorage));
         add(new AssertaPredicate(typeStorage));
         add(new AssertzPredicate(typeStorage));
@@ -192,5 +195,11 @@ public class PredicateStorageImpl extends AbstractModelObject implements Predica
         add(new RetractAllPredicate(typeStorage));
         add(new SavePredicate(typeStorage));
         add(new ConsultPredicate(typeStorage));
+        add(new RealIntCastPredicate(typeStorage));
+        add(new IntCharCastPredicate(typeStorage));
+        add(new StrCharCastPredicate(typeStorage));
+        add(new StringSymbolCastPredicate(typeStorage));
+        add(new StrIntCastPredicate(typeStorage));
+        add(new StrRealCastPredicate(typeStorage));
     }
 }
