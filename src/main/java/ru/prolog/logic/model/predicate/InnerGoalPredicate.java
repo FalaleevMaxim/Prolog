@@ -17,24 +17,8 @@ public class InnerGoalPredicate extends GoalPredicate{
     public int run(PredicateContext context, List<Value> args, int startWith) {
         RuleContext goalContext = context.getRuleManager().context(goalRule, Collections.emptyList(), context);
         if(!goalContext.execute()){
-            //System.out.println("No solutions");
             return -1;
-        }/*else{
-            Set<Variable> out = new HashSet<>();
-            for(Variable var : goalContext.getVariables()){
-                if(!var.isFree()){
-                    System.out.println(var.getName()+"="+var.toString());
-                }else{
-                    if(out.contains(var)) continue;
-                    System.out.print(var.getName());
-                    for(Variable rel : var.getRelated()){
-                        out.add(rel);
-                        System.out.print("="+rel.getName());
-                    }
-                    System.out.println();
-                }
-            }
-        }*/
+        }
         return 0;
     }
 
@@ -48,6 +32,7 @@ public class InnerGoalPredicate extends GoalPredicate{
         if(!goalRule.getUnifyArgs().isEmpty()){
             throw new ModelStateException(goalRule, "Goal rule must not have any arguments");
         }
+        exceptions.addAll(goalRule.exceptions());
         return exceptions;
     }
 

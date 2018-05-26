@@ -108,6 +108,7 @@ public class TypeStorageImpl extends AbstractModelObject implements TypeStorage 
 
     @Override
     public Collection<String> names(Type type){
+        if(!names.containsKey(type)) return Collections.emptyList();
         return Collections.unmodifiableList(names.get(type));
     }
 

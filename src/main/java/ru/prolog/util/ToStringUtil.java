@@ -88,7 +88,9 @@ public class ToStringUtil {
                     continue;
                 }
                 Value arg = args.get(i++);
-                sb.append(arg.getValue());
+                if(arg.getType().isPrimitive())
+                    sb.append(simpleToString(arg.getType(), arg.getValue()));
+                else sb.append(arg);
             }else{
                 sb.append(c);
             }
