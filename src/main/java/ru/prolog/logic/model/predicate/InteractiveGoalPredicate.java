@@ -6,6 +6,7 @@ import ru.prolog.logic.context.predicate.PredicateContext;
 import ru.prolog.logic.context.program.ExceptionsCatcherProgramContext;
 import ru.prolog.logic.context.program.ProgramContext;
 import ru.prolog.logic.context.rule.RuleContext;
+import ru.prolog.logic.exceptions.ProgramInterruptedException;
 import ru.prolog.logic.exceptions.PrologRuntimeException;
 import ru.prolog.logic.model.rule.Rule;
 import ru.prolog.logic.values.Value;
@@ -25,18 +26,16 @@ public class InteractiveGoalPredicate extends GoalPredicate{
             try {
                 Thread.sleep(100);
             } catch (InterruptedException e) {
-                throw new ExceptionsCatcherProgramContext.ProgramInterruptedException();
+                throw new ProgramInterruptedException();
             }
             try {
                 out.println("\nWrite goal:");
                 String str = context.programContext().getInputDevice().readLine();
-                if(str==null){
-                    if(Thread.interrupted()){
-                        Thread.currentThread().interrupt();
-                        return -1;
-                    }else continue;
+                if(Thread.interrupted()){
+                    Thread.currentThread().interrupt();
+                    return -1;
                 }
-                if(str.equals("")) continue;
+                if(str==null || str.equals("")) continue;
 
                 Collection<CompileException> exceptions = new ArrayList<>();
                 Rule goal = PrologCompiler.parseOuterGoal(context.programContext().program(), str, exceptions);

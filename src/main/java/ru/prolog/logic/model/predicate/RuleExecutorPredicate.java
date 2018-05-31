@@ -25,7 +25,6 @@ public class RuleExecutorPredicate extends AbstractPrologPredicate {
     }
 
     @Override
-    @SuppressWarnings("Duplicates")
     public int run(PredicateContext context, List<Value> args, int startWith) {
         if(!fixed) throw new IllegalStateException("Predicate state is not fixed. Call fix() before running it.");
         RuleContext ruleContext = context.getLastExecutedRuleContext();

@@ -143,13 +143,8 @@ public class PredicateStorageImpl extends AbstractModelObject implements Predica
     }
 
     @Override
-    public ModelObject fix() {
-        if(fixed) return this;
-        Collection<ModelStateException> exceptions = exceptions();
-        if(!exceptions.isEmpty()) throw exceptions.iterator().next();
-        fixed = true;
+    public void fixIfOk() {
         all().forEach(Predicate::fix);
-        return this;
     }
 
     @Override

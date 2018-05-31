@@ -86,15 +86,9 @@ public class Statement extends AbstractModelObject {
     }
 
     @Override
-    @SuppressWarnings("Duplicates")
-    public ModelObject fix() {
-        if(fixed) return this;
-        Collection<ModelStateException> exceptions = exceptions();
-        if(!exceptions.isEmpty()) throw exceptions.iterator().next();
-        fixed = true;
+    public void fixIfOk() {
         args = Collections.unmodifiableList(new ArrayList<>(args));
         args.forEach(ValueModel::fix);
-        return this;
     }
 
     @Override

@@ -9,7 +9,7 @@ import java.util.List;
  * Interface for predicates which can be defined from prolog code and use rules.
  * NOT for predicates which are implemented in Java and added to Prolog.
  */
-public interface PrologPredicate {
+public interface PrologPredicate extends Predicate {
     void setName(String name);
     void addArgType(String type);
     void setTypeStorage(TypeStorage typeStorage);

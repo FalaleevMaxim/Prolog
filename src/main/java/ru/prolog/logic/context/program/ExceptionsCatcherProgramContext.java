@@ -1,5 +1,6 @@
 package ru.prolog.logic.context.program;
 
+import ru.prolog.logic.exceptions.ProgramInterruptedException;
 import ru.prolog.logic.exceptions.PrologRuntimeException;
 import ru.prolog.util.io.ErrorListener;
 import ru.prolog.util.io.OutputDevice;
@@ -30,15 +31,6 @@ public class ExceptionsCatcherProgramContext extends BaseProgramContextDecorator
             errorListener.runtimeException(e);
             errorListener.println("Program finished with Java runtime exception");
             return false;
-        }
-    }
-
-    public static class ProgramInterruptedException extends RuntimeException{
-        public ProgramInterruptedException() {
-        }
-
-        public ProgramInterruptedException(String message) {
-            super(message);
         }
     }
 }

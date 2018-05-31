@@ -90,13 +90,7 @@ public class Program  extends AbstractModelObject implements Runnable {
     }
 
     @Override
-    public Program fix() {
-        if(fixed) return this;
-        Collection<ModelStateException> exceptions = exceptions();
-        if(!exceptions.isEmpty()){
-            throw exceptions.iterator().next();
-        }
-        fixed = true;
+    public void fixIfOk() {
         typeStorage.fix();
         database.fix();
         predicateStorage.fix();
@@ -105,7 +99,6 @@ public class Program  extends AbstractModelObject implements Runnable {
         }
         goal.fix();
         managers.fix();
-        return this;
     }
 
     @Override

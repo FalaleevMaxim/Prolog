@@ -5,6 +5,7 @@ import ru.prolog.logic.model.ModelObject;
 import ru.prolog.logic.model.exceptions.ModelStateException;
 import ru.prolog.logic.model.exceptions.predicate.PredicateArgTypeNotExistsException;
 import ru.prolog.logic.model.exceptions.predicate.VarArgNotLastException;
+import ru.prolog.logic.model.rule.Rule;
 import ru.prolog.logic.model.type.Type;
 import ru.prolog.logic.storage.type.TypeStorage;
 import ru.prolog.logic.values.Value;
@@ -88,9 +89,8 @@ public abstract class AbstractPredicate extends AbstractModelObject implements P
     }
 
     @Override
-    public ModelObject fix() {
-        fixed = true;
-        return this;
+    public void fixIfOk() {
+        argTypes = Collections.unmodifiableList(argTypes);
     }
 
     @Override

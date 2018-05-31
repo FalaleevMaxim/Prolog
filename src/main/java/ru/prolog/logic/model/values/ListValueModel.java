@@ -2,7 +2,6 @@ package ru.prolog.logic.model.values;
 
 import ru.prolog.logic.context.rule.RuleContext;
 import ru.prolog.logic.model.AbstractModelObject;
-import ru.prolog.logic.model.ModelObject;
 import ru.prolog.logic.model.exceptions.ModelStateException;
 import ru.prolog.logic.model.exceptions.value.TypeNotFitValueClassException;
 import ru.prolog.logic.model.exceptions.value.ValueStateException;
@@ -88,17 +87,10 @@ public class ListValueModel extends AbstractModelObject implements ValueModel {
     }
 
     @Override
-    public ModelObject fix() {
-        if(fixed) return this;
-        Collection<ModelStateException> exceptions = exceptions();
-        if(!exceptions.isEmpty()){
-            throw exceptions.iterator().next();
-        }
-        fixed = true;
+    public void fixIfOk() {
         heads.forEach(ValueModel::fix);
         heads = Collections.unmodifiableList(new ArrayList<>(heads));
         if(tail!=null) tail.fix();
-        return this;
     }
 
     @Override
@@ -134,13 +126,13 @@ public class ListValueModel extends AbstractModelObject implements ValueModel {
     }
 
     @Override
-    public List<VariableModel> innerModelVariables() {
-        List<VariableModel> variables = new ArrayList<>();
+    public Set<VariableModel> innerVariables() {
+        Set<VariableModel> variables = new HashSet<>();
         for (ValueModel head : heads){
-            variables.addAll(head.innerModelVariables());
+            variables.addAll(head.innerVariables());
         }
         if(tail!=null)
-            variables.addAll(tail.innerModelVariables());
+            variables.addAll(tail.innerVariables());
         return variables;
     }
 

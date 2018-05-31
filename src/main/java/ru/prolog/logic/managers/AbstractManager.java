@@ -44,13 +44,8 @@ public abstract class AbstractManager<T>  extends AbstractModelObject implements
     }
 
     @Override
-    public ModelObject fix() {
-        if(fixed) return this;
-        Collection<ModelStateException> exceptions = exceptions();
-        if(!exceptions.isEmpty()) throw exceptions.iterator().next();
-        fixed = true;
+    public void fixIfOk() {
         if(options==null) options = Collections.emptyList();
         else options = Collections.unmodifiableList(new ArrayList<>(options));
-        return this;
     }
 }

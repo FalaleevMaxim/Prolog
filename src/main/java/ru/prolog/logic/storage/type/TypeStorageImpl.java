@@ -149,13 +149,8 @@ public class TypeStorageImpl extends AbstractModelObject implements TypeStorage 
     }
 
     @Override
-    public ModelObject fix() {
-        Collection<ModelStateException> exceptions = exceptions();
-        if(!exceptions.isEmpty()){
-            throw exceptions.iterator().next();
-        }
-        fixed = true;
-        return this;
+    public void fixIfOk() {
+        types.values().forEach(Type::fix);
     }
 
     @Override

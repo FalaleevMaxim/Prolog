@@ -13,10 +13,7 @@ import ru.prolog.logic.values.Value;
 import ru.prolog.logic.values.Variable;
 import ru.prolog.util.NameChecker;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 public class VariableModel extends AbstractModelObject implements ValueModel{
     protected Type type;
@@ -57,18 +54,8 @@ public class VariableModel extends AbstractModelObject implements ValueModel{
     }
 
     @Override
-    public ModelObject fix() {
-        Collection<ModelStateException> exceptions = exceptions();
-        if(!exceptions.isEmpty()){
-            throw exceptions.iterator().next();
-        }
-        fixed = true;
-        return this;
-    }
-
-    @Override
-    public List<VariableModel> innerModelVariables() {
-        return Collections.singletonList(this);
+    public Set<VariableModel> innerVariables() {
+        return Collections.singleton(this);
     }
 
     @Override

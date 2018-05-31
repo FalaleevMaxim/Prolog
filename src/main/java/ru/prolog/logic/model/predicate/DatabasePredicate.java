@@ -32,7 +32,6 @@ public class DatabasePredicate extends AbstractPrologPredicate implements Functo
     }
 
     @Override
-    @SuppressWarnings("Duplicates")
     public int run(PredicateContext context, List<Value> args, int startWith) {
         if(!fixed) throw new IllegalStateException("Predicate state is not fixed. Call fix() before running it.");
         List<FactRule> rules = context.programContext().database().getRules(this);
@@ -45,7 +44,6 @@ public class DatabasePredicate extends AbstractPrologPredicate implements Functo
             startWith-=prev_count-count;
         context.putContextData("rule_count", rules.size());
         for(int i=startWith; i<rules.size();i++){
-            if(context.isCut()) return -1;
             RuleContext ruleContext = context.getRuleManager().context(rules.get(i), args, context);
             if(ruleContext.execute()){
                 return i;

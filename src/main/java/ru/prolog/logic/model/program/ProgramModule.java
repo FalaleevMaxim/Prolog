@@ -34,11 +34,7 @@ public abstract class ProgramModule extends AbstractModelObject {
     }
 
     @Override
-    public ModelObject fix() {
-        if(fixed) return this;
-        Collection<ModelStateException> exceptions = exceptions();
-        if(!exceptions.isEmpty()) throw exceptions.iterator().next();
-        fixed = true;
+    public void fixIfOk() {
         if(predicateStorage!=null){
             predicateStorage.all().stream()
                     .filter(p -> !PredicateStorage.isBuiltInPredicate(p))
@@ -52,6 +48,5 @@ public abstract class ProgramModule extends AbstractModelObject {
                     .forEach(type -> type.setCodeIntervals(getCodeIntervals()));
             typeStorage.fix();
         }
-        return this;
     }
 }

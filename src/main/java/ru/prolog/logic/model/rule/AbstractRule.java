@@ -89,7 +89,6 @@ public abstract class AbstractRule extends AbstractModelObject implements Rule {
     }
 
     @Override
-    @SuppressWarnings("Duplicates")
     public Collection<ModelStateException> exceptions() {
         if(fixed) return Collections.emptyList();
         Collection<ModelStateException> exceptions = new ArrayList<>();
@@ -111,15 +110,9 @@ public abstract class AbstractRule extends AbstractModelObject implements Rule {
     }
 
     @Override
-    @SuppressWarnings("Duplicates")
-    public ModelObject fix() {
-        if(fixed) return this;
-        Collection<ModelStateException> exceptions = exceptions();
-        if(!exceptions.isEmpty()) throw exceptions.iterator().next();
-        fixed = true;
+    public void fixIfOk() {
         toUnifyList = Collections.unmodifiableList(new ArrayList<>(toUnifyList));
         toUnifyList.forEach(ValueModel::fix);
-        return this;
     }
 
     @Override

@@ -169,14 +169,13 @@ public class StatementExecutorRule extends AbstractRule {
     }
 
     @Override
-    public ModelObject fix() {
-        super.fix();
+    public void fixIfOk() {
+        super.fixIfOk();
         for (int i = 0; i < statements.size(); i++) {
             statements.get(i).forEach(Statement::fix);
             statements.set(i, Collections.unmodifiableList(statements.get(i)));
         }
         statements = Collections.unmodifiableList(new ArrayList<>(statements));
-        return this;
     }
 
     private boolean isCutPredicate(Predicate predicate){

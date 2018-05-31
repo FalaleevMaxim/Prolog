@@ -1,6 +1,6 @@
 package ru.prolog.logic.context.predicate;
 
-import ru.prolog.logic.context.program.ExceptionsCatcherProgramContext;
+import ru.prolog.logic.exceptions.ProgramInterruptedException;
 
 public class TerminatingPredicateContext extends BasePredicateContextDecorator {
     public TerminatingPredicateContext(PredicateContext decorated) {
@@ -17,7 +17,7 @@ public class TerminatingPredicateContext extends BasePredicateContextDecorator {
 
     private void checkInterrupted() {
         if(Thread.interrupted()){
-            throw new ExceptionsCatcherProgramContext.ProgramInterruptedException();
+            throw new ProgramInterruptedException();
         }
     }
 }

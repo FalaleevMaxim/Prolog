@@ -31,7 +31,7 @@ public class FactRule extends AbstractRule {
         if(predicate==null)
             exceptions.add(new RuleStateException(this, "Predicate not set for fact rule"));
         for(ValueModel arg : toUnifyList){
-            for(VariableModel var : arg.innerModelVariables()){
+            for(VariableModel var : arg.innerVariables()){
                 exceptions.add(new VariableInFactException(this, var));
             }
         }

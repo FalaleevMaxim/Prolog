@@ -83,16 +83,11 @@ public class Managers extends AbstractModelObject {
     }
 
     @Override
-    public ModelObject fix() {
-        if(fixed) return this;
-        Collection<ModelStateException> exceptions = exceptions();
-        if(!exceptions.isEmpty()) throw exceptions.iterator().next();
-        fixed = true;
+    public void fixIfOk() {
         programManager.fix();
         backupManager.fix();
         predicateManager.fix();
         ruleManager.fix();
-        return this;
     }
 
     public ProgramContextManager getProgramManager() {

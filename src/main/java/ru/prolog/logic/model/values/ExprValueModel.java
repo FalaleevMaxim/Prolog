@@ -3,7 +3,6 @@ package ru.prolog.logic.model.values;
 import ru.prolog.compiler.position.ModelCodeIntervals;
 import ru.prolog.logic.context.rule.RuleContext;
 import ru.prolog.logic.model.AbstractModelObject;
-import ru.prolog.logic.model.ModelObject;
 import ru.prolog.logic.model.exceptions.ModelStateException;
 import ru.prolog.logic.model.exceptions.value.ValueStateException;
 import ru.prolog.logic.model.exceptions.value.WrongOperandTypeException;
@@ -140,11 +139,11 @@ public class ExprValueModel extends AbstractModelObject implements ValueModel{
     }
 
     @Override
-    public List<VariableModel> innerModelVariables() {
-        List<VariableModel> variables = new ArrayList<>();
-        if(value!=null) variables.addAll(value.innerModelVariables());
-        if(left!=null) variables.addAll(left.innerModelVariables());
-        if(right!=null) variables.addAll(right.innerModelVariables());
+    public Set<VariableModel> innerVariables() {
+        Set<VariableModel> variables = new HashSet<>();
+        if(value!=null) variables.addAll(value.innerVariables());
+        if(left!=null) variables.addAll(left.innerVariables());
+        if(right!=null) variables.addAll(right.innerVariables());
         return variables;
     }
 
@@ -233,17 +232,10 @@ public class ExprValueModel extends AbstractModelObject implements ValueModel{
     }
 
     @Override
-    public ModelObject fix() {
-        if(fixed) return this;
-        Collection<ModelStateException> exceptions = exceptions();
-        if(!exceptions.isEmpty()){
-            throw exceptions.iterator().next();
-        }
-        fixed = true;
+    public void fixIfOk() {
         if(value!=null)value.fix();
         if(left!=null) left.fix();
         if(right!=null) right.fix();
-        return this;
     }
 
     @Override

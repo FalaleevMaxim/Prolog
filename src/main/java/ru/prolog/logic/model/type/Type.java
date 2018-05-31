@@ -110,14 +110,9 @@ public final class Type extends AbstractModelObject{
     }
 
     @Override
-    public ModelObject fix() {
-        if(fixed) return this;
-        Collection<ModelStateException> exceptions = exceptions();
-        if(!exceptions.isEmpty()) throw exceptions.iterator().next();
-        fixed = true;
+    public void fixIfOk() {
         if(isCompoundType())
             compoundType.fix();
-        return this;
     }
 
     @Override

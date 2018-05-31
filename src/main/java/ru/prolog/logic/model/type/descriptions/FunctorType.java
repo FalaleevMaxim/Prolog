@@ -98,16 +98,9 @@ public class FunctorType extends AbstractModelObject implements Functor{
     }
 
     @Override
-    public ModelObject fix() {
-        if(fixed) return this;
-        Collection<ModelStateException> exceptions = exceptions();
-        if(!exceptions.isEmpty()){
-            throw exceptions.iterator().next();
-        }
-        fixed = true;
+    public void fixIfOk() {
         if(argTypes.isEmpty()) argTypes = Collections.emptyList();
         else argTypes = Collections.unmodifiableList(new ArrayList<>(argTypes));
-        return this;
     }
 
     @Override

@@ -37,10 +37,8 @@ public class InnerGoalPredicate extends GoalPredicate{
     }
 
     @Override
-    public ModelObject fix() {
-        super.fix();
+    public void fixIfOk() {
         goalRule.fix();
-        return this;
     }
 
     @Override

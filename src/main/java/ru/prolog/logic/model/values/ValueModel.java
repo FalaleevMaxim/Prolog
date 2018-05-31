@@ -5,11 +5,11 @@ import ru.prolog.logic.model.ModelObject;
 import ru.prolog.logic.model.type.Type;
 import ru.prolog.logic.values.Value;
 
-import java.util.List;
+import java.util.Set;
 
 public interface ValueModel extends ModelObject {
     Type getType();
     Value forContext(RuleContext context);
-    List<VariableModel> innerModelVariables();
+    Set<VariableModel> innerVariables();
     void setType(Type type);
 }

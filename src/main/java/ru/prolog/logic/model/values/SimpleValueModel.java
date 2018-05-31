@@ -13,10 +13,7 @@ import ru.prolog.logic.values.Value;
 import ru.prolog.logic.values.simple.SimpleValue;
 import ru.prolog.util.ToStringUtil;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 public class SimpleValueModel extends AbstractModelObject implements ValueModel{
     private Type type;
@@ -60,8 +57,8 @@ public class SimpleValueModel extends AbstractModelObject implements ValueModel{
     }
 
     @Override
-    public List<VariableModel> innerModelVariables() {
-        return Collections.emptyList();
+    public Set<VariableModel> innerVariables() {
+        return Collections.emptySet();
     }
 
     @Override
@@ -89,16 +86,6 @@ public class SimpleValueModel extends AbstractModelObject implements ValueModel{
                 exceptions.add(new TypeNotFitValueObjectException(this, "Value of char type contains not Character object"));
         }
         return exceptions;
-    }
-
-    @Override
-    public ModelObject fix() {
-        Collection<ModelStateException> exceptions = exceptions();
-        if(!exceptions.isEmpty()){
-            throw exceptions.iterator().next();
-        }
-        fixed = true;
-        return this;
     }
 
     @Override

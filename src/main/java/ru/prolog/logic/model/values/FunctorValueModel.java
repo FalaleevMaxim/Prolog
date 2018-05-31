@@ -2,7 +2,6 @@ package ru.prolog.logic.model.values;
 
 import ru.prolog.logic.context.rule.RuleContext;
 import ru.prolog.logic.model.AbstractModelObject;
-import ru.prolog.logic.model.ModelObject;
 import ru.prolog.logic.model.exceptions.ModelStateException;
 import ru.prolog.logic.model.exceptions.value.functor.FunctorValueNameException;
 import ru.prolog.logic.model.exceptions.value.TypeNotFitValueClassException;
@@ -17,10 +16,7 @@ import ru.prolog.util.ToStringUtil;
 import ru.prolog.logic.values.Value;
 import ru.prolog.logic.values.functor.FunctorValueImpl;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class FunctorValueModel extends AbstractModelObject implements ValueModel {
@@ -89,10 +85,10 @@ public class FunctorValueModel extends AbstractModelObject implements ValueModel
     }
 
     @Override
-    public List<VariableModel> innerModelVariables() {
-        List<VariableModel> variables = new ArrayList<>();
+    public Set<VariableModel> innerVariables() {
+        Set<VariableModel> variables = new HashSet<>();
         for(ValueModel arg : args){
-            variables.addAll(arg.innerModelVariables());
+            variables.addAll(arg.innerVariables());
         }
         return variables;
     }
@@ -147,16 +143,9 @@ public class FunctorValueModel extends AbstractModelObject implements ValueModel
     }
 
     @Override
-    public ModelObject fix() {
-        if(fixed) return this;
-        Collection<ModelStateException> exceptions = exceptions();
-        if(!exceptions.isEmpty()){
-            throw exceptions.iterator().next();
-        }
-        fixed = true;
+    public void fixIfOk() {
         args.forEach(ValueModel::fix);
         args = Collections.unmodifiableList(new ArrayList<>(args));
-        return this;
     }
 
     @Override

@@ -57,16 +57,9 @@ public class CompoundType extends AbstractModelObject{
     }
 
     @Override
-    public ModelObject fix() {
-        if(fixed) return this;
-        Collection<ModelStateException> exceptions = exceptions();
-        if(!exceptions.isEmpty()){
-            throw exceptions.iterator().next();
-        }
-        fixed = true;
+    public void fixIfOk() {
         functors.values().forEach(Functor::fix);
         functors = Collections.unmodifiableMap(new HashMap<>(functors));
-        return this;
     }
 
     @Override

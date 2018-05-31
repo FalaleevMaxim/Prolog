@@ -1,6 +1,7 @@
 package ru.prolog.logic.context.rule;
 
 import ru.prolog.logic.context.program.ExceptionsCatcherProgramContext;
+import ru.prolog.logic.exceptions.ProgramInterruptedException;
 
 public class TerminatingRuleContext extends BaseRuleContextDecorator {
     public TerminatingRuleContext(RuleContext decorated) {
@@ -17,7 +18,7 @@ public class TerminatingRuleContext extends BaseRuleContextDecorator {
 
     private void checkInterrupted() {
         if(Thread.interrupted()){
-            throw new ExceptionsCatcherProgramContext.ProgramInterruptedException();
+            throw new ProgramInterruptedException();
         }
     }
 }

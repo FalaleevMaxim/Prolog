@@ -1,6 +1,5 @@
 package ru.prolog.logic.model.predicate;
 
-import ru.prolog.logic.model.ModelObject;
 import ru.prolog.logic.model.exceptions.ModelStateException;
 import ru.prolog.logic.model.exceptions.predicate.IllegalArgTypeException;
 import ru.prolog.logic.model.exceptions.predicate.IllegalPredicateNameException;
@@ -90,17 +89,10 @@ public abstract class AbstractPrologPredicate extends AbstractPredicate implemen
     }
 
     @Override
-    public ModelObject fix() {
-        if(fixed) return this;
-        Collection<ModelStateException> exceptions = exceptions();
-        //If no exceptions, just fix. Otherwise throw first of exceptions.
-        if(exceptions.isEmpty()) {
-            fixed = true;
-            rules = Collections.unmodifiableList(new ArrayList<>(rules));
-            rules.forEach(Rule::fix);
-        } else {
-            throw exceptions.iterator().next();
-        }
-        return this;
+    public void fixIfOk() {
+        super.fixIfOk();
+        argTypes = Collections.unmodifiableList(argTypes);
+        rules = Collections.unmodifiableList(new ArrayList<>(rules));
+        rules.forEach(Rule::fix);
     }
 }
