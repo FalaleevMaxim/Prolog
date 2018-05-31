@@ -32,6 +32,7 @@ import ru.prolog.compiler.position.ModelCodeIntervals;
 import ru.prolog.logic.storage.predicates.PredicateStorage;
 import ru.prolog.logic.storage.predicates.exceptions.SamePredicateException;
 import ru.prolog.logic.storage.type.TypeStorage;
+import ru.prolog.logic.values.Variable;
 
 import java.io.IOException;
 import java.lang.reflect.Constructor;
@@ -528,6 +529,12 @@ public class PrologParseListener extends PrologBaseListener implements ANTLRErro
         ValueModel left = parseCompVal(ctx.left, variables, null);
         ValueModel right = parseCompVal(ctx.right, variables, left.getType());
         if(left.getType()==null && right.getType()!=null) left = parseCompVal(ctx.left, variables, right.getType());
+        if(left instanceof VariableModel &&
+                right instanceof VariableModel &&
+                left.getType()==null &&
+                right.getType()==null) {
+            variables.setRelated((VariableModel) left, (VariableModel) right);
+        }
         Statement st = new Statement(
                 program.predicates().get(operator,2),
                 Arrays.asList(left, right));
@@ -689,7 +696,7 @@ public class PrologParseListener extends PrologBaseListener implements ANTLRErro
         if(expected!=null){
             if(expected.equals(program.domains().get("real")))
                 return new SimpleValueModel(expected, (double)value);
-            if(expected.equals(program.domains().get("char")))
+            if(expected.equals(program.domains().get("char")) && value>0 && value<=Character.MAX_VALUE)
                 return new SimpleValueModel(expected, (char)value);
         }
         SimpleValueModel val = new SimpleValueModel(program.domains().get("integer"), value);
@@ -808,30 +815,36 @@ public class PrologParseListener extends PrologBaseListener implements ANTLRErro
                     element = parseValue(elementContext, variables, elType);
                 }else{
                     element = parseValue(elementContext, variables, null);
-                    if(elType==null) elType = element.getType();
+                    if(elType==null && element.getType()!=null){
+                        elType = element.getType();
+                        //When element type is known reparse previous with expected type.
+                        for (int i = 0; i < elements.size()-1; i++) {
+                            elements.set(i, parseValue(elementContext, variables, elType));
+                        }
+                    }
                 }
                 elements.add(element);
             }
         }
 
-        Type listType = null;
+        Type listType;
         if(expected!=null && expected.isList()){
             listType = expected;
         }else{
-            if(elType!=null) {
-                String elTypeName = null;
-                if(elType.isPrimitive())
-                    elTypeName = elType.getPrimitiveType().getName();
-                else{
-                    Collection<String> names = program.domains().names(elType);
-                    if(names!=null && !names.isEmpty()) elTypeName = names.iterator().next();
-                }
-                if(elTypeName!=null) listType = new Type(elType, elTypeName);
-            }
+            listType = getListType(elType);
         }
         VariableModel tail = null;
         if(ctx.list().tail!=null){
             tail = parseVariable(ctx.list().tail, variables, listType);
+            //If list element type unknown and tail type is known, set types for elements
+            if(listType==null && tail.getType()!=null && tail.getType().isList()){
+                listType = tail.getType();
+                elType = listType.getListType();
+                if(listValuesContext != null) {
+                    final Type elTypeFinal = elType;
+                    elements = listValuesContext.value().stream().map(elCtx -> parseValue(elCtx, variables, elTypeFinal)).collect(Collectors.toList());
+                }
+            }
         }
 
         ListValueModel list;
@@ -842,6 +855,21 @@ public class PrologParseListener extends PrologBaseListener implements ANTLRErro
                 ctx.list().LSQ().getSymbol().getStartIndex(),
                 ctx.list().RSQ().getSymbol().getStartIndex()));
         return list;
+    }
+
+    private Type getListType(Type elType) {
+        Type listType = null;
+        if(elType!=null) {
+            String elTypeName = null;
+            if(elType.isPrimitive())
+                elTypeName = elType.getPrimitiveType().getName();
+            else{
+                Collection<String> names = program.domains().names(elType);
+                if(names!=null && !names.isEmpty()) elTypeName = names.iterator().next();
+            }
+            if(elTypeName!=null) listType = new Type(elType, elTypeName);
+        }
+        return listType;
     }
 
     private VariableModel parseVariable(Token variable, VariableStorage variables, Type expected) {
@@ -1010,6 +1038,7 @@ public class PrologParseListener extends PrologBaseListener implements ANTLRErro
     private static class VariableStorage{
         Map<String, List<VariableModel>> variables = new HashMap<>();
         Map<String, Type> types = new HashMap<>();
+        Map<String, Set<VariableModel>> related;
 
         public void put(VariableModel var){
             //If storage contains type for variable, sets it (no matter if variable already has type)
@@ -1020,6 +1049,16 @@ public class PrologParseListener extends PrologBaseListener implements ANTLRErro
                 if(variables.containsKey(var.getName())){
                     variables.get(var.getName()).forEach(v -> v.setType(var.getType()));
                 }
+                //If variable is related to other, set type for related
+                if(related!=null && related.containsKey(var.getName())){
+                    Set<VariableModel> vars = related.get(var.getName());
+                    vars.forEach(v->v.setType(var.getType()));
+                    //Now, when types are set, there is no sense to keep related variables
+                    vars.forEach(v->related.remove(v.getName()));
+
+                    //Set type to all clones of related variables
+                    vars.forEach(this::put);
+                }
             }
             //Add variable to map.
             if(variables.containsKey(var.getName())){
@@ -1029,6 +1068,37 @@ public class PrologParseListener extends PrologBaseListener implements ANTLRErro
                 lst.add(var);
                 variables.put(var.getName(), lst);
             }
+        }
+
+        @SuppressWarnings("Duplicates")
+        public void setRelated(VariableModel v1, VariableModel v2){
+            if(v1.getName().equals("_") || v2.getName().equals("_")) return;
+            if(related==null) related = new HashMap<>();
+            if(related.containsKey(v1.getName()) && related.containsKey(v2.getName())){
+                Set<VariableModel> v1Set = related.get(v1.getName());
+                Set<VariableModel> v2Set = related.get(v2.getName());
+                if(v1Set==v2Set) return;
+                v1Set.addAll(v2Set);
+                related.remove(v2.getName());
+                return;
+            }
+            if(related.containsKey(v1.getName())){
+                Set<VariableModel> v1Related = related.get(v1.getName());
+                v1Related.add(v2);
+                related.put(v2.getName(), v1Related);
+                return;
+            }
+            if(related.containsKey(v2.getName())){
+                Set<VariableModel> v2Related = related.get(v1.getName());
+                v2Related.add(v1);
+                related.put(v1.getName(), v2Related);
+                return;
+            }
+            Set<VariableModel> vars = new HashSet<>();
+            vars.add(v1);
+            vars.add(v2);
+            related.put(v1.getName(), vars);
+            related.put(v2.getName(), vars);
         }
     }
 

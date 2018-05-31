@@ -2,7 +2,7 @@ package ru.prolog.util.io;
 
 import ru.prolog.logic.exceptions.PrologRuntimeException;
 
-public class StdErr implements ErrorListener {
+public class StdErr implements ErrorListener, StdIO {
     @Override
     public void prologRuntimeException(PrologRuntimeException e) {
         System.err.println(e);

@@ -27,4 +27,8 @@ public abstract class DeviceHub<T> {
     public void removeAll(){
         devices.clear();
     }
+
+    public void removeStd(){
+        devices.removeIf(t -> t instanceof StdIO);
+    }
 }

@@ -13,9 +13,9 @@ import java.io.PrintWriter;
 import java.util.Collections;
 import java.util.List;
 
-public class SavePredicate extends AbstractPredicate {
+public class Save2Predicate extends AbstractPredicate {
 
-    public SavePredicate(TypeStorage typeStorage) {
+    public Save2Predicate(TypeStorage typeStorage) {
         super("save", Collections.singletonList("string"), typeStorage);
     }
 
@@ -26,9 +26,14 @@ public class SavePredicate extends AbstractPredicate {
         if(isFreeVariable(fileNameArg))
             throw new FreeVariableException("File name for save is free variable", (Variable) fileNameArg);
         String fileName = (String) fileNameArg.getValue();
+        Value dbNameArg = args.get(1);
+        if(isFreeVariable(dbNameArg))
+            throw new FreeVariableException("Database name for save is free variable", (Variable) dbNameArg);
+        String dbName = (String) dbNameArg.getValue();
+        if(fileName==null) throw new FreeVariableException("File name is free variable", (Variable) fileNameArg);
         try {
             PrintWriter pw = new PrintWriter(fileName);
-            pw.print(context.programContext().database().save());
+            pw.print(context.programContext().database().save(dbName));
             pw.close();
             return 0;
         } catch (FileNotFoundException e) {

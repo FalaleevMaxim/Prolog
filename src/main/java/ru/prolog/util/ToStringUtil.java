@@ -69,6 +69,10 @@ public class ToStringUtil {
 
     public static String simpleToString(Type type, Object value){
         switch (type.getPrimitiveType().getName()){
+            case "symbol":
+                if(NameChecker.canBeName((String)value))
+                    return (String)value;
+                return stringValue((String) value);
             case "string":
                 return stringValue((String) value);
             case "char":

@@ -1,6 +1,6 @@
 package ru.prolog.util.io;
 
-public class StdOut implements OutputDevice {
+public class StdOut implements OutputDevice, StdIO {
     @Override
     public void print(String s) {
         System.out.print(s);

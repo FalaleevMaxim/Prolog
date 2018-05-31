@@ -3,7 +3,7 @@ package ru.prolog.util;
 import java.util.regex.Pattern;
 
 public class NameChecker {
-    private static boolean canBeName(String name) {
+    public static boolean canBeName(String name) {
         return name != null &&
                 !name.equals("") &&
                 !isAllUnderscores(name) &&
