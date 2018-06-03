@@ -98,7 +98,7 @@ public class ListValue implements PrologList {
     @Override
     public PrologList join(Value value){
         if(value==null) throw new IllegalArgumentException("Value can not be null");
-        if(type.getListType() != value.getType()) throw new WrongTypeException("New list element has different type", type.getListType(), value.getType());
+        if(!type.getListType().equals(value.getType())) throw new WrongTypeException("New list element has different type", type.getListType(), value.getType());
         return new ListValue(type, value, this);
     }
 

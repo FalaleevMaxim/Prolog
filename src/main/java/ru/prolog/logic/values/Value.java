@@ -1,12 +1,11 @@
 package ru.prolog.logic.values;
 
-import ru.prolog.logic.context.RuntimeObject;
 import ru.prolog.logic.model.type.Type;
 import ru.prolog.logic.model.values.ValueModel;
 
 import java.util.List;
 
-public interface Value extends RuntimeObject{
+public interface Value {
     Object getValue();
     Type getType();
     boolean unify(Value other);
