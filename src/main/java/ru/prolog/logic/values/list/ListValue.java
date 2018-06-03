@@ -1,7 +1,8 @@
 package ru.prolog.logic.values.list;
 
 import ru.prolog.logic.model.type.Type;
-import ru.prolog.logic.model.type.exceptions.WrongTypeException;
+import ru.prolog.logic.exceptions.WrongTypeException;
+import ru.prolog.logic.model.values.VariableModel;
 import ru.prolog.logic.values.Value;
 import ru.prolog.logic.values.Variable;
 import ru.prolog.logic.model.values.ListValueModel;
@@ -11,9 +12,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ListValue implements PrologList {
-    protected Value value;
+    protected Value head;
     protected Type type;
-    protected PrologList next;
+    protected PrologList tail;
 
     //empty list
     public ListValue(Type type) {
@@ -21,14 +22,14 @@ public class ListValue implements PrologList {
     }
 
     //PrologList element
-    public ListValue(Type listType, Value value) {
+    public ListValue(Type listType, Value head) {
         this(listType);
-        this.value = value;
+        this.head = head;
     }
 
-    private ListValue(Type listType, Value value, PrologList tail){
-        this(listType, value);
-        this.next = tail;
+    private ListValue(Type listType, Value head, PrologList tail){
+        this(listType, head);
+        this.tail = tail;
     }
 
     @Override
@@ -38,17 +39,16 @@ public class ListValue implements PrologList {
 
     @Override
     public Value getValue() {
-        return value;
+        return head;
     }
 
     @Override
     public boolean unify(Value other) {
-        if(other.getType()!=getType()) throw new WrongTypeException("Wrong type of value to unify", type, other.getType());
         PrologList otherList = (PrologList) other;
         if(other instanceof Variable && ((Variable)other).isFree()) return other.unify(this);
         if(isEmpty() && otherList.isEmpty()) return true;
         if(this.isEmpty() || otherList.isEmpty()) return false;
-        if(!value.unify(otherList.head())) return false;
+        if(!head.unify(otherList.head())) return false;
         PrologList tail = tail();
         PrologList otherTail = otherList.tail();
         if(tail==null && otherTail==null) return true;
@@ -67,32 +67,37 @@ public class ListValue implements PrologList {
     @Override
     public ValueModel toModel() {
         ListValueModel model = new ListValueModel(type);
-        for (PrologList list = this; list.isEmpty(); list = list.tail()){
+        for (PrologList list = this; !list.isEmpty(); list = list.tail()){
+            if(list instanceof Variable && ((Variable) list).isFree()){
+                model.setTail((VariableModel) list.toModel());
+                break;
+            }
             model.addElement(list.getValue().toModel());
         }
-        return toModel();
+        return model;
     }
 
     @Override
     public boolean isEmpty(){
-        return value==null;
+        return head==null;
     }
 
     @Override
     public boolean isLast() {
-        return next==null || next.isEmpty();
+        return tail==null || tail.isEmpty();
     }
 
     @Override
     public Value head(){
-        return value;
+        return head;
     }
 
     @Override
     public PrologList tail(){
-        if(next!=null) return next;
+        if(tail !=null) return tail;
         if(isEmpty()) return null;//Can not get tail of empty list
-        return new ListValue(type);//Tail of list with 1 element is empty list
+        tail = new ListValue(type);//Tail of list with 1 element is empty list
+        return tail;
     }
 
     @Override

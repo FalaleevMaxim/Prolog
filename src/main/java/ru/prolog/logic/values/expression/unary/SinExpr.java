@@ -10,6 +10,7 @@ public class SinExpr extends AbstractUnaryExpr {
 
     @Override
     public Double getValue() {
+        checkFreeVariables();
         return Math.sin(innerExpr.getValue().doubleValue());
     }
 

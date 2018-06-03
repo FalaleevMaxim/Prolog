@@ -7,7 +7,7 @@ import ru.prolog.logic.model.values.ExprValueModel;
 
 import java.util.List;
 
-public abstract class AbstractUnaryExpr extends AbstractExprValue implements UnaryExpr{
+public abstract class AbstractUnaryExpr extends AbstractExprValue{
     protected ExprValue innerExpr;
 
     public AbstractUnaryExpr(String name, ExprValue innerExpr) {
@@ -22,10 +22,6 @@ public abstract class AbstractUnaryExpr extends AbstractExprValue implements Una
 
     public ExprValue getInnerExpr() {
         return innerExpr;
-    }
-
-    public void setInnerExpr(ExprValue innerExpr) {
-        this.innerExpr = innerExpr;
     }
 
     @Override

@@ -6,7 +6,6 @@ import ru.prolog.logic.model.type.Type;
 import ru.prolog.logic.model.values.SimpleValueModel;
 import ru.prolog.logic.model.values.ValueModel;
 import ru.prolog.logic.model.values.VariableModel;
-import ru.prolog.logic.values.AbstractValue;
 import ru.prolog.logic.values.Value;
 import ru.prolog.logic.values.Variable;
 import ru.prolog.util.ToStringUtil;
@@ -19,14 +18,14 @@ import java.util.Set;
 /**
  * Variable of primitive type
  */
-public class SimpleVariable extends AbstractValue implements Variable {
+public class SimpleVariable extends SimpleValue implements Variable {
     private RuleContext ruleContext;
     private Set<Variable> related;
     private final String name;
     private Backup lastBackup;
 
     public SimpleVariable(Type type, String name, RuleContext ruleContext) {
-        super(type);
+        super(type, null);
         this.name = name;
         this.ruleContext = ruleContext;
     }
@@ -127,24 +126,6 @@ public class SimpleVariable extends AbstractValue implements Variable {
     @Override
     public void setLastBackup(Backup lastBackup) {
         this.lastBackup = lastBackup;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof SimpleVariable)) return false;
-
-        SimpleVariable that = (SimpleVariable) o;
-
-        if (!ruleContext.equals(that.ruleContext)) return false;
-        return name.equals(that.name);
-    }
-
-    @Override
-    public int hashCode() {
-        int result = ruleContext.hashCode();
-        result = 31 * result + name.hashCode();
-        return result;
     }
 
     @Override

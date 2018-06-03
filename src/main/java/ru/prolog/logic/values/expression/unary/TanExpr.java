@@ -10,6 +10,7 @@ public class TanExpr extends AbstractUnaryExpr{
 
     @Override
     public Double getValue() {
+        checkFreeVariables();
         return Math.tan(innerExpr.getValue().doubleValue());
     }
 

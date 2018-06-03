@@ -11,6 +11,7 @@ public class MinusUnaryExpr extends AbstractUnaryExpr {
 
     @Override
     public Number getValue() {
+        checkFreeVariables();
         Number innerVal = innerExpr.getValue();
         if(innerExpr.getType().getPrimitiveType().isReal())
             return -innerVal.doubleValue();

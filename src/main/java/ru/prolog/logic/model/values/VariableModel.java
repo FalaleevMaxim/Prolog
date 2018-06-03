@@ -2,13 +2,12 @@ package ru.prolog.logic.model.values;
 
 import ru.prolog.logic.context.rule.RuleContext;
 import ru.prolog.logic.model.AbstractModelObject;
-import ru.prolog.logic.model.ModelObject;
 import ru.prolog.logic.model.exceptions.ModelStateException;
 import ru.prolog.logic.model.exceptions.value.IllegalVariableNameException;
 import ru.prolog.logic.model.exceptions.value.TypeNotFitValueClassException;
 import ru.prolog.logic.model.exceptions.value.ValueStateException;
 import ru.prolog.logic.model.type.Type;
-import ru.prolog.logic.model.type.exceptions.WrongTypeException;
+import ru.prolog.logic.exceptions.WrongTypeException;
 import ru.prolog.logic.values.Value;
 import ru.prolog.logic.values.Variable;
 import ru.prolog.util.NameChecker;

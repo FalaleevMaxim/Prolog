@@ -22,30 +22,26 @@ public class FunctorVariableImpl extends FunctorValueImpl implements FunctorVari
     }
 
     @Override
+    @SuppressWarnings("Duplicates")
     public boolean unify(Value other) {
-        if(isFree()){
-            if(other instanceof Variable && ((Variable)other).isFree()){
-                Variable var = (Variable) other;
-                addRelated(var);
-                var.addRelated(this);
+        if(!isFree()) return super.unify(other);
+        if(other instanceof Variable){
+            Variable listVariable = (Variable)other;
+            if(listVariable.isFree()){
+                addRelated(listVariable);
+                listVariable.addRelated(this);
                 return true;
             }
-            FunctorValue otherFunc = (FunctorValue) other;
-            functorName = otherFunc.getFunctorName();
-            args = otherFunc.getValue();
-            return true;
         }
-        return super.unify(other);
+        applyValue(other);
+        return true;
     }
 
     @Override
-    @SuppressWarnings("Duplicates")
     public List<Variable> innerFreeVariables() {
         if(isFree())
             return Collections.singletonList(this);
-        List<Variable> variables = new ArrayList<>();
-        variables.addAll(super.innerFreeVariables());
-        return variables;
+        return super.innerFreeVariables();
     }
 
     @Override

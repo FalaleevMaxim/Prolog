@@ -26,15 +26,11 @@ public class ListVariableImpl extends ListValue implements ListVariable {
     }
 
     @Override
-    public Value head(){
-        return value;
-    }
-
-    @Override
+    @SuppressWarnings("Duplicates")
     public boolean unify(Value other) {
         if(!isFree()) return super.unify(other);
-        if(other instanceof ListVariableImpl){
-            ListVariableImpl listVariable = (ListVariableImpl)other;
+        if(other instanceof Variable){
+            Variable listVariable = (Variable)other;
             if(listVariable.isFree()){
                 addRelated(listVariable);
                 listVariable.addRelated(this);
@@ -53,12 +49,9 @@ public class ListVariableImpl extends ListValue implements ListVariable {
     }
 
     @Override
-    @SuppressWarnings("Duplicates")
     public List<Variable> innerFreeVariables(){
         if(isFree()) return Collections.singletonList(this);
-        List<Variable> variables = new ArrayList<>();
-        variables.addAll(super.innerFreeVariables());
-        return variables;
+        return super.innerFreeVariables();
     }
 
     @Override
@@ -87,9 +80,9 @@ public class ListVariableImpl extends ListValue implements ListVariable {
 
     @Override
     public void setFree() {
-        value = null;
+        head = null;
         isEmpty = false;
-        next = null;
+        tail = null;
     }
 
     @Override
@@ -104,7 +97,7 @@ public class ListVariableImpl extends ListValue implements ListVariable {
 
     @Override
     public boolean isLast() {
-        return next==null;
+        return tail ==null;
     }
 
     @Override
@@ -114,9 +107,9 @@ public class ListVariableImpl extends ListValue implements ListVariable {
         if(listValue.isEmpty()){
             isEmpty = true;
         }else{
-            this.value = listValue.getValue();
+            this.head = listValue.getValue();
             if(!listValue.isLast()){
-                this.next = listValue.tail();
+                this.tail = listValue.tail();
             }
         }
 
@@ -125,7 +118,7 @@ public class ListVariableImpl extends ListValue implements ListVariable {
 
     @Override
     public boolean isFree(){
-        return !isEmpty && value==null;
+        return !isEmpty && head ==null;
     }
 
     @Override

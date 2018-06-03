@@ -7,12 +7,11 @@ public interface PrologList extends Value {
     boolean isEmpty();
     boolean isLast();
     Value head();
-    Value getValue();
+    default Value getValue(){return head();}
     PrologList tail();
     PrologList join(Value value);
 
     static PrologList asList(Type type, Value... values){
-        PrologList list = new ListValue(type);
         return asList(new ListValue(type), values);
     }
 

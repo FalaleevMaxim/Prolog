@@ -6,6 +6,9 @@ import ru.prolog.logic.values.Value;
 import java.util.List;
 
 public class ToStringUtil {
+    private ToStringUtil() {
+    }
+
     public static String funcToString(String name, List<?> args){
         if(args.isEmpty()) return name;
         StringBuilder sb = new StringBuilder(name).append('(');

@@ -1,8 +1,8 @@
-package ru.prolog.logic.model.type.exceptions;
+package ru.prolog.logic.exceptions;
 
 import ru.prolog.logic.model.type.Type;
 
-public class WrongTypeException extends RuntimeException {
+public class WrongTypeException extends PrologRuntimeException {
     private Type expected;
     private Type got;
 

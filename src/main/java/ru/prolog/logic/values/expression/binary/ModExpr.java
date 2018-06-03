@@ -10,6 +10,7 @@ public class ModExpr extends AbstractBinaryExpr {
 
     @Override
     public Integer getValue() {
+        checkFreeVariables();
         return left.getValue().intValue() % right.getValue().intValue();
     }
 

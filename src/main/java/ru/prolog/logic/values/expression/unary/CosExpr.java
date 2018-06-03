@@ -10,6 +10,7 @@ public class CosExpr extends AbstractUnaryExpr{
 
     @Override
     public Double getValue() {
+        checkFreeVariables();
         return Math.cos(innerExpr.getValue().doubleValue());
     }
 
