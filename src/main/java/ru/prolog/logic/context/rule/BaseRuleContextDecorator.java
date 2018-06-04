@@ -58,11 +58,6 @@ public abstract class BaseRuleContextDecorator implements RuleContext {
     }
 
     @Override
-    public boolean redo() {
-        return decorated.redo();
-    }
-
-    @Override
     public void rollback(){
         decorated.rollback();
     }

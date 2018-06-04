@@ -269,6 +269,10 @@ public class PrologParseListener extends PrologBaseListener implements ANTLRErro
 
     @Override
     public void exitPredicates(PrologParser.PredicatesContext ctx) {
+        processIncludes();
+    }
+
+    private void processIncludes() {
         if(includes==null) return;
         for (IncludeStatement include : includes) {
             try {
@@ -356,6 +360,12 @@ public class PrologParseListener extends PrologBaseListener implements ANTLRErro
                         "Error instantiating object", e));
             }
         }
+        includes = null;
+    }
+
+    @Override
+    public void exitProgram(PrologParser.ProgramContext ctx) {
+        if(includes!=null) processIncludes();
     }
 
     @Override

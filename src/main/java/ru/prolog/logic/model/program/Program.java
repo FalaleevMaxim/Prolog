@@ -76,9 +76,8 @@ public class Program  extends AbstractModelObject implements Runnable {
     @Override
     public Collection<ModelStateException> exceptions() {
         if(fixed) return Collections.emptyList();
-        Collection<ModelStateException> exceptions = new ArrayList<>();
 
-        exceptions.addAll(typeStorage.exceptions());
+        Collection<ModelStateException> exceptions = new ArrayList<>(typeStorage.exceptions());
         if(!exceptions.isEmpty()) return exceptions;
 
         exceptions.addAll(database.exceptions());

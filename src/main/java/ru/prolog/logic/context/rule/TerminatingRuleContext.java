@@ -16,6 +16,14 @@ public class TerminatingRuleContext extends BaseRuleContextDecorator {
         return true;
     }
 
+    @Override
+    public boolean redo() {
+        checkInterrupted();
+        if(!decorated.redo()) return false;
+        checkInterrupted();
+        return true;
+    }
+
     private void checkInterrupted() {
         if(Thread.interrupted()){
             throw new ProgramInterruptedException();

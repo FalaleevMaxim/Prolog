@@ -39,7 +39,7 @@ public class DebuggerRuleContextDecorator extends BaseRuleContextDecorator {
             programContext().putContextData(LEVEL_KEY, level);
         } catch (FileNotFoundException e) { }
 
-        boolean ret = super.redo();
+        boolean ret = decorated.redo();
 
         try (PrintWriter pw = new PrintWriter(new FileOutputStream(fileName, true))) {
             if (ret) {

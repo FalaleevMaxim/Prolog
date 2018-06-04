@@ -89,7 +89,7 @@ public interface Database {
 
     /**
      * @param dbName name of database
-     * @return all facts of specified default database as text (each fact on new line).
+     * @return all facts of specified database as text (each fact on new line).
      */
     String save(String dbName);
 }
