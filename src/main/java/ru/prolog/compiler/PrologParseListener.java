@@ -538,7 +538,7 @@ public class PrologParseListener extends PrologBaseListener implements ANTLRErro
         String operator = ctx.operator.getText();
         ValueModel left = parseCompVal(ctx.left, variables, null);
         ValueModel right = parseCompVal(ctx.right, variables, left.getType());
-        if(left.getType()==null && right.getType()!=null) left = parseCompVal(ctx.left, variables, right.getType());
+        if(right.getType()!=null && !right.getType().equals(left.getType())) left = parseCompVal(ctx.left, variables, right.getType());
         if(left instanceof VariableModel &&
                 right instanceof VariableModel &&
                 left.getType()==null &&

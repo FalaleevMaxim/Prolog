@@ -49,7 +49,7 @@ predExec:NAME
         |NAME LPAR argList? RPAR
         ;
 argList:value (',' value)*;
-compare:left=compVal operator=('='|'>'|'<'|'<='|'>=') right=compVal;
+compare:left=compVal operator=('='|'<>'|'>'|'<'|'<='|'>=') right=compVal;
 compVal:value
      |expr
      ;
@@ -129,7 +129,8 @@ ASSIGN:':-'
       |'IF'
       ;
 
-NAME:  LOWER NAMECHAR*;
+NAME:LOWER NAMECHAR*
+    |'_' NAMECHAR+;
 VARNAME:UPPER NAMECHAR*
        |'_'
        ;

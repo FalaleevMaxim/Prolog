@@ -106,7 +106,7 @@ public class FunctorValueModel extends AbstractModelObject implements ValueModel
 
         Functor func = null;
         if(type==null) {
-            exceptions.add(new ValueStateException(this, "Type is null"));
+            exceptions.add(new ValueStateException(this, "Functor type not defined"));
         } else{
             if(!type.isCompoundType()){
                 exceptions.add(new TypeNotFitValueClassException(this, "Type of FunctorValueModel must be functor"));

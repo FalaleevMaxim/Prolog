@@ -126,11 +126,12 @@ public class PredicateStorageImpl extends AbstractModelObject implements Predica
                         for (List<Statement> list : ((StatementExecutorRule) r).getStatements()) {
                             for (Statement st : list){
                                 if(st.getPredicate()==null){
-                                    st.setPredicate(getFitting(
+                                    Predicate predicate = getFitting(
                                             st.getPredicateName(),
                                             st.getArgs().stream()
                                                     .map(ValueModel::getType)
-                                                    .collect(Collectors.toList())));
+                                                    .collect(Collectors.toList()));
+                                    if(predicate!=null) st.setPredicate(predicate);
                                 }
                             }
                         }
@@ -169,6 +170,7 @@ public class PredicateStorageImpl extends AbstractModelObject implements Predica
         add(new Fail());
         add(new Nl());
         add(new EqualsOperatorPredicate(typeStorage));
+        add(new NotEqualsOperatorPredicate(typeStorage));
         add(new LessOperatorPredicate(typeStorage));
         add(new MoreOperatorPredicate(typeStorage));
         add(new MoreEqualsOperatorPredicate(typeStorage));

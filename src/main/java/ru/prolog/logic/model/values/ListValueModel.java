@@ -53,7 +53,7 @@ public class ListValueModel extends AbstractModelObject implements ValueModel {
     public Collection<ModelStateException> exceptions() {
         if(fixed) return Collections.emptyList();
         Collection<ModelStateException> exceptions = new ArrayList<>();
-        if(type==null) exceptions.add(new ValueStateException(this, "Variable type not defined"));
+        if(type==null) exceptions.add(new ValueStateException(this, "List type not defined"));
         else if(!type.isList()){
              exceptions.add(new TypeNotFitValueClassException(this, "Type of ListValueModel must be list"));
         }

@@ -27,6 +27,7 @@ public interface PredicateStorage extends ModelObject {
                 || p instanceof Fail
                 || p instanceof Nl
                 || p instanceof EqualsOperatorPredicate
+                || p instanceof NotEqualsOperatorPredicate
                 || p instanceof LessOperatorPredicate
                 || p instanceof MoreOperatorPredicate
                 || p instanceof MoreEqualsOperatorPredicate

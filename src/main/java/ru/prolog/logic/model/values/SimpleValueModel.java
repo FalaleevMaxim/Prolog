@@ -68,7 +68,7 @@ public class SimpleValueModel extends AbstractModelObject implements ValueModel{
         if(value==null)
             exceptions.add(new NullValueException(this));
         if(type==null)
-            exceptions.add(new ValueStateException(this, "Type is null"));
+            exceptions.add(new ValueStateException(this, "Value type not defined"));
         if(!exceptions.isEmpty())
             return exceptions;
 
