@@ -37,7 +37,6 @@ public class RetractPredicate extends AbstractPredicate{
             if(ruleContext.execute()){
                 //If rule returned true, remove it from database
                 db.retract(rule);
-                ruleContext.rollback();
                 return i;
             }
         }

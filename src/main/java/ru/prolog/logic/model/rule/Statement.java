@@ -55,14 +55,13 @@ public class Statement extends AbstractModelObject {
     }
 
     @Override
-    @SuppressWarnings("Duplicates")
     public Collection<ModelStateException> exceptions() {
         Collection<ModelStateException> exceptions = new ArrayList<>();
         for (ValueModel arg : args) {
             exceptions.addAll(arg.exceptions());
         }
         if(predicate==null) {
-            exceptions.add(new StatementStateException(this, "Predicate of statement is null"));
+            exceptions.add(new StatementStateException(this, "No predicate for statement "+this));
             return exceptions;
         }
         boolean vararg = false; //Sets true after vararg type in predicate. Any arguments in statement can follow vararg.
@@ -115,7 +114,7 @@ public class Statement extends AbstractModelObject {
             return args.get(0).toString() +predicateName + args.get(1);
         }
         String s = ToStringUtil.funcToString(predicateName, args);
-        if(predicate!=null && predicate instanceof Not){
+        if(predicate instanceof Not){
             return "not("+s+")";
         }
         return s;

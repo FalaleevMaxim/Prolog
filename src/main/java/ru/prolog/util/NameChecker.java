@@ -14,14 +14,12 @@ public class NameChecker {
 
     //Check if name contains only '_'
     private static boolean isAllUnderscores(String name) {
-        boolean allUnderscores = true;
         for (char c : name.toCharArray()) {
             if (c != '_') {
-                allUnderscores = false;
-                break;
+                return false;
             }
         }
-        return allUnderscores;
+        return true;
     }
 
     public static boolean canBePredicateName(String name) {

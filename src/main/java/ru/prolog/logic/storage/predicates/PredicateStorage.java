@@ -8,6 +8,8 @@ import ru.prolog.logic.std.cast.*;
 import ru.prolog.logic.std.compare.*;
 import ru.prolog.logic.std.db.*;
 import ru.prolog.logic.std.io.*;
+import ru.prolog.logic.std.math.DiffIntPredicate;
+import ru.prolog.logic.std.math.SumIntPredicate;
 import ru.prolog.logic.std.string.*;
 
 import java.util.Collection;
@@ -54,6 +56,8 @@ public interface PredicateStorage extends ModelObject {
                 || p instanceof StrCharCastPredicate
                 || p instanceof StringSymbolCastPredicate
                 || p instanceof StrIntCastPredicate
-                || p instanceof StrRealCastPredicate;
+                || p instanceof StrRealCastPredicate
+                || p instanceof SumIntPredicate
+                || p instanceof DiffIntPredicate;
     }
 }

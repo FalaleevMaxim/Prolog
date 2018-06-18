@@ -110,7 +110,7 @@ public class PrologParseListener extends PrologBaseListener implements ANTLRErro
 
     @Override
     public void exitDomain(PrologParser.DomainContext ctx) {
-        //Validate types
+        processIncludes();
         program.domains().exceptions();
     }
 
@@ -176,6 +176,7 @@ public class PrologParseListener extends PrologBaseListener implements ANTLRErro
     @Override
     public void enterDatabase(PrologParser.DatabaseContext ctx) {
         if(parseError) throw new IllegalStateException("Errors during parsing");
+        processIncludes();
         String name = DatabaseModel.DEFAULT_DB_NAME;
         if(ctx.NAME()!=null)
             name = ctx.NAME().getText();
@@ -223,6 +224,7 @@ public class PrologParseListener extends PrologBaseListener implements ANTLRErro
     @Override
     public void enterPredicates(PrologParser.PredicatesContext ctx) {
         if(parseError) throw new IllegalStateException("Errors during parsing");
+        processIncludes();
         ctx.predDef().forEach(this::parsePredicate);
     }
 
@@ -267,15 +269,13 @@ public class PrologParseListener extends PrologBaseListener implements ANTLRErro
                 .collect(Collectors.toList());
     }
 
-    @Override
-    public void exitPredicates(PrologParser.PredicatesContext ctx) {
-        processIncludes();
-    }
-
     private void processIncludes() {
         if(includes==null) return;
         for (IncludeStatement include : includes) {
             try {
+                include.directory = include.directory.replace('\\', '/');
+                if(!include.directory.endsWith(".jar") && !include.directory.endsWith("/"))
+                    include.directory = include.directory + "/";
                 ClassLoader loader = new URLClassLoader(new URL[]{new URL("file://"+include.directory)});
                 Class<?> class_ = loader.loadClass(include.className);
                 if(include.type==Include.PREDICATE){

@@ -21,15 +21,16 @@ public class ToStringUtil {
     }
 
     public static String ordinal(int num){
-        switch (++num%10){
+        String numStr = Integer.toString(++num);
+        switch (num%10){
             case 1:
-                return "1st";
+                return numStr+"st";
             case 2:
-                return "2nd";
+                return numStr+"nd";
             case 3:
-                return "3d";
+                return numStr+"rd";
             default:
-                return Integer.toString(num)+"th";
+                return numStr+"th";
         }
     }
 

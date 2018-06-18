@@ -44,7 +44,7 @@ public abstract class ProgramModule extends AbstractModelObject {
         if(typeStorage!=null){
             typeStorage.getAllTypeNames().stream()
                     .map(typeStorage::get)
-                    .filter(type -> !type.isPrimitive())
+                    .filter(type -> !type.isBuiltIn())
                     .forEach(type -> type.setCodeIntervals(getCodeIntervals()));
             typeStorage.fix();
         }

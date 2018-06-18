@@ -63,6 +63,10 @@ public final class Type extends AbstractModelObject{
         return primitiveType!=null;
     }
 
+    public boolean isBuiltIn(){
+        return primitives.containsValue(this);
+    }
+
     public boolean isCommonType(){return commonType!=null;}
 
     public boolean isAnyType(){

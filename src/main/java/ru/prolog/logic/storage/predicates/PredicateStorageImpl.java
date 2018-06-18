@@ -16,6 +16,8 @@ import ru.prolog.logic.std.cast.*;
 import ru.prolog.logic.std.compare.*;
 import ru.prolog.logic.std.db.*;
 import ru.prolog.logic.std.io.*;
+import ru.prolog.logic.std.math.DiffIntPredicate;
+import ru.prolog.logic.std.math.SumIntPredicate;
 import ru.prolog.logic.std.string.ConcatPredicate;
 import ru.prolog.logic.std.string.FormatPredicate;
 import ru.prolog.logic.std.string.FrontCharPredicate;
@@ -72,7 +74,7 @@ public class PredicateStorageImpl extends AbstractModelObject implements Predica
                 return p;
             else p=null;
         }
-        int match = 0;
+        int match = -1;
         for (Map.Entry<Integer, Predicate> entry : predicates.get(name).entrySet()) {
             int m = matchArgTypes(entry.getValue(), types);
             if(m>match){
@@ -198,5 +200,7 @@ public class PredicateStorageImpl extends AbstractModelObject implements Predica
         add(new StringSymbolCastPredicate(typeStorage));
         add(new StrIntCastPredicate(typeStorage));
         add(new StrRealCastPredicate(typeStorage));
+        add(new SumIntPredicate(typeStorage));
+        add(new DiffIntPredicate(typeStorage));
     }
 }
