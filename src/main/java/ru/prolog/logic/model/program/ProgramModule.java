@@ -37,7 +37,7 @@ public abstract class ProgramModule extends AbstractModelObject {
     public void fixIfOk() {
         if(predicateStorage!=null){
             predicateStorage.all().stream()
-                    .filter(p -> !PredicateStorage.isBuiltInPredicate(p))
+                    .filter(p -> !predicateStorage.isBuiltInPredicate(p))
                     .forEach(p -> p.setCodeIntervals(getCodeIntervals()));
             predicateStorage.fix();
         }

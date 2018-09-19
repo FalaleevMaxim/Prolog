@@ -10,13 +10,14 @@ import ru.prolog.logic.values.Variable;
 
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
 public class Save2Predicate extends AbstractPredicate {
 
     public Save2Predicate(TypeStorage typeStorage) {
-        super("save", Collections.singletonList("string"), typeStorage);
+        super("save", Arrays.asList("string", "string"), typeStorage);
     }
 
     @Override

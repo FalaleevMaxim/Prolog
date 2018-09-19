@@ -14,9 +14,9 @@ import ru.prolog.logic.values.functor.FunctorValueImpl;
 import java.util.Collections;
 import java.util.List;
 
-class AbstractAssertPredicate extends AbstractPredicate {
+public abstract class AbstractAssertPredicate extends AbstractPredicate {
     private boolean a;
-    public AbstractAssertPredicate(String name, TypeStorage typeStorage, boolean a) {
+    AbstractAssertPredicate(String name, TypeStorage typeStorage, boolean a) {
         super(name, Collections.singletonList("database"), typeStorage);
         this.a=a;
     }
