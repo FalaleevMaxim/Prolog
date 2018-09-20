@@ -34,19 +34,25 @@ public class BaseProgramContext implements ProgramContext {
 
     @Override
     public Object getContextData(String key) {
-        if(contextData==null) return null;
+        if (contextData == null) return null;
         return contextData.get(key);
     }
 
     @Override
     public void putContextData(String key, Object data) {
-        if(contextData==null) contextData = new HashMap<>();
+        if (contextData == null) contextData = new HashMap<>();
         contextData.put(key, data);
     }
 
     @Override
     public boolean execute() {
-        return program.run(this);
+        boolean res;
+        try {
+            res = program.run(this);
+        } finally {
+            onFinish();
+        }
+        return res;
     }
 
     @Override
@@ -67,5 +73,18 @@ public class BaseProgramContext implements ProgramContext {
     @Override
     public ErrorListenerHub getErrorListeners() {
         return errorListeners;
+    }
+
+    private void onFinish() {
+        for (Object o : contextData.values()) {
+            if (o instanceof AutoCloseable) {
+                try {
+                    ((AutoCloseable) o).close();
+                } catch (Exception e) {
+                    errorListeners.println("Error closing program context resource:");
+                    errorListeners.println(e.toString() + '\n');
+                }
+            }
+        }
     }
 }

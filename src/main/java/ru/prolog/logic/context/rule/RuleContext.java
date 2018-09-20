@@ -1,6 +1,6 @@
 package ru.prolog.logic.context.rule;
 
-import ru.prolog.logic.context.Executable;
+import ru.prolog.logic.context.ExecutionContext;
 import ru.prolog.logic.context.predicate.PredicateContext;
 import ru.prolog.logic.context.program.ProgramContext;
 import ru.prolog.logic.context.rule.statements.ExecutedStatements;
@@ -11,7 +11,7 @@ import ru.prolog.logic.values.Variable;
 import java.util.Collection;
 import java.util.List;
 
-public interface RuleContext extends Executable {
+public interface RuleContext extends ExecutionContext {
     Rule getRule();
     List<Value> getArgs();
     Variable getVariable(String name);

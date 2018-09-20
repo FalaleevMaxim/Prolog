@@ -1,6 +1,6 @@
 package ru.prolog.logic.context;
 
-public interface Executable {
+public interface ExecutionContext {
     /**
      * Executes predicate, getRule or program.
      */

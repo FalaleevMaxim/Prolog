@@ -1,10 +1,11 @@
 package ru.prolog.logic.context.predicate;
 
-import ru.prolog.logic.context.rule.RuleContext;
-import ru.prolog.logic.model.predicate.Predicate;
 import ru.prolog.logic.context.program.ProgramContext;
+import ru.prolog.logic.context.rule.RuleContext;
 import ru.prolog.logic.managers.rule.RuleContextManager;
+import ru.prolog.logic.model.predicate.Predicate;
 import ru.prolog.logic.values.Value;
+import ru.prolog.util.io.ErrorListenerHub;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -21,16 +22,16 @@ public class BasePredicateContext implements PredicateContext {
     private RuleContext lastExecutedRuleContext;
     private boolean cut = false;
 
-    public BasePredicateContext(Predicate predicate, List<Value> args, RuleContext ruleContext){
+    public BasePredicateContext(Predicate predicate, List<Value> args, RuleContext ruleContext) {
         this(predicate, args, ruleContext.programContext());
         this.ruleContext = ruleContext;
     }
 
     public BasePredicateContext(Predicate predicate, List<Value> args, ProgramContext program) {
-        if(predicate == null) throw new IllegalArgumentException("Can not create context of null predicate");
+        if (predicate == null) throw new IllegalArgumentException("Can not create context of null predicate");
         this.programContext = program;
         this.predicate = predicate;
-        if(args == null) args = Collections.emptyList();
+        if (args == null) args = Collections.emptyList();
         this.args = Collections.unmodifiableList(args);
     }
 
@@ -71,13 +72,13 @@ public class BasePredicateContext implements PredicateContext {
 
     @Override
     public void putContextData(String key, Object data) {
-        if(contextData==null) contextData = new HashMap<>();
+        if (contextData == null) contextData = new HashMap<>();
         contextData.put(key, data);
     }
 
     @Override
     public Object getContextData(String key) {
-        if(contextData==null) return null;
+        if (contextData == null) return null;
         return contextData.get(key);
     }
 
@@ -92,14 +93,36 @@ public class BasePredicateContext implements PredicateContext {
     }
 
     @Override
-    public boolean execute(){
-        if(cut) return false;
+    public boolean execute() {
+        if (cut) return false;
         int result = predicate.run(this, args, startWith);
-        if(result < 0){
+        if (result < 0) {
+            onFail();
             return false;
-        }else{
-            startWith = result+1;
+        } else {
+            startWith = result + 1;
             return true;
         }
+    }
+
+    private void onFail() {
+        if (contextData != null) {
+            clearContextData();
+        }
+    }
+
+    private void clearContextData() {
+        for (Object o : contextData.values()) {
+            if (o instanceof AutoCloseable) {
+                try {
+                    ((AutoCloseable) o).close();
+                } catch (Exception e) {
+                    ErrorListenerHub errorListeners = programContext().getErrorListeners();
+                    errorListeners.println("Error closing predicate context resource:");
+                    errorListeners.println(e.toString() + '\n');
+                }
+            }
+        }
+        contextData.clear();
     }
 }

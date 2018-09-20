@@ -1,13 +1,13 @@
 package ru.prolog.logic.context.program;
 
-import ru.prolog.logic.context.Executable;
+import ru.prolog.logic.context.ExecutionContext;
 import ru.prolog.logic.model.program.Program;
 import ru.prolog.logic.storage.database.Database;
 import ru.prolog.util.io.ErrorListenerHub;
 import ru.prolog.util.io.InputDevice;
 import ru.prolog.util.io.OutputDeviceHub;
 
-public interface ProgramContext extends Executable {
+public interface ProgramContext extends ExecutionContext {
     String KEY_DEBUG_FILE = "DebugFile";
     String KEY_DEBUG_OUTPUT_DEVICE = "DebugOutput";
 

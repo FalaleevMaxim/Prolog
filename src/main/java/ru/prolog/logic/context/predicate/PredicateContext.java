@@ -1,15 +1,15 @@
 package ru.prolog.logic.context.predicate;
 
-import ru.prolog.logic.context.Executable;
-import ru.prolog.logic.context.rule.RuleContext;
-import ru.prolog.logic.model.predicate.Predicate;
+import ru.prolog.logic.context.ExecutionContext;
 import ru.prolog.logic.context.program.ProgramContext;
+import ru.prolog.logic.context.rule.RuleContext;
 import ru.prolog.logic.managers.rule.RuleContextManager;
+import ru.prolog.logic.model.predicate.Predicate;
 import ru.prolog.logic.values.Value;
 
 import java.util.List;
 
-public interface PredicateContext extends Executable {
+public interface PredicateContext extends ExecutionContext {
     ProgramContext programContext();
     RuleContext getRuleContext();
     Predicate predicate();
