@@ -1,18 +1,16 @@
 package ru.prolog.logic.model.rule;
 
+import ru.prolog.logic.etc.exceptions.model.ModelStateException;
+import ru.prolog.logic.etc.exceptions.model.statement.MissingStatementArgException;
+import ru.prolog.logic.etc.exceptions.model.statement.RedundantStatementArgException;
+import ru.prolog.logic.etc.exceptions.model.statement.StatementStateException;
+import ru.prolog.logic.etc.exceptions.model.statement.WrongStatementArgTypeException;
 import ru.prolog.logic.model.AbstractModelObject;
-import ru.prolog.logic.model.exceptions.ModelStateException;
-import ru.prolog.logic.model.exceptions.statement.MissingStatementArgException;
-import ru.prolog.logic.model.exceptions.statement.RedundantStatementArgException;
-import ru.prolog.logic.model.exceptions.statement.StatementStateException;
-import ru.prolog.logic.model.exceptions.statement.WrongStatementArgTypeException;
-import ru.prolog.logic.model.ModelObject;
 import ru.prolog.logic.model.predicate.Predicate;
 import ru.prolog.logic.model.type.Type;
-import ru.prolog.logic.std.Not;
-import ru.prolog.logic.std.compare.EqualsOperatorPredicate;
-import ru.prolog.util.ToStringUtil;
 import ru.prolog.logic.model.values.ValueModel;
+import ru.prolog.std.Not;
+import ru.prolog.util.ToStringUtil;
 
 import java.util.*;
 

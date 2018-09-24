@@ -1,6 +1,6 @@
 package ru.prolog.logic.storage.type.exception;
 
-import ru.prolog.logic.model.exceptions.ModelStateException;
+import ru.prolog.logic.etc.exceptions.model.ModelStateException;
 import ru.prolog.logic.model.type.descriptions.Functor;
 
 public class FunctorAlreadyUsedException extends ModelStateException {

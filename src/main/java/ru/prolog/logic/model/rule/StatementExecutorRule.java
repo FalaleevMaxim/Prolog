@@ -1,16 +1,15 @@
 package ru.prolog.logic.model.rule;
 
-import ru.prolog.logic.context.predicate.PredicateContext;
-import ru.prolog.logic.context.rule.statements.ExecutedStatements;
-import ru.prolog.logic.model.ModelObject;
-import ru.prolog.logic.model.exceptions.ModelStateException;
-import ru.prolog.logic.model.exceptions.rule.RuleStateException;
+import ru.prolog.logic.etc.exceptions.model.ModelStateException;
+import ru.prolog.logic.etc.exceptions.model.rule.RuleStateException;
+import ru.prolog.logic.model.managers.Managers;
 import ru.prolog.logic.model.predicate.Predicate;
-import ru.prolog.logic.context.rule.RuleContext;
-import ru.prolog.logic.context.rule.statements.ExecutedStatement;
-import ru.prolog.logic.managers.Managers;
-import ru.prolog.logic.values.Value;
 import ru.prolog.logic.model.values.ValueModel;
+import ru.prolog.logic.runtime.context.predicate.PredicateContext;
+import ru.prolog.logic.runtime.context.rule.RuleContext;
+import ru.prolog.logic.runtime.context.rule.statements.ExecutedStatement;
+import ru.prolog.logic.runtime.context.rule.statements.ExecutedStatements;
+import ru.prolog.logic.runtime.values.Value;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -115,7 +114,7 @@ public class StatementExecutorRule extends AbstractRule {
                     }
                     //create new context from statement
                     Managers managers = context.programContext().program().managers();
-                    predicateExecution = managers.getPredicateManager().context(statement.getPredicate(),
+                    predicateExecution = managers.getPredicateManager().context(statement,
                             //copy statement args to getRule context
                             statement.getArgs().stream()
                                     .map(value -> value.forContext(context))

@@ -1,16 +1,16 @@
 package ru.prolog.logic.model.values;
 
 import ru.prolog.compiler.position.ModelCodeIntervals;
-import ru.prolog.logic.context.rule.RuleContext;
+import ru.prolog.logic.etc.exceptions.model.ModelStateException;
+import ru.prolog.logic.etc.exceptions.model.value.ValueStateException;
+import ru.prolog.logic.etc.exceptions.model.value.WrongOperandTypeException;
 import ru.prolog.logic.model.AbstractModelObject;
-import ru.prolog.logic.model.exceptions.ModelStateException;
-import ru.prolog.logic.model.exceptions.value.ValueStateException;
-import ru.prolog.logic.model.exceptions.value.WrongOperandTypeException;
 import ru.prolog.logic.model.type.Type;
-import ru.prolog.logic.values.expression.ExprValue;
-import ru.prolog.logic.values.expression.ValueExpr;
-import ru.prolog.logic.values.expression.binary.*;
-import ru.prolog.logic.values.expression.unary.*;
+import ru.prolog.logic.runtime.context.rule.RuleContext;
+import ru.prolog.logic.runtime.values.expression.ExprValue;
+import ru.prolog.logic.runtime.values.expression.ValueExpr;
+import ru.prolog.logic.runtime.values.expression.binary.*;
+import ru.prolog.logic.runtime.values.expression.unary.*;
 
 import java.util.*;
 

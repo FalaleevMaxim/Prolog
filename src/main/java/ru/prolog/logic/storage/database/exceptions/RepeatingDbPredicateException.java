@@ -1,6 +1,6 @@
 package ru.prolog.logic.storage.database.exceptions;
 
-import ru.prolog.logic.model.exceptions.ModelStateException;
+import ru.prolog.logic.etc.exceptions.model.ModelStateException;
 import ru.prolog.logic.model.predicate.DatabasePredicate;
 import ru.prolog.logic.storage.database.DatabaseModel;
 

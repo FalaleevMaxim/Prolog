@@ -1,13 +1,13 @@
 package ru.prolog.logic.model.program;
 
-import ru.prolog.logic.context.program.ProgramContext;
-import ru.prolog.logic.managers.Managers;
+import ru.prolog.logic.etc.exceptions.model.ModelStateException;
 import ru.prolog.logic.model.AbstractModelObject;
-import ru.prolog.logic.model.exceptions.ModelStateException;
+import ru.prolog.logic.model.managers.Managers;
 import ru.prolog.logic.model.predicate.GoalPredicate;
 import ru.prolog.logic.model.predicate.InnerGoalPredicate;
-import ru.prolog.logic.model.rule.StatementExecutorRule;
 import ru.prolog.logic.model.predicate.InteractiveGoalPredicate;
+import ru.prolog.logic.model.rule.StatementExecutorRule;
+import ru.prolog.logic.runtime.context.program.ProgramContext;
 import ru.prolog.logic.storage.database.DatabaseModel;
 import ru.prolog.logic.storage.database.DatabaseModelImpl;
 import ru.prolog.logic.storage.predicates.PredicateStorage;

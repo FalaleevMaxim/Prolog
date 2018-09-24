@@ -1,10 +1,10 @@
 package ru.prolog.logic.model.rule;
 
-import ru.prolog.logic.context.rule.RuleContext;
 import ru.prolog.logic.model.ModelObject;
 import ru.prolog.logic.model.predicate.Predicate;
-import ru.prolog.logic.values.Value;
 import ru.prolog.logic.model.values.ValueModel;
+import ru.prolog.logic.runtime.context.rule.RuleContext;
+import ru.prolog.logic.runtime.values.Value;
 
 import java.util.List;
 

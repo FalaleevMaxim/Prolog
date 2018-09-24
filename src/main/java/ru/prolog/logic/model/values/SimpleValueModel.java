@@ -1,19 +1,21 @@
 package ru.prolog.logic.model.values;
 
-import ru.prolog.logic.context.rule.RuleContext;
+import ru.prolog.logic.etc.exceptions.model.ModelStateException;
+import ru.prolog.logic.etc.exceptions.model.value.NullValueException;
+import ru.prolog.logic.etc.exceptions.model.value.TypeNotFitValueClassException;
+import ru.prolog.logic.etc.exceptions.model.value.TypeNotFitValueObjectException;
+import ru.prolog.logic.etc.exceptions.model.value.ValueStateException;
 import ru.prolog.logic.model.AbstractModelObject;
-import ru.prolog.logic.model.ModelObject;
-import ru.prolog.logic.model.exceptions.ModelStateException;
-import ru.prolog.logic.model.exceptions.value.NullValueException;
-import ru.prolog.logic.model.exceptions.value.TypeNotFitValueClassException;
-import ru.prolog.logic.model.exceptions.value.TypeNotFitValueObjectException;
-import ru.prolog.logic.model.exceptions.value.ValueStateException;
 import ru.prolog.logic.model.type.Type;
-import ru.prolog.logic.values.Value;
-import ru.prolog.logic.values.simple.SimpleValue;
+import ru.prolog.logic.runtime.context.rule.RuleContext;
+import ru.prolog.logic.runtime.values.Value;
+import ru.prolog.logic.runtime.values.simple.SimpleValue;
 import ru.prolog.util.ToStringUtil;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Set;
 
 public class SimpleValueModel extends AbstractModelObject implements ValueModel{
     private Type type;

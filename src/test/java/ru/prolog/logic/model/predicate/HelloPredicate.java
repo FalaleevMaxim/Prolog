@@ -1,7 +1,7 @@
 package ru.prolog.logic.model.predicate;
 
-import ru.prolog.logic.context.predicate.PredicateContext;
-import ru.prolog.logic.values.Value;
+import ru.prolog.logic.runtime.context.predicate.PredicateContext;
+import ru.prolog.logic.runtime.values.Value;
 
 import java.util.List;
 

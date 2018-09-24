@@ -1,8 +1,8 @@
 package ru.prolog.logic.storage.predicates;
 
 import org.reflections.Reflections;
+import ru.prolog.logic.etc.exceptions.model.ModelStateException;
 import ru.prolog.logic.model.AbstractModelObject;
-import ru.prolog.logic.model.exceptions.ModelStateException;
 import ru.prolog.logic.model.predicate.*;
 import ru.prolog.logic.model.rule.Rule;
 import ru.prolog.logic.model.rule.Statement;
@@ -154,11 +154,11 @@ public class PredicateStorageImpl extends AbstractModelObject implements Predica
     }
 
     /**
-     * Сканирует пакет  {@link ru.prolog.logic.std}, ищет все неабстрактные классы предикатов, создаёт и {@link #add(Predicate) добавляет} в хранилище объекты.
+     * Сканирует пакет  {@link ru.prolog.std}, ищет все неабстрактные классы предикатов, создаёт и {@link #add(Predicate) добавляет} в хранилище объекты.
      * В ранних версиях все стандартные предикаты приходилось создавать и добавлять вручную в этом методе.
      */
     private void addBuiltInPredicates() {
-        Reflections reflections = new Reflections("ru.prolog.logic.std");
+        Reflections reflections = new Reflections("ru.prolog.std");
         reflections.getSubTypesOf(AbstractPredicate.class).stream()
                 .filter(c -> !Modifier.isAbstract(c.getModifiers()))
                 .map(this::instantiate)
@@ -167,7 +167,7 @@ public class PredicateStorageImpl extends AbstractModelObject implements Predica
 
     @Override
     public boolean isBuiltInPredicate(Predicate p) {
-        Reflections reflections = new Reflections("ru.prolog.logic.std");
+        Reflections reflections = new Reflections("ru.prolog.std");
         Set<Class<? extends Predicate>> builtInPredClasses = reflections.getSubTypesOf(AbstractPredicate.class).stream()
                 .filter(c -> !Modifier.isAbstract(c.getModifiers()))
                 .collect(Collectors.toSet());

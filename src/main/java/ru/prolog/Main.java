@@ -2,11 +2,10 @@ package ru.prolog;
 
 import ru.prolog.compiler.CompileException;
 import ru.prolog.compiler.PrologCompiler;
-import ru.prolog.logic.model.exceptions.ModelStateException;
+import ru.prolog.logic.etc.exceptions.model.ModelStateException;
 import ru.prolog.logic.model.program.Program;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Collection;
 
 @SuppressWarnings("Duplicates")

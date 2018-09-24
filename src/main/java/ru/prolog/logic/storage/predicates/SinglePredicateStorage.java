@@ -1,8 +1,8 @@
 package ru.prolog.logic.storage.predicates;
 
 import ru.prolog.compiler.position.ModelCodeIntervals;
+import ru.prolog.logic.etc.exceptions.model.ModelStateException;
 import ru.prolog.logic.model.AbstractModelObject;
-import ru.prolog.logic.model.exceptions.ModelStateException;
 import ru.prolog.logic.model.predicate.Predicate;
 import ru.prolog.logic.model.type.Type;
 
