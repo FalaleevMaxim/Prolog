@@ -1,8 +1,8 @@
 package ru.prolog.logic.storage.database;
 
+import ru.prolog.logic.etc.exceptions.model.ModelStateException;
 import ru.prolog.logic.model.AbstractModelObject;
 import ru.prolog.logic.model.ModelObject;
-import ru.prolog.logic.model.exceptions.ModelStateException;
 import ru.prolog.logic.model.predicate.DatabasePredicate;
 import ru.prolog.logic.storage.database.exceptions.RepeatingDbPredicateException;
 

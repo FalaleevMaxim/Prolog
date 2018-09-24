@@ -1,20 +1,20 @@
 package ru.prolog.logic.model.values;
 
-import ru.prolog.logic.context.rule.RuleContext;
+import ru.prolog.logic.etc.exceptions.model.ModelStateException;
+import ru.prolog.logic.etc.exceptions.model.value.TypeNotFitValueClassException;
+import ru.prolog.logic.etc.exceptions.model.value.ValueStateException;
+import ru.prolog.logic.etc.exceptions.model.value.functor.FunctorValueNameException;
+import ru.prolog.logic.etc.exceptions.model.value.functor.MissingFunctorArgException;
+import ru.prolog.logic.etc.exceptions.model.value.functor.RedundantFunctorArgException;
+import ru.prolog.logic.etc.exceptions.model.value.functor.WrongFunctorSubObjectTypeException;
 import ru.prolog.logic.model.AbstractModelObject;
-import ru.prolog.logic.model.exceptions.ModelStateException;
-import ru.prolog.logic.model.exceptions.value.functor.FunctorValueNameException;
-import ru.prolog.logic.model.exceptions.value.TypeNotFitValueClassException;
-import ru.prolog.logic.model.exceptions.value.ValueStateException;
-import ru.prolog.logic.model.exceptions.value.functor.MissingFunctorArgException;
-import ru.prolog.logic.model.exceptions.value.functor.RedundantFunctorArgException;
-import ru.prolog.logic.model.exceptions.value.functor.WrongFunctorSubObjectTypeException;
 import ru.prolog.logic.model.type.Type;
 import ru.prolog.logic.model.type.descriptions.Functor;
+import ru.prolog.logic.runtime.context.rule.RuleContext;
+import ru.prolog.logic.runtime.values.Value;
+import ru.prolog.logic.runtime.values.functor.FunctorValueImpl;
 import ru.prolog.util.NameChecker;
 import ru.prolog.util.ToStringUtil;
-import ru.prolog.logic.values.Value;
-import ru.prolog.logic.values.functor.FunctorValueImpl;
 
 import java.util.*;
 import java.util.stream.Collectors;

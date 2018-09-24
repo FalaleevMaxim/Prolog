@@ -1,19 +1,21 @@
 package ru.prolog.logic.model.rule;
 
+import ru.prolog.logic.etc.exceptions.model.ModelStateException;
+import ru.prolog.logic.etc.exceptions.model.rule.MissingRuleArgException;
+import ru.prolog.logic.etc.exceptions.model.rule.RedundantRuleArgException;
+import ru.prolog.logic.etc.exceptions.model.rule.WrongRuleArgTypeException;
 import ru.prolog.logic.model.AbstractModelObject;
-import ru.prolog.logic.model.ModelObject;
-import ru.prolog.logic.model.exceptions.ModelStateException;
-import ru.prolog.logic.model.exceptions.rule.MissingRuleArgException;
-import ru.prolog.logic.model.exceptions.rule.RedundantRuleArgException;
-import ru.prolog.logic.model.exceptions.rule.WrongRuleArgTypeException;
 import ru.prolog.logic.model.predicate.Predicate;
-import ru.prolog.logic.context.rule.RuleContext;
 import ru.prolog.logic.model.type.Type;
-import ru.prolog.util.ToStringUtil;
-import ru.prolog.logic.values.Value;
 import ru.prolog.logic.model.values.ValueModel;
+import ru.prolog.logic.runtime.context.rule.RuleContext;
+import ru.prolog.logic.runtime.values.Value;
+import ru.prolog.util.ToStringUtil;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * Base class for all rules.

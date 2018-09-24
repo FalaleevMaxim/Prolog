@@ -1,8 +1,7 @@
 package ru.prolog.logic.model.program;
 
+import ru.prolog.logic.etc.exceptions.model.ModelStateException;
 import ru.prolog.logic.model.AbstractModelObject;
-import ru.prolog.logic.model.ModelObject;
-import ru.prolog.logic.model.exceptions.ModelStateException;
 import ru.prolog.logic.storage.predicates.PredicateStorage;
 import ru.prolog.logic.storage.type.TypeStorage;
 
@@ -37,7 +36,7 @@ public abstract class ProgramModule extends AbstractModelObject {
     public void fixIfOk() {
         if(predicateStorage!=null){
             predicateStorage.all().stream()
-                    .filter(p -> !PredicateStorage.isBuiltInPredicate(p))
+                    .filter(p -> !predicateStorage.isBuiltInPredicate(p))
                     .forEach(p -> p.setCodeIntervals(getCodeIntervals()));
             predicateStorage.fix();
         }

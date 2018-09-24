@@ -1,32 +1,19 @@
 package ru.prolog.logic.storage.predicates;
 
+import org.reflections.Reflections;
+import ru.prolog.logic.etc.exceptions.model.ModelStateException;
 import ru.prolog.logic.model.AbstractModelObject;
-import ru.prolog.logic.model.ModelObject;
-import ru.prolog.logic.model.exceptions.ModelStateException;
-import ru.prolog.logic.model.predicate.DatabasePredicate;
-import ru.prolog.logic.model.predicate.Predicate;
-import ru.prolog.logic.model.predicate.PrologPredicate;
-import ru.prolog.logic.model.predicate.RuleExecutorPredicate;
+import ru.prolog.logic.model.predicate.*;
 import ru.prolog.logic.model.rule.Rule;
 import ru.prolog.logic.model.rule.Statement;
 import ru.prolog.logic.model.rule.StatementExecutorRule;
 import ru.prolog.logic.model.type.Type;
-import ru.prolog.logic.std.*;
-import ru.prolog.logic.std.cast.*;
-import ru.prolog.logic.std.compare.*;
-import ru.prolog.logic.std.db.*;
-import ru.prolog.logic.std.io.*;
-import ru.prolog.logic.std.math.DiffIntPredicate;
-import ru.prolog.logic.std.math.SumIntPredicate;
-import ru.prolog.logic.std.string.ConcatPredicate;
-import ru.prolog.logic.std.string.FormatPredicate;
-import ru.prolog.logic.std.string.FrontCharPredicate;
+import ru.prolog.logic.model.values.ValueModel;
 import ru.prolog.logic.storage.predicates.exceptions.SamePredicateException;
 import ru.prolog.logic.storage.type.TypeStorage;
-import ru.prolog.logic.model.values.ValueModel;
 
-import static ru.prolog.logic.storage.predicates.PredicateStorage.isBuiltInPredicate;
-
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Modifier;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -48,36 +35,36 @@ public class PredicateStorageImpl extends AbstractModelObject implements Predica
 
     @Override
     public Collection<Predicate> get(String name) {
-        if(!predicates.containsKey(name)) return Collections.emptyList();
+        if (!predicates.containsKey(name)) return Collections.emptyList();
         return predicates.get(name).values();
     }
 
     @Override
     public Predicate get(String name, int arity) {
-        if(!predicates.containsKey(name)) return null;
+        if (!predicates.containsKey(name)) return null;
         return predicates.get(name).get(arity);
     }
 
     @Override
     public Predicate getVarArgPredicate(String name) {
-        if(!predicates.containsKey(name)) return null;
+        if (!predicates.containsKey(name)) return null;
         return predicates.get(name).get(Integer.MAX_VALUE);
     }
 
     @Override
     public Predicate getFitting(String name, List<Type> types) {
-        if(!predicates.containsKey(name)) return null;
+        if (!predicates.containsKey(name)) return null;
         Predicate p = get(name, types.size());
-        if(p==null) p = getVarArgPredicate(name);
-        if(p!=null){
-            if(matchArgTypes(p, types)==types.size())
+        if (p == null) p = getVarArgPredicate(name);
+        if (p != null) {
+            if (matchArgTypes(p, types) == types.size())
                 return p;
-            else p=null;
+            else p = null;
         }
         int match = -1;
         for (Map.Entry<Integer, Predicate> entry : predicates.get(name).entrySet()) {
             int m = matchArgTypes(entry.getValue(), types);
-            if(m>match){
+            if (m > match) {
                 match = m;
                 p = entry.getValue();
             }
@@ -85,9 +72,9 @@ public class PredicateStorageImpl extends AbstractModelObject implements Predica
         return p;
     }
 
-    private int matchArgTypes(Predicate p, List<Type> types){
+    private int matchArgTypes(Predicate p, List<Type> types) {
         int count = 0;
-        for(int i = 0; i<p.getArgTypeNames().size() && i<types.size(); i++){
+        for (int i = 0; i < p.getArgTypeNames().size() && i < types.size(); i++) {
             Type predType = p.getTypeStorage().get(p.getArgTypeNames().get(i));
             Type reqType = types.get(i);
             if (predType.isCommonType() || predType.equals(reqType)) {
@@ -99,41 +86,41 @@ public class PredicateStorageImpl extends AbstractModelObject implements Predica
 
     @Override
     public void add(Predicate predicate) {
-        if(fixed) throw new IllegalStateException("State is fixed. You can not change it anymore.");
+        if (fixed) throw new IllegalStateException("State is fixed. You can not change it anymore.");
         SortedMap<Integer, Predicate> predMap;
-        if(!predicates.containsKey(predicate.getName())) {
+        if (!predicates.containsKey(predicate.getName())) {
             predMap = new TreeMap<>();
             predicates.put(predicate.getName(), predMap);
-        }else{
+        } else {
             predMap = predicates.get(predicate.getName());
         }
         int arity = predicate.getArity();
-        if(!predMap.containsKey(arity)){
+        if (!predMap.containsKey(arity)) {
             predMap.put(arity, predicate);
-        }else{
-            if(!isBuiltInPredicate(predicate))
+        } else {
+            if (!isBuiltInPredicate(predicate))
                 throw new SamePredicateException(predicate, predMap.get(arity));
         }
     }
 
     @Override
     public Collection<ModelStateException> exceptions() {
-        if(fixed) return Collections.emptyList();
+        if (fixed) return Collections.emptyList();
         Collection<ModelStateException> exceptions = new ArrayList<>();
-        for(Predicate p : all()){
+        for (Predicate p : all()) {
             //This horrible construction sets predicates to statements in rules if they are not set.
-            if(p instanceof RuleExecutorPredicate){
-                for(Rule r : ((RuleExecutorPredicate) p).getRules()) {
+            if (p instanceof RuleExecutorPredicate) {
+                for (Rule r : ((RuleExecutorPredicate) p).getRules()) {
                     if (r instanceof StatementExecutorRule) {
                         for (List<Statement> list : ((StatementExecutorRule) r).getStatements()) {
-                            for (Statement st : list){
-                                if(st.getPredicate()==null){
+                            for (Statement st : list) {
+                                if (st.getPredicate() == null) {
                                     Predicate predicate = getFitting(
                                             st.getPredicateName(),
                                             st.getArgs().stream()
                                                     .map(ValueModel::getType)
                                                     .collect(Collectors.toList()));
-                                    if(predicate!=null) st.setPredicate(predicate);
+                                    if (predicate != null) st.setPredicate(predicate);
                                 }
                             }
                         }
@@ -154,11 +141,11 @@ public class PredicateStorageImpl extends AbstractModelObject implements Predica
     public String toString() {
         StringBuilder prSb = new StringBuilder("predicates\n");
         StringBuilder clSb = new StringBuilder("clauses\n");
-        for(Predicate p : all()){
-            if(p instanceof PrologPredicate){
-                ((PrologPredicate)p).getRules().forEach(
+        for (Predicate p : all()) {
+            if (p instanceof PrologPredicate) {
+                ((PrologPredicate) p).getRules().forEach(
                         rule -> clSb.append("\t").append(rule).append(".\n"));
-                if(!(p instanceof  DatabasePredicate)){
+                if (!(p instanceof DatabasePredicate)) {
                     prSb.append("\t").append(p).append("\n");
                 }
             }
@@ -166,41 +153,51 @@ public class PredicateStorageImpl extends AbstractModelObject implements Predica
         return prSb.append(clSb).toString();
     }
 
-    private void addBuiltInPredicates(){
-        add(new Cut());
-        add(new Cut());
-        add(new Fail());
-        add(new Nl());
-        add(new EqualsOperatorPredicate(typeStorage));
-        add(new NotEqualsOperatorPredicate(typeStorage));
-        add(new LessOperatorPredicate(typeStorage));
-        add(new MoreOperatorPredicate(typeStorage));
-        add(new MoreEqualsOperatorPredicate(typeStorage));
-        add(new LessEqualsOperatorPredicate(typeStorage));
-        add(new RandomPredicate(typeStorage));
-        add(new WritePredicate(typeStorage));
-        add(new WriteFPredicate(typeStorage));
-        add(new ReadLnPredicate(typeStorage));
-        add(new ReadCharPredicate(typeStorage));
-        add(new ReadIntPredicate(typeStorage));
-        add(new ReadRealPredicate(typeStorage));
-        add(new FormatPredicate(typeStorage));
-        add(new FrontCharPredicate(typeStorage));
-        add(new ConcatPredicate(typeStorage));
-        add(new AssertPredicate(typeStorage));
-        add(new AssertaPredicate(typeStorage));
-        add(new AssertzPredicate(typeStorage));
-        add(new RetractPredicate(typeStorage));
-        add(new RetractAllPredicate(typeStorage));
-        add(new SavePredicate(typeStorage));
-        add(new ConsultPredicate(typeStorage));
-        add(new RealIntCastPredicate(typeStorage));
-        add(new IntCharCastPredicate(typeStorage));
-        add(new StrCharCastPredicate(typeStorage));
-        add(new StringSymbolCastPredicate(typeStorage));
-        add(new StrIntCastPredicate(typeStorage));
-        add(new StrRealCastPredicate(typeStorage));
-        add(new SumIntPredicate(typeStorage));
-        add(new DiffIntPredicate(typeStorage));
+    /**
+     * Сканирует пакет  {@link ru.prolog.std}, ищет все неабстрактные классы предикатов, создаёт и {@link #add(Predicate) добавляет} в хранилище объекты.
+     * В ранних версиях все стандартные предикаты приходилось создавать и добавлять вручную в этом методе.
+     */
+    private void addBuiltInPredicates() {
+        Reflections reflections = new Reflections("ru.prolog.std");
+        reflections.getSubTypesOf(AbstractPredicate.class).stream()
+                .filter(c -> !Modifier.isAbstract(c.getModifiers()))
+                .map(this::instantiate)
+                .forEach(this::add);
+    }
+
+    @Override
+    public boolean isBuiltInPredicate(Predicate p) {
+        Reflections reflections = new Reflections("ru.prolog.std");
+        Set<Class<? extends Predicate>> builtInPredClasses = reflections.getSubTypesOf(AbstractPredicate.class).stream()
+                .filter(c -> !Modifier.isAbstract(c.getModifiers()))
+                .collect(Collectors.toSet());
+        return builtInPredClasses.contains(p.getClass());
+    }
+
+    /**
+     * Служебный метод для метода {@link #addBuiltInPredicates()}, создающий объекты предикатов.
+     * Получает класс предиката, находит конструктор без параметров или конструктор, принимающий {@link TypeStorage} и создаёт объект с помощью конструктора
+     * @throws IllegalStateException Если не удалось создать объект.
+     * @param pClass класс предиката
+     * @return объект переданного класса
+     */
+    private Predicate instantiate(Class<? extends AbstractPredicate> pClass) {
+        for (Constructor<?> constructor : pClass.getConstructors()) {
+            if (constructor.getParameterCount() > 1) continue;
+            if (constructor.getParameterCount() == 0) {
+                try {
+                    return (Predicate) constructor.newInstance();
+                } catch (Exception ignored) {
+                    continue;
+                }
+            }
+            if (constructor.getParameters()[0].getType().equals(TypeStorage.class)) {
+                try {
+                    return (Predicate) constructor.newInstance(typeStorage);
+                }catch (Exception ignored){
+                }
+            }
+        }
+        throw new IllegalStateException("Error instantiating predicate class" + pClass.getName());
     }
 }

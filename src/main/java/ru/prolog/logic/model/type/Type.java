@@ -1,16 +1,15 @@
 package ru.prolog.logic.model.type;
 
-import ru.prolog.logic.context.rule.RuleContext;
+import ru.prolog.logic.etc.exceptions.model.ModelStateException;
 import ru.prolog.logic.model.AbstractModelObject;
-import ru.prolog.logic.model.ModelObject;
-import ru.prolog.logic.model.exceptions.ModelStateException;
 import ru.prolog.logic.model.type.descriptions.CommonType;
 import ru.prolog.logic.model.type.descriptions.CompoundType;
 import ru.prolog.logic.model.type.exceptions.NoValuesTypeException;
-import ru.prolog.logic.values.Variable;
-import ru.prolog.logic.values.functor.FunctorVariableImpl;
-import ru.prolog.logic.values.list.ListVariableImpl;
-import ru.prolog.logic.values.simple.SimpleVariable;
+import ru.prolog.logic.runtime.context.rule.RuleContext;
+import ru.prolog.logic.runtime.values.Variable;
+import ru.prolog.logic.runtime.values.functor.FunctorVariableImpl;
+import ru.prolog.logic.runtime.values.list.ListVariableImpl;
+import ru.prolog.logic.runtime.values.simple.SimpleVariable;
 
 import java.util.*;
 

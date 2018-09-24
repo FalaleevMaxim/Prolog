@@ -1,9 +1,8 @@
 package ru.prolog.logic.storage.type;
 
+import ru.prolog.logic.etc.exceptions.model.ModelStateException;
 import ru.prolog.logic.model.AbstractModelObject;
-import ru.prolog.logic.model.ModelObject;
 import ru.prolog.logic.model.NameModel;
-import ru.prolog.logic.model.exceptions.ModelStateException;
 import ru.prolog.logic.model.predicate.DatabasePredicate;
 import ru.prolog.logic.model.type.Type;
 import ru.prolog.logic.model.type.descriptions.CompoundType;

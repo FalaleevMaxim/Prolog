@@ -1,15 +1,15 @@
 package ru.prolog.logic.model.values;
 
-import ru.prolog.logic.context.rule.RuleContext;
+import ru.prolog.logic.etc.exceptions.model.ModelStateException;
+import ru.prolog.logic.etc.exceptions.model.value.TypeNotFitValueClassException;
+import ru.prolog.logic.etc.exceptions.model.value.ValueStateException;
+import ru.prolog.logic.etc.exceptions.model.value.WrongListElementTypeException;
+import ru.prolog.logic.etc.exceptions.model.value.WrongVariableTypeException;
 import ru.prolog.logic.model.AbstractModelObject;
-import ru.prolog.logic.model.exceptions.ModelStateException;
-import ru.prolog.logic.model.exceptions.value.TypeNotFitValueClassException;
-import ru.prolog.logic.model.exceptions.value.ValueStateException;
-import ru.prolog.logic.model.exceptions.value.WrongListElementTypeException;
-import ru.prolog.logic.model.exceptions.value.WrongVariableTypeException;
 import ru.prolog.logic.model.type.Type;
-import ru.prolog.logic.values.Value;
-import ru.prolog.logic.values.list.PrologList;
+import ru.prolog.logic.runtime.context.rule.RuleContext;
+import ru.prolog.logic.runtime.values.Value;
+import ru.prolog.logic.runtime.values.list.PrologList;
 
 import java.util.*;
 import java.util.stream.Collectors;

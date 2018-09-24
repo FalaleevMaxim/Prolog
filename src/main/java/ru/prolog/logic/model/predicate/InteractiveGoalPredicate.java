@@ -2,16 +2,13 @@ package ru.prolog.logic.model.predicate;
 
 import ru.prolog.compiler.CompileException;
 import ru.prolog.compiler.PrologCompiler;
-import ru.prolog.logic.context.predicate.PredicateContext;
-import ru.prolog.logic.context.program.ExceptionsCatcherProgramContext;
-import ru.prolog.logic.context.program.ProgramContext;
-import ru.prolog.logic.context.rule.RuleContext;
-import ru.prolog.logic.exceptions.ProgramInterruptedException;
-import ru.prolog.logic.exceptions.PrologRuntimeException;
+import ru.prolog.logic.etc.exceptions.runtime.ProgramInterruptedException;
+import ru.prolog.logic.etc.exceptions.runtime.PrologRuntimeException;
 import ru.prolog.logic.model.rule.Rule;
-import ru.prolog.logic.values.Value;
-import ru.prolog.logic.values.Variable;
-import ru.prolog.util.io.InputDevice;
+import ru.prolog.logic.runtime.context.predicate.PredicateContext;
+import ru.prolog.logic.runtime.context.rule.RuleContext;
+import ru.prolog.logic.runtime.values.Value;
+import ru.prolog.logic.runtime.values.Variable;
 import ru.prolog.util.io.OutputDevice;
 
 import java.io.IOException;

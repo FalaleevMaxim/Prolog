@@ -1,6 +1,6 @@
 package ru.prolog.util.io;
 
-import ru.prolog.logic.exceptions.PrologRuntimeException;
+import ru.prolog.logic.etc.exceptions.runtime.PrologRuntimeException;
 
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;

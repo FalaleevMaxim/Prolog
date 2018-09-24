@@ -1,6 +1,6 @@
 package ru.prolog.logic.storage.predicates.exceptions;
 
-import ru.prolog.logic.model.exceptions.predicate.PredicateStateException;
+import ru.prolog.logic.etc.exceptions.model.predicate.PredicateStateException;
 import ru.prolog.logic.model.predicate.Predicate;
 
 public class SamePredicateException extends PredicateStateException {

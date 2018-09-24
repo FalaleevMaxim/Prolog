@@ -1,7 +1,7 @@
 package ru.prolog.logic.model;
 
-import ru.prolog.logic.model.exceptions.ModelStateException;
 import ru.prolog.compiler.position.ModelCodeIntervals;
+import ru.prolog.logic.etc.exceptions.model.ModelStateException;
 
 import java.util.Collection;
 

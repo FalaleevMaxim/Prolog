@@ -9,10 +9,10 @@ import ru.prolog.logic.model.rule.StatementExecutorRule;
 import ru.prolog.logic.model.type.Type;
 import ru.prolog.logic.model.type.descriptions.CompoundType;
 import ru.prolog.logic.model.type.descriptions.FunctorType;
-import ru.prolog.logic.std.Not;
 import ru.prolog.logic.model.values.FunctorValueModel;
-import ru.prolog.logic.model.values.VariableModel;
 import ru.prolog.logic.model.values.SimpleValueModel;
+import ru.prolog.logic.model.values.VariableModel;
+import ru.prolog.std.Not;
 
 import java.util.Arrays;
 import java.util.Collections;

@@ -1,15 +1,13 @@
 package ru.prolog.logic.model.predicate;
 
+import ru.prolog.logic.etc.exceptions.model.ModelStateException;
+import ru.prolog.logic.etc.exceptions.model.predicate.PredicateArgTypeNotExistsException;
+import ru.prolog.logic.etc.exceptions.model.predicate.VarArgNotLastException;
 import ru.prolog.logic.model.AbstractModelObject;
-import ru.prolog.logic.model.ModelObject;
-import ru.prolog.logic.model.exceptions.ModelStateException;
-import ru.prolog.logic.model.exceptions.predicate.PredicateArgTypeNotExistsException;
-import ru.prolog.logic.model.exceptions.predicate.VarArgNotLastException;
-import ru.prolog.logic.model.rule.Rule;
 import ru.prolog.logic.model.type.Type;
+import ru.prolog.logic.runtime.values.Value;
+import ru.prolog.logic.runtime.values.Variable;
 import ru.prolog.logic.storage.type.TypeStorage;
-import ru.prolog.logic.values.Value;
-import ru.prolog.logic.values.Variable;
 import ru.prolog.util.ToStringUtil;
 
 import java.util.ArrayList;

@@ -1,10 +1,7 @@
 package ru.prolog.logic.model.program;
 
 import org.junit.Test;
-import ru.prolog.logic.context.rule.DebuggerRuleContextDecorator;
 import ru.prolog.logic.model.program.programs.*;
-
-import static org.junit.Assert.*;
 
 public class ProgramTest {
 

@@ -1,9 +1,7 @@
 package ru.prolog.logic.model.type.descriptions;
 
+import ru.prolog.logic.etc.exceptions.model.ModelStateException;
 import ru.prolog.logic.model.AbstractModelObject;
-import ru.prolog.logic.model.ModelObject;
-import ru.prolog.logic.model.exceptions.ModelStateException;
-import ru.prolog.logic.model.exceptions.type.CompoundTypeException;
 
 import java.util.*;
 

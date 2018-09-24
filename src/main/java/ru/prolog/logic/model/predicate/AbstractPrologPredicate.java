@@ -1,8 +1,8 @@
 package ru.prolog.logic.model.predicate;
 
-import ru.prolog.logic.model.exceptions.ModelStateException;
-import ru.prolog.logic.model.exceptions.predicate.IllegalArgTypeException;
-import ru.prolog.logic.model.exceptions.predicate.IllegalPredicateNameException;
+import ru.prolog.logic.etc.exceptions.model.ModelStateException;
+import ru.prolog.logic.etc.exceptions.model.predicate.IllegalArgTypeException;
+import ru.prolog.logic.etc.exceptions.model.predicate.IllegalPredicateNameException;
 import ru.prolog.logic.model.rule.Rule;
 import ru.prolog.logic.model.type.Type;
 import ru.prolog.logic.storage.type.TypeStorage;

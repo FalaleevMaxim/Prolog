@@ -1,14 +1,16 @@
 package ru.prolog.logic.model.predicate;
 
-import ru.prolog.logic.context.predicate.PredicateContext;
-import ru.prolog.logic.context.rule.RuleContext;
-import ru.prolog.logic.model.exceptions.ModelStateException;
-import ru.prolog.logic.model.exceptions.predicate.*;
+import ru.prolog.logic.etc.exceptions.model.ModelStateException;
+import ru.prolog.logic.etc.exceptions.model.predicate.PredicateStateException;
 import ru.prolog.logic.model.rule.Rule;
+import ru.prolog.logic.runtime.context.predicate.PredicateContext;
+import ru.prolog.logic.runtime.context.rule.RuleContext;
+import ru.prolog.logic.runtime.values.Value;
 import ru.prolog.logic.storage.type.TypeStorage;
-import ru.prolog.logic.values.Value;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 
 public class RuleExecutorPredicate extends AbstractPrologPredicate {
 
