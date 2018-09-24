@@ -5,6 +5,7 @@ import ru.prolog.logic.etc.exceptions.model.predicate.PredicateArgTypeNotExistsE
 import ru.prolog.logic.etc.exceptions.model.predicate.VarArgNotLastException;
 import ru.prolog.logic.model.AbstractModelObject;
 import ru.prolog.logic.model.type.Type;
+import ru.prolog.logic.runtime.context.predicate.PredicateContext;
 import ru.prolog.logic.runtime.values.Value;
 import ru.prolog.logic.runtime.values.Variable;
 import ru.prolog.logic.storage.type.TypeStorage;
@@ -16,16 +17,32 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * Базовый класс для всех предикатов.
+ * Наследникам требуется передать в конструктор имя предиката и, если есть, список типов аргументов и хранилище типов, и реализовать {@link #run(PredicateContext, List, int)}
+ */
 public abstract class AbstractPredicate extends AbstractModelObject implements Predicate {
     protected String name;
     protected List<String> argTypes;
     protected TypeStorage typeStorage;
 
+    /**
+     * Предикат без аргументов требует только имя
+     *
+     * @param name Имя предиката
+     */
     public AbstractPredicate(String name){
         this.name = name;
         this.argTypes = new ArrayList<>();
     }
 
+    /**
+     * Конструктор, принимающий и имя, и список типов аргументов, и хранилище, из которого брать типы по именам.
+     *
+     * @param name        Имя предиката
+     * @param argTypes    Список имён типов аргументов. Должна быть возможность найти типы по этим именам в typeStorage
+     * @param typeStorage Хранилище типов
+     */
     public AbstractPredicate(String name, List<String> argTypes, TypeStorage typeStorage) {
         this.name = name;
         this.argTypes = new ArrayList<>(argTypes);
@@ -69,26 +86,33 @@ public abstract class AbstractPredicate extends AbstractModelObject implements P
     }
 
     /**
-     * Checks that argument types exist in typeStorage
+     * Проверяет основные ошибки для предикатов.
+     * Проверяет, что типы аргументов есть в {@link #typeStorage}
+     * Проверяет, что vararg (если есть) стоит последним в списке аргументов.
+     * @return Список ошибок. Список изменяемый, так что его можно дополнять в производных классах.
      */
     @Override
     public Collection<ModelStateException> exceptions() {
         List<ModelStateException> exceptions = new ArrayList<>();
-        for(int i=0; i<argTypes.size(); i++){
+        for (int i = 0; i < argTypes.size(); i++){
             Type type = typeStorage.get(argTypes.get(i));
-            if(type==null)
+            if (type == null)
+                //Если типа нет в хранилище, добавляется ошибка
                 exceptions.add(new PredicateArgTypeNotExistsException(this, argTypes.get(i), i));
-            else if(type.isVarArg() && i<argTypes.size()-1){
-                //VarArg can be only last argument
+            else if (type.isVarArg() && i < argTypes.size() - 1) {
+                //VarArg может стоять только последним аргументом
                 exceptions.add(new VarArgNotLastException(this, i));
             }
         }
         return exceptions;
     }
 
+    /**
+     * Делает список аргументов неизменяемым.
+     */
     @Override
     public void fixIfOk() {
-        argTypes = Collections.unmodifiableList(argTypes);
+        argTypes = Collections.unmodifiableList(new ArrayList<>(argTypes));
     }
 
     @Override
@@ -114,7 +138,13 @@ public abstract class AbstractPredicate extends AbstractModelObject implements P
         return ToStringUtil.funcToString(name, argTypes);
     }
 
-    protected boolean isFreeVariable(Value arg){
+    /**
+     * Проверяет, является ли переданное значение свободной переменной. Может пригодиться при реализации метода {@link #run(PredicateContext, List, int)}
+     *
+     * @param arg проверяемое значение
+     * @return {@code true} если значение является переменной
+     */
+    protected static boolean isFreeVariable(Value arg){
         return arg instanceof Variable && ((Variable) arg).isFree();
     }
 }

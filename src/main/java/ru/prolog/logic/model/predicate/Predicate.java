@@ -8,35 +8,52 @@ import ru.prolog.logic.storage.type.TypeStorage;
 
 import java.util.List;
 
+/**
+ * Базовый интерфейс для предикатов.
+ * <b>Не рекомендуется реализовывать этот интерфейс!</b> Для создания собственных предикатов лучше унаследовать класс от {@link AbstractPredicate}!
+ */
 public interface Predicate extends ModelObject {
+    /**
+     * Возвращает имя предиката
+     *
+     * @return Имя предиката. Не должно изменяться между вызовами!
+     */
     String getName();
 
     /**
-     * @return names of predicate arguments type. Types by these names can be found in {@link #getTypeStorage()}
+     * Возвращает имена типов аргументов предиката.
+     * Типы по этим именам можно найти в {@link #getTypeStorage()}
+     * @return Имена типов аргументов предиката. Пустой список, если предикат не принимает аргументов.
      */
     List<String> getArgTypeNames();
 
     /**
-     * @return list of argument types. Gets types from {@link #getArgTypeNames()} using {@link #getTypeStorage()}
+     * Возвращает список типов аргументов.
+     * Типы можно получить по {@link #getArgTypeNames()}, используя {@link #getTypeStorage()}
+     * @return Список типов аргументов. Пустой список, если предикат не принимает аргументов.
      */
     List<Type> getArgTypes();
 
     /**
-     *
-     * @return Count of arguments predicate accepts. If last argument type is vararg, returns Integer.MAX_VALUE
+     * Возвращает количество аргументов, принимаемых предикатом.
+     * @return Кколичество аргументов в предикате. Если последний аргумент vararg, возвращает Integer.MAX_VALUE
      */
     int getArity();
 
     /**
-     * @return Type storage to search types from {@link #getArgTypeNames()} method. Can be null if predicate has no args. It is advised to take TypeStorage in your predicate constructor.
+     * Возвращает хранилище типов, используемое для преобразования имён типов из {@link #getArgTypeNames()} в типы в {@link #getArgTypes()}
+     * Может также использоваться в методе {@link #run(PredicateContext, List, int)}
+     * @return Хранилище типов. Может быть {@code null}, если предикат не принимает аргументов. Рекомендуется принимать {@link TypeStorage} в конструкторе предиката.
      */
     TypeStorage getTypeStorage();
 
     /**
-     * What predicate should do.
-     * @param args arguments sent ro predicate
-     * @param startWith number of getRule to start with. It is 0 on first execution and last return +1 on next launches.
-     * @return number of getRule which returned true. -1 if no getRule returned true or predicate returns fail. On next execution {@param startWith} will be returned value +1.
+     * Основной метод, определяющий логику предиката.
+     * @param args аргументы, переданные при вызове предиката
+     * @param startWith Номер правила (или варианта выполнения), с которого нужно начать поиск решения.
+     *                  При первом вызове равно 0.
+     *                  При каждом последующем вызове при бэктрекинге будет на 1 больше последнего возвращённого в методе числа.
+     * @return Номер правила (или варианта выполнения), завершившегося успешно. -1 если предикат возвращает fail. При следующем вызове {@param startWith} будет на 1 больше возвращённого числа.
      */
     int run(PredicateContext context, List<Value> args, int startWith);
 }
