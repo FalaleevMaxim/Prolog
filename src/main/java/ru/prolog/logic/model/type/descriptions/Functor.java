@@ -13,7 +13,6 @@ public interface Functor extends ModelObject {
     TypeStorage getTypeStorage();
     void setCompoundType(CompoundType type);
     void setTypeStorage(TypeStorage typeStorage);
-    void addArgType(String argType);
 
     List<Type> getArgTypes();
 }

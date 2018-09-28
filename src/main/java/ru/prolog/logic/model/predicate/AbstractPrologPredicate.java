@@ -16,22 +16,17 @@ import java.util.List;
 public abstract class AbstractPrologPredicate extends AbstractPredicate implements PrologPredicate {
     protected List<Rule> rules;
 
-    public void setName(String name){
-        if(fixed) throw new IllegalStateException("Predicate state is fixed. You can not change it anymore.");
-        this.name = name;
-    }
-
-    protected AbstractPrologPredicate(String name) {
+    AbstractPrologPredicate(String name) {
         super(name);
         this.rules = new ArrayList<>();
     }
 
-    public AbstractPrologPredicate(String name, List<String> argTypes, TypeStorage typeStorage) {
+    AbstractPrologPredicate(String name, List<String> argTypes, TypeStorage typeStorage) {
         super(name, argTypes, typeStorage);
         this.rules = new ArrayList<>();
     }
 
-    public AbstractPrologPredicate(String name, List<String> argTypes, List<Rule> rules, TypeStorage typeStorage) {
+    AbstractPrologPredicate(String name, List<String> argTypes, List<Rule> rules, TypeStorage typeStorage) {
         super(name, argTypes, typeStorage);
         this.rules = new ArrayList<>(rules);
     }
@@ -40,11 +35,6 @@ public abstract class AbstractPrologPredicate extends AbstractPredicate implemen
     public void setTypeStorage(TypeStorage typeStorage) {
         if(fixed) throw new IllegalStateException("Predicate state is fixed. You can not change it anymore.");
         this.typeStorage = typeStorage;
-    }
-
-    public void addArgType(String type){
-        if(fixed) throw new IllegalStateException("Predicate state is fixed. You can not change it anymore.");
-        argTypes.add(type);
     }
 
     @Override
