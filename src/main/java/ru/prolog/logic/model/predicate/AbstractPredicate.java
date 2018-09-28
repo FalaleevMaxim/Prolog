@@ -28,7 +28,6 @@ public abstract class AbstractPredicate extends AbstractModelObject implements P
 
     /**
      * Предикат без аргументов требует только имя
-     *
      * @param name Имя предиката
      */
     public AbstractPredicate(String name){
