@@ -30,7 +30,7 @@ public class BasePredicateContext implements PredicateContext {
         this.statement = statement;
         this.predicate = statement.getPredicate();
         this.ruleContext = ruleContext;
-        this.programContext = programContext();
+        this.programContext = ruleContext.programContext();
         this.args = args;
     }
 
@@ -45,7 +45,7 @@ public class BasePredicateContext implements PredicateContext {
 
     @Override
     public Predicate predicate() {
-        return statement.getPredicate();
+        return predicate;
     }
 
     @Override

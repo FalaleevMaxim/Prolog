@@ -67,12 +67,6 @@ public class FunctorType extends AbstractModelObject implements Functor{
     }
 
     @Override
-    public void addArgType(String argType){
-        if(fixed) throw new IllegalStateException("State is fixed. You can not change it anymore.");
-        argTypes.add(argType);
-    }
-
-    @Override
     public List<Type> getArgTypes() {
         if(getArgTypeNames().isEmpty())
             return Collections.emptyList();
