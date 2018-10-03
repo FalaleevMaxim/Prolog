@@ -1,9 +1,10 @@
 package ru.prolog.std.compare;
 
-import ru.prolog.logic.model.predicate.AbstractPredicate;
-import ru.prolog.logic.runtime.context.predicate.PredicateContext;
-import ru.prolog.logic.runtime.values.Value;
-import ru.prolog.logic.storage.type.TypeStorage;
+import ru.prolog.model.predicate.AbstractPredicate;
+import ru.prolog.model.predicate.PredicateResult;
+import ru.prolog.model.storage.type.TypeStorage;
+import ru.prolog.runtime.context.predicate.PredicateContext;
+import ru.prolog.runtime.values.Value;
 
 import java.util.Arrays;
 import java.util.List;
@@ -14,8 +15,7 @@ public class EqualsOperatorPredicate extends AbstractPredicate {
     }
 
     @Override
-    public int run(PredicateContext context, List<Value> args, int startWith) {
-        if(startWith>0) return -1;
-        return args.get(0).unify(args.get(1)) ? 0 : -1;
+    public PredicateResult run(PredicateContext context, List<Value> args) {
+        return args.get(0).unify(args.get(1)) ? PredicateResult.LAST_RESULT : PredicateResult.FAIL;
     }
 }

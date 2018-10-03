@@ -1,35 +1,42 @@
 package ru.prolog.std.db;
 
-import ru.prolog.logic.model.predicate.AbstractPredicate;
-import ru.prolog.logic.model.predicate.DatabasePredicate;
-import ru.prolog.logic.model.rule.FactRule;
-import ru.prolog.logic.runtime.context.predicate.PredicateContext;
-import ru.prolog.logic.runtime.context.rule.RuleContext;
-import ru.prolog.logic.runtime.values.Value;
-import ru.prolog.logic.runtime.values.functor.FunctorValue;
-import ru.prolog.logic.storage.database.Database;
-import ru.prolog.logic.storage.type.TypeStorage;
+import ru.prolog.model.predicate.AbstractPredicate;
+import ru.prolog.model.predicate.DatabasePredicate;
+import ru.prolog.model.predicate.PredicateResult;
+import ru.prolog.model.rule.FactRule;
+import ru.prolog.model.storage.type.TypeStorage;
+import ru.prolog.runtime.context.predicate.PredicateContext;
+import ru.prolog.runtime.context.rule.RuleContext;
+import ru.prolog.runtime.database.Database;
+import ru.prolog.runtime.values.Value;
+import ru.prolog.runtime.values.functor.FunctorValue;
 
 import java.util.Collections;
 import java.util.List;
 
 public class RetractPredicate extends AbstractPredicate{
+
+    private static final String KEY_RULE_COUNT = "rule_count";
+    private static final String KEY_START_RULE = "startWith";
+
     public RetractPredicate(TypeStorage typeStorage) {
         super("retract", Collections.singletonList("database"), typeStorage);
     }
 
     @Override
-    public int run(PredicateContext context, List<Value> args, int startWith) {
+    public PredicateResult run(PredicateContext context, List<Value> args) {
         FunctorValue func = (FunctorValue) args.get(0);
         Database db = context.programContext().database();
         DatabasePredicate predicate = db.get(func.getFunctorName());
         List<FactRule> rules = db.getRules(predicate);
         int count = rules.size();
-        Integer prev_count = (Integer) context.getContextData("rule_count");
+        Integer startWith = (Integer) context.getContextData(KEY_START_RULE);
+        if (startWith == null) startWith = 0;
+        Integer prev_count = (Integer) context.getContextData(KEY_RULE_COUNT);
         if(prev_count==null) prev_count=0;
         if(count< prev_count)
             startWith-=prev_count-count;
-        context.putContextData("rule_count", rules.size());
+        context.putContextData(KEY_RULE_COUNT, rules.size());
         for(int i=startWith; i<rules.size(); i++){
             FactRule rule = rules.get(i);
             //Execute rule with arguments from functor
@@ -37,9 +44,10 @@ public class RetractPredicate extends AbstractPredicate{
             if(ruleContext.execute()){
                 //If rule returned true, remove it from database
                 db.retract(rule);
-                return i;
+                context.putContextData(KEY_START_RULE, i);
+                return PredicateResult.NEXT_RESULT;
             }
         }
-        return -1;
+        return PredicateResult.FAIL;
     }
 }

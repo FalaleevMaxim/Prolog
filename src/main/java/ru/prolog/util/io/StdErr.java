@@ -1,6 +1,6 @@
 package ru.prolog.util.io;
 
-import ru.prolog.logic.etc.exceptions.runtime.PrologRuntimeException;
+import ru.prolog.etc.exceptions.runtime.PrologRuntimeException;
 
 public class StdErr implements ErrorListener, StdIO {
     @Override

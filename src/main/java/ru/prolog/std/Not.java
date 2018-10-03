@@ -1,15 +1,16 @@
 package ru.prolog.std;
 
-import ru.prolog.logic.etc.exceptions.model.ModelStateException;
-import ru.prolog.logic.etc.exceptions.runtime.FreeVariableException;
-import ru.prolog.logic.model.AbstractModelObject;
-import ru.prolog.logic.model.ModelObject;
-import ru.prolog.logic.model.predicate.Predicate;
-import ru.prolog.logic.model.type.Type;
-import ru.prolog.logic.runtime.context.predicate.PredicateContext;
-import ru.prolog.logic.runtime.values.Value;
-import ru.prolog.logic.runtime.values.Variable;
-import ru.prolog.logic.storage.type.TypeStorage;
+import ru.prolog.etc.exceptions.model.ModelStateException;
+import ru.prolog.etc.exceptions.runtime.FreeVariableException;
+import ru.prolog.model.AbstractModelObject;
+import ru.prolog.model.ModelObject;
+import ru.prolog.model.predicate.Predicate;
+import ru.prolog.model.predicate.PredicateResult;
+import ru.prolog.model.storage.type.TypeStorage;
+import ru.prolog.model.type.Type;
+import ru.prolog.runtime.context.predicate.PredicateContext;
+import ru.prolog.runtime.values.Value;
+import ru.prolog.runtime.values.Variable;
 
 import java.util.Collection;
 import java.util.List;
@@ -51,19 +52,18 @@ public class Not extends AbstractModelObject implements Predicate {
     }
 
     @Override
-    public int run(PredicateContext context, List<Value> args, int startWith) {
-        //Does not work on backtracking
-        if(startWith>0) return -1;
+    public PredicateResult run(PredicateContext context, List<Value> args) {
         //Does not allow free variables as args of inner predicate
-        for(Value arg : args){
-            for(Variable var : arg.innerFreeVariables()){
-                if(!var.getName().equals("_")){
+        for (Value arg : args) {
+            for (Variable var : arg.innerFreeVariables()) {
+                if (!var.getName().equals("_")) {
                     throw new FreeVariableException("Free variables are not allowed in \"not\"", var);
                 }
             }
         }
-        //0 if predicate failed and -1 if not failed
-        return inner.run(context, args, startWith)<0?0:-1;
+        return inner.run(context, args).fail()
+                ? PredicateResult.LAST_RESULT
+                : PredicateResult.FAIL;
     }
 
     @Override

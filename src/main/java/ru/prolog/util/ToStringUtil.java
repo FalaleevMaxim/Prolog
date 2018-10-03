@@ -1,7 +1,7 @@
 package ru.prolog.util;
 
-import ru.prolog.logic.model.type.Type;
-import ru.prolog.logic.runtime.values.Value;
+import ru.prolog.model.type.Type;
+import ru.prolog.runtime.values.Value;
 
 import java.util.List;
 

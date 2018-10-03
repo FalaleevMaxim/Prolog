@@ -2,15 +2,16 @@ package ru.prolog.std.db;
 
 import ru.prolog.compiler.CompileException;
 import ru.prolog.compiler.PrologCompiler;
-import ru.prolog.logic.etc.exceptions.runtime.FreeVariableException;
-import ru.prolog.logic.etc.exceptions.runtime.PrologRuntimeException;
-import ru.prolog.logic.model.predicate.AbstractPredicate;
-import ru.prolog.logic.model.rule.FactRule;
-import ru.prolog.logic.runtime.context.predicate.PredicateContext;
-import ru.prolog.logic.runtime.values.Value;
-import ru.prolog.logic.runtime.values.Variable;
-import ru.prolog.logic.storage.database.Database;
-import ru.prolog.logic.storage.type.TypeStorage;
+import ru.prolog.etc.exceptions.runtime.FreeVariableException;
+import ru.prolog.etc.exceptions.runtime.PrologRuntimeException;
+import ru.prolog.model.predicate.AbstractPredicate;
+import ru.prolog.model.predicate.PredicateResult;
+import ru.prolog.model.rule.FactRule;
+import ru.prolog.model.storage.type.TypeStorage;
+import ru.prolog.runtime.context.predicate.PredicateContext;
+import ru.prolog.runtime.database.Database;
+import ru.prolog.runtime.values.Value;
+import ru.prolog.runtime.values.Variable;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -23,9 +24,7 @@ public class ConsultPredicate extends AbstractPredicate {
     }
 
     @Override
-    public int run(PredicateContext context, List<Value> args, int startWith) {
-        if(startWith>0) return -1;
-
+    public PredicateResult run(PredicateContext context, List<Value> args) {
         Value arg = args.get(0);
         if(isFreeVariable(arg))
             throw new FreeVariableException("File name for consult is free variable", (Variable) arg);
@@ -45,7 +44,7 @@ public class ConsultPredicate extends AbstractPredicate {
             for (FactRule fact : facts) {
                 database.assertz(fact);
             }
-            return 0;
+            return PredicateResult.LAST_RESULT;
         } catch (IOException e) {
             throw new PrologRuntimeException("Error reading database file", e);
         }

@@ -1,10 +1,11 @@
 package ru.prolog.std.io;
 
-import ru.prolog.logic.model.predicate.AbstractPredicate;
-import ru.prolog.logic.runtime.context.predicate.PredicateContext;
-import ru.prolog.logic.runtime.values.Value;
-import ru.prolog.logic.runtime.values.simple.SimpleValue;
-import ru.prolog.logic.storage.type.TypeStorage;
+import ru.prolog.model.predicate.AbstractPredicate;
+import ru.prolog.model.predicate.PredicateResult;
+import ru.prolog.model.storage.type.TypeStorage;
+import ru.prolog.runtime.context.predicate.PredicateContext;
+import ru.prolog.runtime.values.Value;
+import ru.prolog.runtime.values.simple.SimpleValue;
 
 import java.io.IOException;
 import java.util.Collections;
@@ -17,17 +18,18 @@ public class ReadIntPredicate extends AbstractPredicate {
     }
 
     @Override
-    public int run(PredicateContext context, List<Value> args, int startWith) {
-        if(startWith>0) return -1;
+    public PredicateResult run(PredicateContext context, List<Value> args) {
         try {
             String str = context.programContext().getInputDevice().readLine();
-            if(str==null) return -1;
-            return new SimpleValue(typeStorage.get("integer"), Integer.parseInt(str)).unify(args.get(0)) ? 0 : -1;
+            if (str == null) return PredicateResult.FAIL;
+            return new SimpleValue(typeStorage.get("integer"), Integer.parseInt(str)).unify(args.get(0))
+                    ? PredicateResult.LAST_RESULT
+                    : PredicateResult.FAIL;
         } catch (IOException e) {
             context.programContext().getErrorListeners().println("Read error");
-            return -1;
+            return PredicateResult.FAIL;
         } catch (NumberFormatException e){
-            return -1;
+            return PredicateResult.FAIL;
         }
     }
 }

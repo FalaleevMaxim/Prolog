@@ -1,12 +1,13 @@
 package ru.prolog.std.io.file;
 
-import ru.prolog.logic.etc.exceptions.runtime.FreeVariableException;
-import ru.prolog.logic.model.predicate.AbstractPredicate;
-import ru.prolog.logic.runtime.context.predicate.PredicateContext;
-import ru.prolog.logic.runtime.values.Value;
-import ru.prolog.logic.runtime.values.Variable;
-import ru.prolog.logic.runtime.values.simple.SimpleValue;
-import ru.prolog.logic.storage.type.TypeStorage;
+import ru.prolog.etc.exceptions.runtime.FreeVariableException;
+import ru.prolog.model.predicate.AbstractPredicate;
+import ru.prolog.model.predicate.PredicateResult;
+import ru.prolog.model.storage.type.TypeStorage;
+import ru.prolog.runtime.context.predicate.PredicateContext;
+import ru.prolog.runtime.values.Value;
+import ru.prolog.runtime.values.Variable;
+import ru.prolog.runtime.values.simple.SimpleValue;
 import ru.prolog.util.io.ErrorListener;
 
 import java.io.*;
@@ -19,7 +20,7 @@ public class FileLinesPredicate extends AbstractPredicate {
     }
 
     @Override
-    public int run(PredicateContext context, List<Value> args, int startWith) {
+    public PredicateResult run(PredicateContext context, List<Value> args) {
         final String key = "fin";
         BufferedReader in = (BufferedReader) context.getContextData(key);
 
@@ -32,7 +33,7 @@ public class FileLinesPredicate extends AbstractPredicate {
             File file = new File(fileName);
             if (!file.exists()) {
                 err.println("File does not exist: " + file);
-                return -1;
+                return PredicateResult.FAIL;
             }
 
             try {
@@ -40,7 +41,7 @@ public class FileLinesPredicate extends AbstractPredicate {
             } catch (FileNotFoundException e) {
                 err.println("Error opening file " + file);
                 err.println(e.toString());
-                return -1;
+                return PredicateResult.FAIL;
             }
             context.putContextData(key, in);
         }
@@ -53,20 +54,10 @@ public class FileLinesPredicate extends AbstractPredicate {
                 err.println("Error reading line");
                 err.println(e.toString());
             }
-            if (ret == null) return -1;
+            if (ret == null) return PredicateResult.FAIL;
             if (args.get(1).unify(new SimpleValue(typeStorage.get("string"), ret))) {
-                return startWith;
+                return PredicateResult.NEXT_RESULT;
             }
-            ++startWith;
         }
-    }
-
-    private String joinLines(List<String> lines) {
-        if (lines == null || lines.isEmpty()) return "";
-        StringBuilder sb = new StringBuilder(lines.get(0));
-        for (int i = 1; i < lines.size(); i++) {
-            sb.append('\n').append(lines.get(i));
-        }
-        return sb.toString();
     }
 }

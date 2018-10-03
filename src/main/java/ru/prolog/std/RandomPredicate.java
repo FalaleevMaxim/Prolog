@@ -1,12 +1,13 @@
 package ru.prolog.std;
 
-import ru.prolog.logic.etc.exceptions.runtime.FreeVariableException;
-import ru.prolog.logic.model.predicate.AbstractPredicate;
-import ru.prolog.logic.runtime.context.predicate.PredicateContext;
-import ru.prolog.logic.runtime.values.Value;
-import ru.prolog.logic.runtime.values.Variable;
-import ru.prolog.logic.runtime.values.simple.SimpleValue;
-import ru.prolog.logic.storage.type.TypeStorage;
+import ru.prolog.etc.exceptions.runtime.FreeVariableException;
+import ru.prolog.model.predicate.AbstractPredicate;
+import ru.prolog.model.predicate.PredicateResult;
+import ru.prolog.model.storage.type.TypeStorage;
+import ru.prolog.runtime.context.predicate.PredicateContext;
+import ru.prolog.runtime.values.Value;
+import ru.prolog.runtime.values.Variable;
+import ru.prolog.runtime.values.simple.SimpleValue;
 
 import java.util.Arrays;
 import java.util.List;
@@ -22,18 +23,14 @@ public class RandomPredicate extends AbstractPredicate {
     }
 
     @Override
-    public int run(PredicateContext context, List<Value> args, int startRule) {
-        //fail при бэктрекинге позволят продолжить откат
-        // и не допускает бесконечных циклов при fail после предиката
-        if(startRule>0) return -1;
-
+    public PredicateResult run(PredicateContext context, List<Value> args) {
         //Получение из аргументов максимального числа
         Integer max = (Integer)args.get(0).getValue();
 
         //Исключение, если первый аргумент (максимальное число) - свободная переменная
         if(max==null) throw new FreeVariableException((Variable) args.get(0));
         //Если максимальное число отрицательное, fail
-        if(max<0) return -1;
+        if (max < 0) return PredicateResult.FAIL;
 
         //Генерация случайного числа
         int randInt = (int)(Math.random()*max);
@@ -43,7 +40,9 @@ public class RandomPredicate extends AbstractPredicate {
 
         //Унификация полученного значения со вторым аргументом.
         //Если унификация прошла успешно, возвращается 0; иначе -1(fail)
-        return args.get(1).unify(randValue) ? 0 : -1;
+        return args.get(1).unify(randValue)
+                ? PredicateResult.LAST_RESULT
+                : PredicateResult.FAIL;
     }
 }
 

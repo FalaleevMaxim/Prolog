@@ -1,8 +1,9 @@
 package ru.prolog.std;
 
-import ru.prolog.logic.model.predicate.AbstractPredicate;
-import ru.prolog.logic.runtime.context.predicate.PredicateContext;
-import ru.prolog.logic.runtime.values.Value;
+import ru.prolog.model.predicate.AbstractPredicate;
+import ru.prolog.model.predicate.PredicateResult;
+import ru.prolog.runtime.context.predicate.PredicateContext;
+import ru.prolog.runtime.values.Value;
 
 import java.util.List;
 
@@ -12,8 +13,7 @@ public class Cut2 extends AbstractPredicate{
     }
 
     @Override
-    public int run(PredicateContext context, List<Value> args, int startWith) {
-        if(startWith>0) return -1;
-        return 0;
+    public PredicateResult run(PredicateContext context, List<Value> args) {
+        return PredicateResult.LAST_RESULT;
     }
 }

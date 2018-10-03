@@ -1,12 +1,13 @@
 package ru.prolog.std.db;
 
-import ru.prolog.logic.etc.exceptions.runtime.FreeVariableException;
-import ru.prolog.logic.etc.exceptions.runtime.PrologRuntimeException;
-import ru.prolog.logic.model.predicate.AbstractPredicate;
-import ru.prolog.logic.runtime.context.predicate.PredicateContext;
-import ru.prolog.logic.runtime.values.Value;
-import ru.prolog.logic.runtime.values.Variable;
-import ru.prolog.logic.storage.type.TypeStorage;
+import ru.prolog.etc.exceptions.runtime.FreeVariableException;
+import ru.prolog.etc.exceptions.runtime.PrologRuntimeException;
+import ru.prolog.model.predicate.AbstractPredicate;
+import ru.prolog.model.predicate.PredicateResult;
+import ru.prolog.model.storage.type.TypeStorage;
+import ru.prolog.runtime.context.predicate.PredicateContext;
+import ru.prolog.runtime.values.Value;
+import ru.prolog.runtime.values.Variable;
 
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
@@ -20,8 +21,7 @@ public class SavePredicate extends AbstractPredicate {
     }
 
     @Override
-    public int run(PredicateContext context, List<Value> args, int startWith) {
-        if(startWith>0) return -1;
+    public PredicateResult run(PredicateContext context, List<Value> args) {
         Value fileNameArg = args.get(0);
         if(isFreeVariable(fileNameArg))
             throw new FreeVariableException("File name for save is free variable", (Variable) fileNameArg);
@@ -30,7 +30,7 @@ public class SavePredicate extends AbstractPredicate {
             PrintWriter pw = new PrintWriter(fileName);
             pw.print(context.programContext().database().save());
             pw.close();
-            return 0;
+            return PredicateResult.LAST_RESULT;
         } catch (FileNotFoundException e) {
             throw new PrologRuntimeException("Can not open file "+fileName, e);
         }
