@@ -9,4 +9,8 @@ public interface ExprValue extends Value {
     Number getValue();
     @Override
     ExprValueModel toModel();
+
+    default boolean hasFreeVariables() {
+        return innerFreeVariables().size() > 0;
+    }
 }
