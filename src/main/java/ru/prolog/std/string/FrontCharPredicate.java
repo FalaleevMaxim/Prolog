@@ -1,12 +1,13 @@
 package ru.prolog.std.string;
 
-import ru.prolog.logic.etc.exceptions.runtime.FreeVariableException;
-import ru.prolog.logic.model.predicate.AbstractPredicate;
-import ru.prolog.logic.runtime.context.predicate.PredicateContext;
-import ru.prolog.logic.runtime.values.Value;
-import ru.prolog.logic.runtime.values.Variable;
-import ru.prolog.logic.runtime.values.simple.SimpleValue;
-import ru.prolog.logic.storage.type.TypeStorage;
+import ru.prolog.etc.exceptions.runtime.FreeVariableException;
+import ru.prolog.model.predicate.AbstractPredicate;
+import ru.prolog.model.predicate.PredicateResult;
+import ru.prolog.model.storage.type.TypeStorage;
+import ru.prolog.runtime.context.predicate.PredicateContext;
+import ru.prolog.runtime.values.Value;
+import ru.prolog.runtime.values.Variable;
+import ru.prolog.runtime.values.simple.SimpleValue;
 
 import java.util.Arrays;
 import java.util.List;
@@ -17,16 +18,14 @@ public class FrontCharPredicate extends AbstractPredicate {
     }
 
     @Override
-    public int run(PredicateContext context, List<Value> args, int startWith) {
-        if(startWith>0) return -1;
-
+    public PredicateResult run(PredicateContext context, List<Value> args) {
         if(!isFreeVariable(args.get(0))){
             String str = (String) args.get(0).getValue();
             char front = str.charAt(0);
             String rest = str.substring(1);
-            if (!new SimpleValue(typeStorage.get("char"), front).unify(args.get(1))) return -1;
-            if (!new SimpleValue(typeStorage.get("string"), rest).unify(args.get(2))) return -1;
-            return 0;
+            if (!new SimpleValue(typeStorage.get("char"), front).unify(args.get(1))) return PredicateResult.FAIL;
+            if (!new SimpleValue(typeStorage.get("string"), rest).unify(args.get(2))) return PredicateResult.FAIL;
+            return PredicateResult.LAST_RESULT;
         }
 
         if(isFreeVariable(args.get(1)))
@@ -36,7 +35,7 @@ public class FrontCharPredicate extends AbstractPredicate {
         char front = (char) args.get(1).getValue();
         String rest = (String) args.get(2).getValue();
         String full = front+rest;
-        if (!new SimpleValue(typeStorage.get("string"), full).unify(args.get(0))) return -1;
-        return 0;
+        if (!new SimpleValue(typeStorage.get("string"), full).unify(args.get(0))) return PredicateResult.FAIL;
+        return PredicateResult.LAST_RESULT;
     }
 }

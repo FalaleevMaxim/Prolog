@@ -1,15 +1,16 @@
 package ru.prolog.std.db;
 
-import ru.prolog.logic.etc.exceptions.runtime.FreeVariableException;
-import ru.prolog.logic.model.predicate.AbstractPredicate;
-import ru.prolog.logic.model.predicate.DatabasePredicate;
-import ru.prolog.logic.model.rule.FactRule;
-import ru.prolog.logic.runtime.context.predicate.PredicateContext;
-import ru.prolog.logic.runtime.values.Value;
-import ru.prolog.logic.runtime.values.Variable;
-import ru.prolog.logic.runtime.values.functor.FunctorValueImpl;
-import ru.prolog.logic.storage.database.Database;
-import ru.prolog.logic.storage.type.TypeStorage;
+import ru.prolog.etc.exceptions.runtime.FreeVariableException;
+import ru.prolog.model.predicate.AbstractPredicate;
+import ru.prolog.model.predicate.DatabasePredicate;
+import ru.prolog.model.predicate.PredicateResult;
+import ru.prolog.model.rule.FactRule;
+import ru.prolog.model.storage.type.TypeStorage;
+import ru.prolog.runtime.context.predicate.PredicateContext;
+import ru.prolog.runtime.database.Database;
+import ru.prolog.runtime.values.Value;
+import ru.prolog.runtime.values.Variable;
+import ru.prolog.runtime.values.functor.FunctorValueImpl;
 
 import java.util.Collections;
 import java.util.List;
@@ -22,8 +23,7 @@ public abstract class AbstractAssertPredicate extends AbstractPredicate {
     }
 
     @Override
-    public int run(PredicateContext context, List<Value> args, int startWith) {
-        if(startWith>0) return -1;
+    public PredicateResult run(PredicateContext context, List<Value> args) {
         FunctorValueImpl fact = (FunctorValueImpl) args.get(0);
         List<Variable> variables = fact.innerFreeVariables();
         if(!variables.isEmpty())
@@ -38,6 +38,6 @@ public abstract class AbstractAssertPredicate extends AbstractPredicate {
         rule.fix();
         if(a) db.asserta(rule);
         else db.assertz(rule);
-        return 0;
+        return PredicateResult.LAST_RESULT;
     }
 }

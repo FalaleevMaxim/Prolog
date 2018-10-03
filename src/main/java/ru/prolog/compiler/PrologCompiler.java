@@ -7,12 +7,12 @@ import org.antlr.v4.runtime.TokenStream;
 import org.antlr.v4.runtime.tree.ParseTreeWalker;
 import ru.prolog.PrologLexer;
 import ru.prolog.PrologParser;
-import ru.prolog.logic.model.program.Program;
-import ru.prolog.logic.model.rule.FactRule;
-import ru.prolog.logic.model.rule.StatementExecutorRule;
-import ru.prolog.logic.runtime.context.predicate.DebuggerPredicateContextDecorator;
-import ru.prolog.logic.runtime.context.program.ProgramContext;
-import ru.prolog.logic.runtime.context.rule.DebuggerRuleContextDecorator;
+import ru.prolog.model.program.Program;
+import ru.prolog.model.rule.FactRule;
+import ru.prolog.model.rule.StatementExecutorRule;
+import ru.prolog.runtime.context.predicate.DebuggerPredicateContextDecorator;
+import ru.prolog.runtime.context.program.ProgramContext;
+import ru.prolog.runtime.context.rule.DebuggerRuleContextDecorator;
 import ru.prolog.util.io.LogFileOutput;
 
 import java.io.FileNotFoundException;

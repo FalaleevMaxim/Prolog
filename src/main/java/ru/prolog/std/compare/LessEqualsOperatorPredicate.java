@@ -1,6 +1,6 @@
 package ru.prolog.std.compare;
 
-import ru.prolog.logic.storage.type.TypeStorage;
+import ru.prolog.model.storage.type.TypeStorage;
 
 public class LessEqualsOperatorPredicate extends AbstractCompareOperator {
     public LessEqualsOperatorPredicate(TypeStorage typeStorage) {

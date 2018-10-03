@@ -1,12 +1,13 @@
 package ru.prolog.std.io.file;
 
-import ru.prolog.logic.etc.exceptions.runtime.FreeVariableException;
-import ru.prolog.logic.model.predicate.AbstractPredicate;
-import ru.prolog.logic.runtime.context.predicate.PredicateContext;
-import ru.prolog.logic.runtime.values.Value;
-import ru.prolog.logic.runtime.values.Variable;
-import ru.prolog.logic.runtime.values.simple.SimpleValue;
-import ru.prolog.logic.storage.type.TypeStorage;
+import ru.prolog.etc.exceptions.runtime.FreeVariableException;
+import ru.prolog.model.predicate.AbstractPredicate;
+import ru.prolog.model.predicate.PredicateResult;
+import ru.prolog.model.storage.type.TypeStorage;
+import ru.prolog.runtime.context.predicate.PredicateContext;
+import ru.prolog.runtime.values.Value;
+import ru.prolog.runtime.values.Variable;
+import ru.prolog.runtime.values.simple.SimpleValue;
 import ru.prolog.util.io.ErrorListener;
 
 import java.io.File;
@@ -23,8 +24,7 @@ public class ReadAllFilePredicate extends AbstractPredicate {
     }
 
     @Override
-    public int run(PredicateContext context, List<Value> args, int startWith) {
-        if (startWith > 0) return -1;
+    public PredicateResult run(PredicateContext context, List<Value> args) {
         Value arg = args.get(0);
         if (isFreeVariable(arg)) throw new FreeVariableException("File name is free variable", (Variable) arg);
         ErrorListener err = context.programContext().getErrorListeners();
@@ -32,17 +32,19 @@ public class ReadAllFilePredicate extends AbstractPredicate {
         File file = new File(fileName);
         if (!file.exists()) {
             err.println("File does not exist: " + file);
-            return -1;
+            return PredicateResult.FAIL;
         }
         Path path = FileSystems.getDefault().getPath(file.getAbsolutePath());
         try {
             List<String> lines = Files.readAllLines(path);
             String ret = joinLines(lines);
-            return args.get(1).unify(new SimpleValue(typeStorage.get("string"), ret)) ? 0 : -1;
+            return args.get(1).unify(new SimpleValue(typeStorage.get("string"), ret))
+                    ? PredicateResult.LAST_RESULT
+                    : PredicateResult.FAIL;
         } catch (IOException e) {
             err.println("Error reading file:");
             err.println(e.toString());
-            return -1;
+            return PredicateResult.FAIL;
         }
     }
 

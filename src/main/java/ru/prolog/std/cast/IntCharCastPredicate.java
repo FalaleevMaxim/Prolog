@@ -1,8 +1,8 @@
 package ru.prolog.std.cast;
 
-import ru.prolog.logic.runtime.values.Value;
-import ru.prolog.logic.runtime.values.simple.SimpleValue;
-import ru.prolog.logic.storage.type.TypeStorage;
+import ru.prolog.model.storage.type.TypeStorage;
+import ru.prolog.runtime.values.Value;
+import ru.prolog.runtime.values.simple.SimpleValue;
 
 public class IntCharCastPredicate extends AbstractCastPredicate {
     public IntCharCastPredicate(TypeStorage typeStorage) {

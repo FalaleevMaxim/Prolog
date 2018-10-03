@@ -1,12 +1,13 @@
 package ru.prolog.std.io;
 
-import ru.prolog.logic.etc.exceptions.runtime.FreeVariableException;
-import ru.prolog.logic.model.predicate.AbstractPredicate;
-import ru.prolog.logic.model.type.Type;
-import ru.prolog.logic.runtime.context.predicate.PredicateContext;
-import ru.prolog.logic.runtime.values.Value;
-import ru.prolog.logic.runtime.values.Variable;
-import ru.prolog.logic.storage.type.TypeStorage;
+import ru.prolog.etc.exceptions.runtime.FreeVariableException;
+import ru.prolog.model.predicate.AbstractPredicate;
+import ru.prolog.model.predicate.PredicateResult;
+import ru.prolog.model.storage.type.TypeStorage;
+import ru.prolog.model.type.Type;
+import ru.prolog.runtime.context.predicate.PredicateContext;
+import ru.prolog.runtime.values.Value;
+import ru.prolog.runtime.values.Variable;
 import ru.prolog.util.io.OutputDevice;
 
 import java.util.Collections;
@@ -18,8 +19,7 @@ public class WritePredicate extends AbstractPredicate {
     }
 
     @Override
-    public int run(PredicateContext context, List<Value> args, int startWith) {
-        if(startWith>0) return -1;
+    public PredicateResult run(PredicateContext context, List<Value> args) {
         for(Value arg : args) {
             List<Variable> variables = arg.innerFreeVariables();
             if(!variables.isEmpty())
@@ -32,7 +32,7 @@ public class WritePredicate extends AbstractPredicate {
             if(isStringOrChar(arg)) out.print(arg.getValue().toString());
             else out.print(arg.toString());
         }
-        return 0;
+        return PredicateResult.LAST_RESULT;
     }
 
     private boolean isStringOrChar(Value arg){
