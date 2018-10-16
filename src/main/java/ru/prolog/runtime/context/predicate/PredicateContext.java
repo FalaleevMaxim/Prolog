@@ -19,13 +19,11 @@ public interface PredicateContext extends ExecutionContext, RuntimeObject {
 
     Statement statement();
 
-    default Predicate predicate() {
-        return statement().getPredicate();
-    }
+    Predicate predicate();
 
     @Override
     default ModelObject model() {
-        return statement();
+        return statement()!=null?statement():predicate();
     }
 
     List<Value> getArgs();
