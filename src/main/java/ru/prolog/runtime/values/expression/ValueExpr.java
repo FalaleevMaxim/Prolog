@@ -34,4 +34,9 @@ public class ValueExpr extends AbstractExprValue {
     public List<Variable> innerFreeVariables() {
         return value.innerFreeVariables();
     }
+
+    @Override
+    protected void reverse(Value res) {
+        value.unify(res);
+    }
 }

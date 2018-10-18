@@ -5,6 +5,7 @@ import ru.prolog.model.values.SimpleValueModel;
 import ru.prolog.model.values.ValueModel;
 import ru.prolog.runtime.values.Value;
 import ru.prolog.runtime.values.Variable;
+import ru.prolog.runtime.values.expression.ExprValue;
 import ru.prolog.util.ToStringUtil;
 
 import java.util.Collections;
@@ -22,6 +23,9 @@ public class SimpleValue implements Value{
     @Override
     public boolean unify(Value other) {
         if(other instanceof Variable && ((Variable)other).isFree()){
+            return other.unify(this);
+        }
+        if (other instanceof ExprValue && ((ExprValue) other).hasFreeVariables()) {
             return other.unify(this);
         }
         return value.equals(other.getValue());

@@ -1,7 +1,9 @@
 package ru.prolog.runtime.values.expression.unary;
 
 import ru.prolog.model.type.Type;
+import ru.prolog.runtime.values.Value;
 import ru.prolog.runtime.values.expression.ExprValue;
+import ru.prolog.runtime.values.simple.SimpleValue;
 
 public class MinusUnaryExpr extends AbstractUnaryExpr {
     public MinusUnaryExpr(ExprValue innerExpr) {
@@ -21,5 +23,14 @@ public class MinusUnaryExpr extends AbstractUnaryExpr {
     @Override
     public Type getType() {
         return innerExpr.getType();
+    }
+
+    @Override
+    protected void reverse(Value res) {
+        Object val;
+        if (res.getValue() instanceof Integer)
+            val = -((Integer) res.getValue());
+        else val = -((Double) res.getValue());
+        innerExpr.unify(new SimpleValue(res.getType(), val));
     }
 }
