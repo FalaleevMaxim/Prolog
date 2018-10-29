@@ -8,6 +8,7 @@ import ru.prolog.runtime.database.Database;
 import ru.prolog.util.io.ErrorListenerHub;
 import ru.prolog.util.io.InputDevice;
 import ru.prolog.util.io.OutputDeviceHub;
+import ru.prolog.util.window.PrologWindowManager;
 
 public interface ProgramContext extends ExecutionContext, RuntimeObject {
     String KEY_DEBUG_FILE = "DebugFile";
@@ -43,4 +44,19 @@ public interface ProgramContext extends ExecutionContext, RuntimeObject {
     void setInputDevice(InputDevice device);
     OutputDeviceHub getOutputDevices();
     ErrorListenerHub getErrorListeners();
+
+    /**
+     * Возвращает менеджер окон, используемый в программе.
+     * Может быть {@code null} если окна не поддерживаются в данном исполнителе.
+     *
+     * @return Используемый менеджер окон или {@code null} если его нет.
+     */
+    PrologWindowManager getWindowManager();
+
+    /**
+     * Устанавливает менеджер окон.
+     * Менеджер окон устанавливается исполнителем, использующим библиотеку интерпретатора, перед запуском программы.
+     * @param prologWindowManager Менеджер окон.
+     */
+    void setWindowManager(PrologWindowManager prologWindowManager);
 }

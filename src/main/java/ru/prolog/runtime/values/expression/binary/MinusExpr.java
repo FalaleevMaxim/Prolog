@@ -1,6 +1,5 @@
 package ru.prolog.runtime.values.expression.binary;
 
-import ru.prolog.runtime.values.expression.ExprValue;
 import ru.prolog.etc.exceptions.runtime.FreeVariableException;
 import ru.prolog.runtime.values.Value;
 import ru.prolog.runtime.values.expression.ExprValue;

@@ -5,6 +5,7 @@ import ru.prolog.runtime.database.Database;
 import ru.prolog.util.io.ErrorListenerHub;
 import ru.prolog.util.io.InputDevice;
 import ru.prolog.util.io.OutputDeviceHub;
+import ru.prolog.util.window.PrologWindowManager;
 
 public abstract class BaseProgramContextDecorator implements ProgramContext {
     protected final ProgramContext decorated;
@@ -51,5 +52,15 @@ public abstract class BaseProgramContextDecorator implements ProgramContext {
     @Override
     public ErrorListenerHub getErrorListeners() {
         return decorated.getErrorListeners();
+    }
+
+    @Override
+    public PrologWindowManager getWindowManager() {
+        return decorated.getWindowManager();
+    }
+
+    @Override
+    public void setWindowManager(PrologWindowManager prologWindowManager) {
+        decorated.setWindowManager(prologWindowManager);
     }
 }

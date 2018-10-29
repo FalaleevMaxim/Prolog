@@ -4,6 +4,7 @@ import ru.prolog.model.program.Program;
 import ru.prolog.runtime.database.Database;
 import ru.prolog.runtime.database.DatabaseImpl;
 import ru.prolog.util.io.*;
+import ru.prolog.util.window.PrologWindowManager;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -16,6 +17,7 @@ public class BaseProgramContext implements ProgramContext {
     private InputDevice inputDevice = new Stdin();
     private OutputDeviceHub outputDevices = new OutputDeviceHub(new StdOut());
     private ErrorListenerHub errorListeners = new ErrorListenerHub(new StdErr());
+    private PrologWindowManager windowManager;
 
     public BaseProgramContext(Program program) {
         this.program = program;
@@ -73,6 +75,16 @@ public class BaseProgramContext implements ProgramContext {
     @Override
     public ErrorListenerHub getErrorListeners() {
         return errorListeners;
+    }
+
+    @Override
+    public PrologWindowManager getWindowManager() {
+        return windowManager;
+    }
+
+    @Override
+    public void setWindowManager(PrologWindowManager prologWindowManager) {
+        this.windowManager = prologWindowManager;
     }
 
     private void onFinish() {

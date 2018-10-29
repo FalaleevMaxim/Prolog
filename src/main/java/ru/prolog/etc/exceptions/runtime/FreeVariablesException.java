@@ -1,6 +1,6 @@
-package ru.prolog.logic.etc.exceptions.runtime;
+package ru.prolog.etc.exceptions.runtime;
 
-import ru.prolog.logic.runtime.values.Variable;
+import ru.prolog.runtime.values.Variable;
 
 import java.util.Collection;
 import java.util.stream.Collectors;

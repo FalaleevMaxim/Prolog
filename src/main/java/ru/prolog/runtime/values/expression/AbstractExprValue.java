@@ -1,9 +1,9 @@
-package ru.prolog.logic.runtime.values.expression;
+package ru.prolog.runtime.values.expression;
 
-import ru.prolog.logic.etc.exceptions.runtime.FreeVariableException;
-import ru.prolog.logic.etc.exceptions.runtime.FreeVariablesException;
-import ru.prolog.logic.runtime.values.Value;
-import ru.prolog.logic.runtime.values.Variable;
+import ru.prolog.etc.exceptions.runtime.FreeVariableException;
+import ru.prolog.etc.exceptions.runtime.FreeVariablesException;
+import ru.prolog.runtime.values.Value;
+import ru.prolog.runtime.values.Variable;
 
 import java.util.List;
 
