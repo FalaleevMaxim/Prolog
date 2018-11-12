@@ -1047,6 +1047,7 @@ public class PrologParseListener extends PrologBaseListener implements ANTLRErro
         Map<String, Set<VariableModel>> related;
 
         public void put(VariableModel var){
+            if (var.getName().equals("_")) return;
             //If storage contains type for variable, sets it (no matter if variable already has type)
             if(types.containsKey(var.getName())){
                 var.setType(types.get(var.getName()));

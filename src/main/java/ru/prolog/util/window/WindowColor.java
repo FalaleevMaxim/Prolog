@@ -10,15 +10,15 @@ public class WindowColor {
     /**
      * Красная компонента цвета
      */
-    public final int r;
+    private final int r;
     /**
      * Зелёная компонента цвета
      */
-    public final int g;
+    private final int g;
     /**
      * Синяя компонента цвета
      */
-    public final int b;
+    private final int b;
 
     /**
      * Создаёт цвет по трём компонентам, переданным отдельно
@@ -45,6 +45,22 @@ public class WindowColor {
         g = rgb & 0xFF;
         rgb >>>= 8;
         r = rgb & 0xFF;
+    }
+
+    public int r() {
+        return r;
+    }
+
+    public int g() {
+        return g;
+    }
+
+    public int b() {
+        return b;
+    }
+
+    public int rgb() {
+        return (r << 16) + (g << 8) + b;
     }
 
     @Override
