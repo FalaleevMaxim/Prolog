@@ -4,6 +4,7 @@ import ru.prolog.etc.exceptions.model.ModelStateException;
 import ru.prolog.etc.exceptions.model.rule.RuleStateException;
 import ru.prolog.model.managers.Managers;
 import ru.prolog.model.predicate.Predicate;
+import ru.prolog.model.predicate.PredicateResult;
 import ru.prolog.model.values.ValueModel;
 import ru.prolog.runtime.context.predicate.PredicateContext;
 import ru.prolog.runtime.context.rule.RuleContext;
@@ -94,11 +95,20 @@ public class StatementExecutorRule extends AbstractRule {
 
         while (st.currentList<this.statements.size()) {
             List<Statement> statList = getStatements(st.currentList);
-            while (st.currentStatement < statList.size() && st.currentStatement > st.cutIndex) {
+            while (st.currentStatement < statList.size() && st.currentStatement > st.cutIndex) statements:{
                 PredicateContext predicateExecution;
-                //if backtracked to executed statement, run same context
+                //При бектрекинге нужно запустить тот же контекст
                 if ((st.currentStatement - st.cutIndex) == st.executions.size()) {
                     ExecutedStatement executedStatement = st.executions.get(st.executions.size() - 1);
+                    //Выражения, которые не произведут новых результатов, становятся null, и их нужно пропустить при возврате.
+                    while (executedStatement == null) {
+                        st.executions.remove(st.currentStatement);
+                        st.currentStatement--;
+                        if (st.currentStatement <= st.cutIndex) {
+                            break statements;
+                        }
+                        executedStatement = st.executions.get(st.executions.size() - 1);
+                    }
                     executedStatement.rollback();
                     predicateExecution = executedStatement.getPredicateContext();
                 } else {
@@ -136,7 +146,15 @@ public class StatementExecutorRule extends AbstractRule {
                                             .collect(Collectors.toList())
                             ));
                 }
-                if (predicateExecution.execute()) {
+                PredicateResult predicateResult = predicateExecution.execute();
+                if (predicateResult.toBoolean()) {
+                    //Если предикат не произведёт новых решений, вместо него в список выполненных ывражений ставится null.
+                    //Удалить его из списка нельзя, т.к. номер в списке выполненных выражений соответствует номеру выражения (с учётом индекса отсечения)
+                    //Удаление производится, поскольку иначе выражение вернёт fail - поэтому нет смысла хранить и вызывать лишний объект.
+                    if (predicateResult == PredicateResult.LAST_RESULT) {
+                        //st.currentStatement - то номер выражения в теле правила. Номер выражения в списке выполненных вычисляется с учётом индекса отсечения
+                        st.executions.set(st.currentStatement - (st.cutIndex + 1), null);
+                    }
                     st.currentStatement++;
                 } else {
                     st.executions.remove(st.executions.size() - 1);

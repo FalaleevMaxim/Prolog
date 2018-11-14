@@ -41,7 +41,7 @@ public class Program  extends AbstractModelObject implements Runnable {
 
     public boolean run(ProgramContext context){
         if(!fixed) throw new IllegalStateException("Program state is not fixed. Call fix() before running it.");
-        return managers.getPredicateManager().context(goal, Collections.emptyList(), context).execute();
+        return managers.getPredicateManager().context(goal, Collections.emptyList(), context).execute().toBoolean();
     }
 
     public void run(){

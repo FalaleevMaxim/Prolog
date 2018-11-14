@@ -101,18 +101,18 @@ public class BasePredicateContext implements PredicateContext {
     }
 
     @Override
-    public boolean execute() {
+    public PredicateResult execute() {
         //При отсечении внутри предиката поиск не продолжается
-        if (cut) return false;
+        if (cut) return PredicateResult.FAIL;
         //Если последний запуск завершился fail или вернул окончательный результат, повторно выполнять не требуется.
-        if (!lastResult.canRunAgain()) return false;
+        if (!lastResult.canRunAgain()) return PredicateResult.FAIL;
         //Запуск предиката и сохранение результата.
         lastResult = predicate().run(this, args);
         //Если предикат завершился неудачей, выполнить соответствующие действия по очистке контекста
         if (lastResult.fail()) {
             onFail();
         }
-        return lastResult.toBoolean();
+        return lastResult;
     }
 
     private void onFail() {

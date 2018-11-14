@@ -1,5 +1,6 @@
 package ru.prolog.runtime.context.predicate;
 
+import ru.prolog.model.predicate.PredicateResult;
 import ru.prolog.runtime.context.program.ProgramContext;
 import ru.prolog.runtime.context.rule.DebuggerRuleContextDecorator;
 import ru.prolog.util.ToStringUtil;
@@ -31,7 +32,7 @@ public class DebuggerPredicateContextDecorator extends BasePredicateContextDecor
     }
 
     @Override
-    public boolean execute() {
+    public PredicateResult execute() {
         String fileName = (String) programContext().getContextData(ProgramContext.KEY_DEBUG_FILE);
         if(fileName==null) return decorated.execute();
         try (PrintWriter pw = new PrintWriter(new FileOutputStream(fileName, true))){
@@ -41,23 +42,29 @@ public class DebuggerPredicateContextDecorator extends BasePredicateContextDecor
         } catch (FileNotFoundException ignored) {
         }
 
-        boolean ret = decorated.execute();
+        PredicateResult ret = decorated.execute();
 
         try (PrintWriter pw = new PrintWriter(new FileOutputStream(fileName, true))){
-            if(ret) {
-                pw.println(offset + "Return from predicate " + predicate());
-                pw.println(offset + ToStringUtil.funcToString(predicate().getName(), getArgs()));
-                programContext().putContextData(LEVEL_KEY, level);
-                return true;
-            }else{
-                pw.println(offset + "Predicate failed. Return from " + predicate());
-                pw.println(offset + ToStringUtil.funcToString(predicate().getName(), getArgs()));
-                programContext().putContextData(LEVEL_KEY, level-1);
-                return false;
+            switch (ret) {
+                case NEXT_RESULT:
+                    pw.println(offset + "Return from predicate " + predicate());
+                    pw.println(offset + ToStringUtil.funcToString(predicate().getName(), getArgs()));
+                    programContext().putContextData(LEVEL_KEY, level);
+                    break;
+                case LAST_RESULT:
+                    pw.println(offset + "Return last result from predicate " + predicate());
+                    pw.println(offset + ToStringUtil.funcToString(predicate().getName(), getArgs()));
+                    programContext().putContextData(LEVEL_KEY, level);
+                    break;
+                case FAIL:
+                    pw.println(offset + "Predicate failed. Return from " + predicate());
+                    pw.println(offset + ToStringUtil.funcToString(predicate().getName(), getArgs()));
+                    programContext().putContextData(LEVEL_KEY, level - 1);
+                    break;
             }
+            return ret;
         } catch (FileNotFoundException ignored) {
         }
-
         return ret;
     }
 }

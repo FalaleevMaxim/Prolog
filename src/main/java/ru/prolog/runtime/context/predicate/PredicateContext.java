@@ -3,16 +3,16 @@ package ru.prolog.runtime.context.predicate;
 import ru.prolog.model.ModelObject;
 import ru.prolog.model.managers.rule.RuleContextManager;
 import ru.prolog.model.predicate.Predicate;
+import ru.prolog.model.predicate.PredicateResult;
 import ru.prolog.model.rule.Statement;
 import ru.prolog.runtime.RuntimeObject;
-import ru.prolog.runtime.context.ExecutionContext;
 import ru.prolog.runtime.context.program.ProgramContext;
 import ru.prolog.runtime.context.rule.RuleContext;
 import ru.prolog.runtime.values.Value;
 
 import java.util.List;
 
-public interface PredicateContext extends ExecutionContext, RuntimeObject {
+public interface PredicateContext extends RuntimeObject {
     ProgramContext programContext();
 
     RuleContext ruleContext();
@@ -20,6 +20,11 @@ public interface PredicateContext extends ExecutionContext, RuntimeObject {
     Statement statement();
 
     Predicate predicate();
+
+    /**
+     * Executes predicate.
+     */
+    PredicateResult execute();
 
     @Override
     default ModelObject model() {

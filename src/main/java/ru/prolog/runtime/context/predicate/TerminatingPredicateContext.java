@@ -1,6 +1,7 @@
 package ru.prolog.runtime.context.predicate;
 
 import ru.prolog.etc.exceptions.runtime.ProgramInterruptedException;
+import ru.prolog.model.predicate.PredicateResult;
 
 public class TerminatingPredicateContext extends BasePredicateContextDecorator {
     public TerminatingPredicateContext(PredicateContext decorated) {
@@ -8,11 +9,12 @@ public class TerminatingPredicateContext extends BasePredicateContextDecorator {
     }
 
     @Override
-    public boolean execute() {
+    public PredicateResult execute() {
         checkInterrupted();
-        if(!decorated.execute()) return false;
+        PredicateResult result = decorated.execute();
+        if (result == PredicateResult.FAIL) return PredicateResult.FAIL;
         checkInterrupted();
-        return true;
+        return result;
     }
 
     private void checkInterrupted() {

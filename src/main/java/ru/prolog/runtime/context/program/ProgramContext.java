@@ -3,14 +3,13 @@ package ru.prolog.runtime.context.program;
 import ru.prolog.model.ModelObject;
 import ru.prolog.model.program.Program;
 import ru.prolog.runtime.RuntimeObject;
-import ru.prolog.runtime.context.ExecutionContext;
 import ru.prolog.runtime.database.Database;
 import ru.prolog.util.io.ErrorListenerHub;
 import ru.prolog.util.io.InputDevice;
 import ru.prolog.util.io.OutputDeviceHub;
 import ru.prolog.util.window.PrologWindowManager;
 
-public interface ProgramContext extends ExecutionContext, RuntimeObject {
+public interface ProgramContext extends RuntimeObject {
     String KEY_DEBUG_FILE = "DebugFile";
     String KEY_DEBUG_OUTPUT_DEVICE = "DebugOutput";
 

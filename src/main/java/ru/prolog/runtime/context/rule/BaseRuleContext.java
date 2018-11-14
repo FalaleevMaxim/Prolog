@@ -5,6 +5,7 @@ import ru.prolog.etc.backup.Backup;
 import ru.prolog.model.rule.Rule;
 import ru.prolog.runtime.context.predicate.PredicateContext;
 import ru.prolog.runtime.context.program.ProgramContext;
+import ru.prolog.runtime.context.rule.statements.ExecutedStatement;
 import ru.prolog.runtime.context.rule.statements.ExecutedStatements;
 import ru.prolog.runtime.values.Value;
 import ru.prolog.runtime.values.Variable;
@@ -98,8 +99,13 @@ public class BaseRuleContext implements RuleContext {
             onFail();
             return false;
         }
+
         getStatements().currentStatement--;
-        getStatements().executions.get(getStatements().executions.size() - 1).rollback();
+        ExecutedStatement executedStatement = getStatements().executions.get(getStatements().executions.size() - 1);
+        if (executedStatement != null) {
+            executedStatement.rollback();
+        }
+
         if (rule.run(args, this)) {
             return true;
         } else {
