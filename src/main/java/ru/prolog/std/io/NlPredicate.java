@@ -8,8 +8,8 @@ import ru.prolog.util.io.OutputDevice;
 
 import java.util.List;
 
-public class Nl extends AbstractPredicate {
-    public Nl() {
+public class NlPredicate extends AbstractPredicate {
+    public NlPredicate() {
         super("nl");
     }
 

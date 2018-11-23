@@ -4,6 +4,7 @@ import ru.prolog.model.ModelObject;
 import ru.prolog.model.managers.rule.RuleContextManager;
 import ru.prolog.model.predicate.Predicate;
 import ru.prolog.model.predicate.PredicateResult;
+import ru.prolog.model.program.Program;
 import ru.prolog.model.rule.Statement;
 import ru.prolog.runtime.RuntimeObject;
 import ru.prolog.runtime.context.program.ProgramContext;
@@ -12,53 +13,100 @@ import ru.prolog.runtime.values.Value;
 
 import java.util.List;
 
+/**
+ * Контекст вызова предиката. При каждом вызове создаётся объект контекста.
+ */
 public interface PredicateContext extends RuntimeObject {
+    /**
+     * Возвращает контекст программы, в рамках которого происходит данный вызов
+     *
+     * @return контекст программы
+     */
     ProgramContext programContext();
 
+    /**
+     * Возвращает контекст вызова правила, из которого произведён данный вызов.
+     *
+     * @return Контекст вызова правила, из которого вызван предикат.
+     */
     RuleContext ruleContext();
 
+    /**
+     * Возвращает выражение, которое было вызвано. Может быть {@code null}, если это вызов предиката-цели.
+     *
+     * @return Выражение, из которого был произведён этот вызов.
+     */
     Statement statement();
 
+    /**
+     * Возвращает предикат, выполняемый в этом вызове. Не может быть {@code null}
+     *
+     * @return Предикат, выполняемый в этом вызове.
+     */
     Predicate predicate();
 
     /**
-     * Executes predicate.
+     * Выполняет предикат.
+     *
+     * @return Результат вызова предиката.
      */
     PredicateResult execute();
 
     @Override
     default ModelObject model() {
-        return statement()!=null?statement():predicate();
+        return statement() != null ? statement() : predicate();
     }
 
+    /**
+     * Возвращает список аргументов, которые следует передать предикату при вызове.
+     *
+     * @return Список аргументов, которые следует передать предикату при вызове.
+     */
     List<Value> getArgs();
+
+    /**
+     * Метод, упрощающий доступ к менеджеру правил.
+     *
+     * @return менеджер правил, хранящийся в объекте программы ({@link Program#managers()})
+     */
     RuleContextManager getRuleManager();
 
     /**
-     * Put sender to context storage. Only this predicate in this execution can access data.
-     * Data will be stored between backtracks to execution and deleted after predicate returned fail.
+     * Сохраняет данные по ключу в контексте вызова предиката. Получить данные сможет только предикат из того же вызова.
+     * Предназначен для хранения данных в контексте вызова на случай бэктрекинга к этому же вызову.
+     * Сохранённые данные будут удалены при выходе из контекста вызова (если предикат вернёт {@link PredicateResult#FAIL} или {@link PredicateResult#LAST_RESULT}).
+     *
+     * @param key  Ключ, по которому будет сохранён объект.
+     * @param data Сохраняемый объект
+     * @see #getContextData(String)
      */
     void putContextData(String key, Object data);
 
     /**
-     * Get sender from context storage.
-     * @param key key by which sender was put with {@link #putContextData(String, Object) putContextData} method
-     * @return sender by key or null
+     * Возвращает данные, сохранённые в контексте по ключу.
+     *
+     * @param key ключ, по которому объект был сохранён в методе {@link #putContextData(String, Object) putContextData}.
+     * @return сохранённый по ключу объект или {@code null}.
      */
     Object getContextData(String key);
 
     /**
-     * Makes predicate not to try next rules after inner getRule met cut predicate.
+     * Указывает, что в предикате было отсечение, и продолжать перебор правил не нужно.
+     * Используется только в предикатах, использующих правила.
      */
     void cut();
 
     /**
-     * @return true after {@link #cut() cut()} method was executed, otherwise false.
+     * Показывает, встречалось ли в выполняемом предикатом правиле отсечение.
+     *
+     * @return возвращает {@code true}, если метод {@link #cut() cut()} был вызван хотя бы один раз; иначе возвращает {@code false}.
      */
     boolean isCut();
 
     /**
-     * Возвращает {@code true}, если предикат вернул {@link ru.prolog.model.predicate.PredicateResult#FAIL fail}, и контекст больше нельзя использовать
+     * Возвращает true, если предикат завершился неудачно.
+     *
+     * @return Возвращает {@code true}, если предикат вернул {@link ru.prolog.model.predicate.PredicateResult#FAIL fail}, и контекст больше нельзя использовать
      */
     boolean failed();
 }

@@ -13,6 +13,12 @@ import java.util.concurrent.ConcurrentHashMap;
 public class BaseProgramContext implements ProgramContext {
     private final Program program;
     private final Database database;
+
+    /**
+     * Хранит данные, сохраняемые в контексте программы.
+     * Поскольку взаимодействовать с этим хранилищем можно не только из программы, работающей в одном потоке,
+     * но и из среды, запускающей Пролог-программу, хранилище поддерживает многопоточное обращение.
+     */
     private Map<String, Object> contextData = new ConcurrentHashMap<>();
     private InputDevice inputDevice = new Stdin();
     private OutputDeviceHub outputDevices = new OutputDeviceHub(new StdOut());
@@ -46,6 +52,13 @@ public class BaseProgramContext implements ProgramContext {
         contextData.put(key, data);
     }
 
+    /**
+     * Запускает программу, передавая себя в качестве контекста.
+     * После выполнения очищает и закрывает сохранённые в контексте объекты.
+     *
+     * @return Результат выполнения программы
+     * @see #onFinish()
+     */
     @Override
     public boolean execute() {
         boolean res;
@@ -87,6 +100,10 @@ public class BaseProgramContext implements ProgramContext {
         this.windowManager = prologWindowManager;
     }
 
+    /**
+     * При завершении программы закрывает все сохранённые в контексте объекты, являющиеся {@link AutoCloseable}.
+     * Если при закрытии возникает исключенние, оно выводится на устройства вывода ошибок.
+     */
     private void onFinish() {
         for (Object o : contextData.values()) {
             if (o instanceof AutoCloseable) {

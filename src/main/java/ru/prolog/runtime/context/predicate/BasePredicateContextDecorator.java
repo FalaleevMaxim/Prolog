@@ -9,6 +9,10 @@ import ru.prolog.runtime.values.Value;
 
 import java.util.List;
 
+/**
+ * Абстрактный декоратор для контекста предиката.
+ * Реализует все методы, кроме {@link PredicateContext#execute()}, делегируя их к декорируемому объекту.
+ */
 public abstract class BasePredicateContextDecorator implements PredicateContext {
     protected final PredicateContext decorated;
 

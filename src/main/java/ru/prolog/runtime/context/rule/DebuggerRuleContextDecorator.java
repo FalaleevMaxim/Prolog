@@ -9,11 +9,37 @@ import java.io.PrintWriter;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+/**
+ * Выводит в файл лог вызовов правил.
+ * Файл задаётся {@link ProgramContext#KEY_DEBUG_FILE}
+ */
 public class DebuggerRuleContextDecorator extends BaseRuleContextDecorator {
+    /**
+     * Ключ, по которому в контексте программы хранится уровень вызова.
+     *
+     * @see ProgramContext#getContextData(String)
+     */
     public static final String LEVEL_KEY = "Debug.level";
+
+    /**
+     * Уровень вызова. Перед обработкой вызова уровень берётся из контекста программы.
+     */
     private final int level;
+
+    /**
+     * Смещение перед выводом лога. Смещение состоит из {@link #level} повторений {@code "| "}.
+     */
     private final String offset;
 
+    /**
+     * Оборачивает переданный вызов правила для вывода лога в файл при вызове.
+     * <p>
+     * При оборачивании вызова, из контекста программы ({@link ProgramContext#getContextData(String)}) по ключу {@link #LEVEL_KEY} берётся {@link #level}.
+     * Если уровень по ключу уже был задан, он увеличивается на 1; если нет, устанавливается в 0.
+     * Значение уровня записывается обратно в контекст программы по тому же ключу, чтобы вложенные вызовы увеличивали у себя уровень вложенности.
+     *
+     * @param decorated декорируемый вызов правила.
+     */
     public DebuggerRuleContextDecorator(RuleContext decorated) {
         super(decorated);
         Object level = programContext().getContextData(LEVEL_KEY);
@@ -28,6 +54,11 @@ public class DebuggerRuleContextDecorator extends BaseRuleContextDecorator {
                 .collect(Collectors.joining());
     }
 
+    /**
+     * Работает аналогично {@link #execute()}, но вместо "Execute" в лог пишется "Redo".
+     *
+     * @return Результат повторного вызова правила, без изменений.
+     */
     @Override
     public boolean redo() {
         String fileName = (String) programContext().getContextData(ProgramContext.KEY_DEBUG_FILE);
@@ -60,6 +91,14 @@ public class DebuggerRuleContextDecorator extends BaseRuleContextDecorator {
         return ret;
     }
 
+    /**
+     * Пишет в файл лог перед вызовом, вызывает {@link #decorated#execute()} у декорируемого объекта и выводит лог с результатами вызова.
+     * <p>
+     * Если правило завершилось с {@code false}, в контекст программы записывается уровень вызова на 1 меньше сохранённого в {@link #level}
+     * Если правило завершилось удачно, в контекст записывается тот же уровень, который был сохранён.
+     *
+     * @return Результат вызова правила, без изменений.
+     */
     @Override
     public boolean execute() {
         String fileName = (String) programContext().getContextData(ProgramContext.KEY_DEBUG_FILE);

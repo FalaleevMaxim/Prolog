@@ -12,25 +12,58 @@ import ru.prolog.runtime.values.Variable;
 import ru.prolog.util.ToStringUtil;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
+/**
+ * Базовая реализация {@link RuleContext}, реализующая все основные функции, описанные в интерфейсе.
+ */
 public class BaseRuleContext implements RuleContext {
+    /**
+     * Вызываемое в контексте правило.
+     */
     private Rule rule;
+
+    /**
+     * Аргументы, передаваемые правилу при вызове.
+     */
     private List<Value> args;
+
+    /**
+     * Отображает имя переменной на переменную. Инициализируется при регистрации первой переменной в контексте.
+     */
     private Map<String, Variable> variables;
+
+    /**
+     * Ссылка на контекст программы, в рамках которого выполняется правило.
+     */
     private ProgramContext programContext;
+
+    /**
+     * Контекст предиката, из которого было вызвано правило.
+     */
     private PredicateContext context;
+
+    /**
+     * Бэкапы переменных в аргументах правила на момент перед первым вызовом правила.
+     * Инициализируется при вызове правила.
+     */
     private List<Backup> backups;
+
+    /**
+     * Объект, хранящий информацию о выполненных выражениях.
+     */
     private ExecutedStatements statements;
 
-    public BaseRuleContext(Rule rule, List<Value> args, ProgramContext programContext) {
-        this.programContext = programContext;
+    /**
+     * @param rule    Вызываемое правило.
+     * @param args    Аргументы, передаваемые правилу при вызове.
+     * @param context Контекст предиката, из которого вызывается правило.
+     */
+    public BaseRuleContext(Rule rule, List<Value> args, PredicateContext context) {
+        this.programContext = context.programContext();
+        this.context = context;
         this.rule = rule;
         this.args = args;
-    }
-
-    public BaseRuleContext(Rule rule, List<Value> args, PredicateContext context) {
-        this(rule, args, context.programContext());
-        this.context = context;
     }
 
     public Rule rule() {
@@ -80,16 +113,19 @@ public class BaseRuleContext implements RuleContext {
         }
     }
 
+    /**
+     * Создаёт бэкапы для всех переменных в аргументах, передаваемых правилу при вызове.
+     */
     private void argBackups() {
-        backups = new LinkedList<>();
-        for (Value arg : args) {
-            for (Variable var : arg.innerFreeVariables()) {
-                backups.add(programContext.program().managers().getBackupManager().backup(var));
-            }
-        }
+        backups = args.stream()
+                .map(Value::innerFreeVariables)
+                .flatMap(Collection::stream)
+                .map(programContext.program().managers().getBackupManager()::backup)
+                .collect(Collectors.toList());
     }
 
     public void rollback() {
+        if (backups == null) return;
         backups.forEach(Backup::rollback);
     }
 
@@ -129,6 +165,7 @@ public class BaseRuleContext implements RuleContext {
      * Все переменные в удаляемом контексте удаляются из дерева связей переменных.
      * Для каждой переменной берётся первая из связанных, и к ней присоединяются все остальные связанные.
      */
+    //ToDo не уверен, что этот метод нужен, т.к. при fail правила переменные откатываются к моменту до вызова.
     private void deleteVariables() {
         if (variables == null) return;
         //Цикл по всем переменным в контексте

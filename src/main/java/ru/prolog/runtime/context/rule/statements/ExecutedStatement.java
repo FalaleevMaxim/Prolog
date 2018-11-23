@@ -5,6 +5,9 @@ import ru.prolog.runtime.context.predicate.PredicateContext;
 
 import java.util.List;
 
+/**
+ * Хранит контекст вызова предиката и бэкапы переменных к состоянию до вызова.
+ */
 public class ExecutedStatement {
     private final PredicateContext predicateContext;
     private final List<Backup> backupBefore;
@@ -14,6 +17,9 @@ public class ExecutedStatement {
         this.backupBefore = backupBefore;
     }
 
+    /**
+     * Откатывает переменные к состоянию перед вызовом предиката.
+     */
     public void rollback(){
         backupBefore.forEach(Backup::rollback);
     }

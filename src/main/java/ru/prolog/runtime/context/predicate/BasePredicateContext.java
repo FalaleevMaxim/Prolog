@@ -17,13 +17,57 @@ import java.util.List;
 import java.util.Map;
 
 public class BasePredicateContext implements PredicateContext {
+    /**
+     * Выполняемый предикат. Не может быть null.
+     *
+     * @see #predicate()
+     */
     private final Predicate predicate;
+
+    /**
+     * Выражение, которое выполняется. Может быть null, если предикат - цель.
+     * @see #statement()
+     */
     private final Statement statement;
+
+    /**
+     * Аргументы, передаваемые предикату при вызове
+     * @see #getArgs()
+     */
     private final List<Value> args;
+
+    /**
+     * Ссылка на контекст программы.
+     * @see #programContext()
+     */
     private final ProgramContext programContext;
+
+    /**
+     * Контекст правила, вызвавшего предикат. Может быть null, если это предикат-цель.
+     * @see #ruleContext()
+     */
     private RuleContext ruleContext;
+
+    /**
+     * Данные, которые предикат сохраняет в контексте вызова для дальнейшего использования при бэктрекинге.
+     * Например, номер и контекст последнего выполненного правила.
+     * @see #putContextData(String, Object)
+     * @see #getContextData(String)
+     */
     private Map<String, Object> contextData;
+
+    /**
+     * Флаг, показывающий, было ли отсечение в предикате.
+     * Требуется только для обычных предикатов, работающих с правилами.
+     * Если в предикате было отсеччение, перебор правил не продолжается.
+     */
     private boolean cut = false;
+
+    /**
+     * Последний результат, возвращённый при выполнении предиката.
+     * Если это не {@link PredicateResult#NEXT_RESULT} (а точнее, если {@link PredicateResult#canRunAgain()}) возвращает {@code false},
+     *  вызов {@link #execute()} возвращает {@link PredicateResult#FAIL}.
+     */
     private PredicateResult lastResult = PredicateResult.NEXT_RESULT;
 
     public BasePredicateContext(Statement statement, List<Value> args, RuleContext ruleContext) {
@@ -100,10 +144,14 @@ public class BasePredicateContext implements PredicateContext {
         return lastResult == PredicateResult.FAIL;
     }
 
+    /**
+     * Вызывает предикат и возвращает результат выполнения. Результат выполнения предиката записывается в {@link #lastResult}.
+     * Не выполняет предикат и возвращает {@link PredicateResult#FAIL}, если после прошлого вызова нет смысла запускать предикат заново.
+     * @see PredicateResult#canRunAgain()
+     * @return результат вызова предиката, или {@link PredicateResult#FAIL}, если запускать предикат больше нет смысла.
+     */
     @Override
     public PredicateResult execute() {
-        //При отсечении внутри предиката поиск не продолжается
-        if (cut) return PredicateResult.FAIL;
         //Если последний запуск завершился fail или вернул окончательный результат, повторно выполнять не требуется.
         if (!lastResult.canRunAgain()) return PredicateResult.FAIL;
         //Запуск предиката и сохранение результата.
@@ -115,12 +163,24 @@ public class BasePredicateContext implements PredicateContext {
         return lastResult;
     }
 
+    /**
+     * Чистит данные контекста после неуспешного выполнения предиката.
+     * @see #clearContextData()
+     */
     private void onFail() {
         if (contextData != null) {
             clearContextData();
         }
     }
 
+    /**
+     * Очищает сохранённые данные в контексте.
+     * Если сохранённый объект реализует {@link AutoCloseable}, он закрывается перед удалением.
+     * Ошибки при закрытии объекта выводятся на вывод ошибок программы.
+     * @see #contextData
+     * @see #putContextData(String, Object)
+     * @see #getContextData(String)
+     */
     private void clearContextData() {
         for (Object o : contextData.values()) {
             if (o instanceof AutoCloseable) {
@@ -136,6 +196,11 @@ public class BasePredicateContext implements PredicateContext {
         contextData.clear();
     }
 
+    /**
+     * Если вызов произведён от выражения, моделью является выражение.
+     * Если это вызов предиката-цели, моделью является предикат.
+     * @return выражение или предикат-цель, который исполняется в контексте.
+     */
     @Override
     public ModelObject model() {
         if (statement != null) {
@@ -147,7 +212,7 @@ public class BasePredicateContext implements PredicateContext {
 
     @Override
     public String toString() {
-        if (statement == null) {
+        if (args.isEmpty()) {
             return "Call to predicate " + predicate;
         } else {
             return "Predicate " + predicate + " called as " + ToStringUtil.funcToString(predicate().getName(), args);

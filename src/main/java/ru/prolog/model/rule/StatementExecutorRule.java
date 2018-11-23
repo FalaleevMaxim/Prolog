@@ -122,7 +122,7 @@ public class StatementExecutorRule extends AbstractRule {
                         st.currentStatement++;
                         continue;
                     }
-                    //create new context from statement
+                    //Создание нового контекста вызова предиката с помощью менеджера предикатов
                     Managers managers = context.programContext().program().managers();
                     predicateExecution = managers.getPredicateManager().context(statement,
                             //copy statement args to getRule context
@@ -130,19 +130,14 @@ public class StatementExecutorRule extends AbstractRule {
                                     .map(value -> value.forContext(context))
                                     .collect(Collectors.toList()),
                             context);
-                    //Save context and all variables backups
+                    //Сохранение контекста и бэкапов переменных в аргументах предиката.
                     st.executions.add(
                             new ExecutedStatement(
                                     predicateExecution,
                                     predicateExecution.getArgs().stream()
-                                            .map(Value::innerFreeVariables)//Get lists of all free variables in args (including ones in lists or functors)
-                                            .reduce(new ArrayList<>(), //Concatenating lists of variables
-                                                    (v1, v2) -> {
-                                                        v1.addAll(v2);
-                                                        return v1;
-                                                    })
-                                            .stream()//Making backups of all variables
-                                            .map(v -> managers.getBackupManager().backup(v))
+                                            .map(Value::innerFreeVariables)//Получение списков всех свободных переменных в аргументах (включая переменные внутри списков и функторов)
+                                            .flatMap(List::stream)//Объединение списков
+                                            .map(v -> managers.getBackupManager().backup(v))//Создание бэкапов
                                             .collect(Collectors.toList())
                             ));
                 }

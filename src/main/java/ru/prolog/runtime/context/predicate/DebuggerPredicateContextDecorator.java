@@ -11,18 +11,44 @@ import java.io.PrintWriter;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-public class DebuggerPredicateContextDecorator extends BasePredicateContextDecorator{
+/**
+ * Выводит в файл лог вызовов предикатов.
+ * Файл задаётся {@link ProgramContext#KEY_DEBUG_FILE}
+ */
+public class DebuggerPredicateContextDecorator extends BasePredicateContextDecorator {
+    /**
+     * Ключ, по которому в контексте программы хранится уровень вызова.
+     *
+     * @see ProgramContext#getContextData(String)
+     */
     public static final String LEVEL_KEY = DebuggerRuleContextDecorator.LEVEL_KEY;
+
+    /**
+     * Уровень вызова. Перед обработкой вызова уровень берётся из контекста программы
+     */
     private final int level;
+
+    /**
+     * Смещение перед выводом лога. Смещение состоит из {@link #level} повторений {@code "| "}.
+     */
     private final String offset;
 
+    /**
+     * Оборачивает переданный вызов предиката для вывода лога в файл при вызове.
+     * <p>
+     * При оборачивании вызова, из контекста программы ({@link ProgramContext#getContextData(String)}) по ключу {@link #LEVEL_KEY} берётся {@link #level}.
+     * Если уровень по ключу уже был задан, он увеличивается на 1; если нет, устанавливается в 0.
+     * Значение уровня записывается обратно в контекст программы по тому же ключу, чтобы вложенные вызовы увеличивали у себя уровень вложенности.
+     *
+     * @param decorated декорируемый вызов предиката.
+     */
     public DebuggerPredicateContextDecorator(PredicateContext decorated) {
         super(decorated);
 
         Object level = programContext().getContextData(LEVEL_KEY);
-        if(level==null) {
+        if (level == null) {
             this.level = 0;
-        }else {
+        } else {
             this.level = (int) level + 1;
         }
         programContext().putContextData(LEVEL_KEY, this.level);
@@ -31,12 +57,20 @@ public class DebuggerPredicateContextDecorator extends BasePredicateContextDecor
                 .collect(Collectors.joining());
     }
 
+    /**
+     * Пишет в файл лог перед вызовом, вызывает {@link #decorated#execute()} у декорируемого объекта и выводит лог с результатами вызова.
+     * <p>
+     * Если предикат завершился с {@link PredicateResult#FAIL}, в контекст программы записывается уровень вызова на 1 меньше сохранённого в {@link #level}
+     * Если предикат завершился удачно, в контекст записывается тот же уровень, который был сохранён.
+     *
+     * @return Результат вызова предиката, без изменений.
+     */
     @Override
     public PredicateResult execute() {
         String fileName = (String) programContext().getContextData(ProgramContext.KEY_DEBUG_FILE);
-        if(fileName==null) return decorated.execute();
-        try (PrintWriter pw = new PrintWriter(new FileOutputStream(fileName, true))){
-            pw.println(offset + "Execute predicate "+predicate());
+        if (fileName == null) return decorated.execute();
+        try (PrintWriter pw = new PrintWriter(new FileOutputStream(fileName, true))) {
+            pw.println(offset + "Execute predicate " + predicate());
             pw.println(offset + ToStringUtil.funcToString(predicate().getName(), getArgs()));
             programContext().putContextData(LEVEL_KEY, level);
         } catch (FileNotFoundException ignored) {
@@ -44,7 +78,7 @@ public class DebuggerPredicateContextDecorator extends BasePredicateContextDecor
 
         PredicateResult ret = decorated.execute();
 
-        try (PrintWriter pw = new PrintWriter(new FileOutputStream(fileName, true))){
+        try (PrintWriter pw = new PrintWriter(new FileOutputStream(fileName, true))) {
             switch (ret) {
                 case NEXT_RESULT:
                     pw.println(offset + "Return from predicate " + predicate());

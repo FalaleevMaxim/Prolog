@@ -7,6 +7,11 @@ import ru.prolog.model.storage.database.DatabaseModel;
 import java.util.Collection;
 import java.util.List;
 
+/**
+ * Изменяемая в процессе выполнения программы база данных, содержащая факты для предикатов базы данных.
+ * Предикаты БД получают факты только из этой базы и не пользуются правилами, записанными в самом предикате {@link DatabasePredicate}.
+ * Факты
+ */
 public interface Database {
     String DEFAULT_DB_NAME = DatabaseModel.DEFAULT_DB_NAME;
 
