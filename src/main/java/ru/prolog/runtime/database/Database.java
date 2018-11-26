@@ -3,99 +3,137 @@ package ru.prolog.runtime.database;
 import ru.prolog.model.predicate.DatabasePredicate;
 import ru.prolog.model.rule.FactRule;
 import ru.prolog.model.storage.database.DatabaseModel;
+import ru.prolog.model.storage.database.exceptions.PredicateNotInDatabaseException;
 
 import java.util.Collection;
 import java.util.List;
 
 /**
  * Изменяемая в процессе выполнения программы база данных, содержащая факты для предикатов базы данных.
+ * Один объект содержит все базы данных, объявленные в программе.
+ * <p>
  * Предикаты БД получают факты только из этой базы и не пользуются правилами, записанными в самом предикате {@link DatabasePredicate}.
- * Факты
+ * Факты, записанные в предикате базы данных, добавляются в базу данных.
  */
 public interface Database {
+    /**
+     * Имя базы данных по умолчанию.
+     */
     String DEFAULT_DB_NAME = DatabaseModel.DEFAULT_DB_NAME;
 
     /**
-     * @return all database predicates
+     * Возвращает все предикаты базы данных
+     *
+     * @return Все предикаты базы данных
      */
     Collection<DatabasePredicate> databasePredicates();
 
     /**
-     * @param dbName name of database
-     * @return all predicates in database with specified name. Empty if database does not exist.
+     * Возвращает все предикаты, относящиеся к базе данных с указанным именем.
+     *
+     * @param dbName имя базы данных
+     * @return Все предикаты, относящиеся к указанной базе данных. Пустая коллекция, если базы данных с таким именем не существует.
      */
     Collection<DatabasePredicate> databasePredicates(String dbName);
 
     /**
-     * @return names of databases
+     * Возвращает имена всех баз данных.
+     *
+     * @return Имена всех баз данных.
      */
     Collection<String> databaseNames();
 
     /**
+     * Возвращает имя базы данных, к которой принадлежит предикат с заданным именем
      *
-     * @param predicateName name of predicate in database
-     * @return name of database containing predicate with given name or null if no database contains such predicate.
+     * @param predicateName Имя предиката базы данных.
+     * @return Имя базы данных, содержащей предикат с заданным именем. {@code null}, если ни одна база данных не содержит предиката с таким именем.
      */
     String databaseName(String predicateName);
 
     /**
-     * @param predicateName name of predicate to find in database
-     * @return true if any database contains predicate
+     * Проверяет, содержится ли предикат с заданным именем в базе данных.
+     *
+     * @param predicateName имя предиката.
+     * @return {@code true} если какая-либо база данных содержит предикат с заданным именем; иначе {@code false}
      */
     boolean contains(String predicateName);
 
     /**
-     * Checks if database with name {@param dbName} contains predicate
-     * @param dbName name of database to search predicate
-     * @param predicateName name of predicate to search in specified database
-     * @return true if predicate found in specified database. False if database does not exist or predicate not found in it.
+     * Проверяет, содержит ли база данных с именем {@param dbName} предикат с именем {@param predicateName}.
+     *
+     * @param dbName        Имя базы данных, в которой нужно искать предикатю
+     * @param predicateName Имя предиката, который нужно найти в базе.
+     * @return {@code true} Если предикат найден в указанной базе данных. {@code false} если указанная база данных не содержит такого предиката.
+     * @throws IllegalArgumentException Если базы данных с указанным именем не существует.
      */
     boolean contains(String dbName, String predicateName);
 
     /**
-     * Returns database predicate by its name.
-     * @param predicateName name of predicate
-     * @return predicate by its name or null if predicate not found in database
+     * Возвращает предикат базы данных по его имени.
+     *
+     * @param predicateName имя предиката.
+     * @return Предикат с заданным именем или {@code null}, если предиката с таким именем нет в базе данных.
      */
     DatabasePredicate get(String predicateName);
 
     /**
+     * Возвращает предикат базы данных, находящийся в указанной базе данных, по его имени.
      *
-     * @param dbName name of database
-     * @param predicateName name of predicate
-     * @return predicate in specified database by its name or null if predicate not found in database.
+     * @param dbName        Имя базы данных.
+     * @param predicateName Имя предиката.
+     * @return Предикат в заданной базе данных с указанным именем. {@code null}, если предикат с таким именем не содержится в указанной базе данных.
+     * @throws IllegalArgumentException Если базы данных с указанным именем не существует.
      */
     DatabasePredicate get(String dbName, String predicateName);
 
     /**
-     * @param predicate database predicate
-     * @return List of rules stored in
+     * Возвращает список фактов, относящийся к данному предикату
+     *
+     * @param predicate предикат базы данных.
+     * @return Список правил, относящихся к данному предикату.
+     * @throws PredicateNotInDatabaseException если предикат не содержится ни в одной базе данных.
      */
     List<FactRule> getRules(DatabasePredicate predicate);
 
     /**
-     * Adds {@param rule} to the end of predicate's rules list
+     * Добавляет факт в конец списка правил для соответствующего предиката базы данных.
+     *
+     * @param rule Добавляемое правило.
+     * @throws PredicateNotInDatabaseException если предикат, которому принадлежит правило, не содержится ни в одной базе данных.
      */
     void assertz(FactRule rule);
 
     /**
-     * Adds getRule to the start of getRule list
+     * Добавляет факт в начало списка правил для соответствующего предиката базы данных.
+     *
+     * @param rule Добавляемое правило.
+     * @throws PredicateNotInDatabaseException если предикат, которому принадлежит правило, не содержится ни в одной базе данных.
      */
     void asserta(FactRule rule);
 
     /**
-     * Removes first occurance of rule in list
+     * Удаляет первое вхождение факта в список правил соответствующего предиката.
+     *
+     * @param fact Удаляемое правило базы данных.
      */
     void retract(FactRule fact);
 
     /**
-     * @return all facts of default database as text (each fact on new line)
+     * Возвращает факты, записанные в базе данных по умолчанию, в виде текста.
+     * Каждый факт записывается с новой строки.
+     *
+     * @return Текст, содержащий факты базы данных по умолчанию, по одному правилу на строке.
      */
     String save();
 
     /**
-     * @param dbName name of database
-     * @return all facts of specified database as text (each fact on new line).
+     * Возвращает факты, записанные в указанной базе данных, в виде текста.
+     * Каждый факт записывается с новой строки.
+     *
+     * @param dbName Имя базы данных.
+     * @return Текст, содержащий факты указанной базы данных, по одному правилу на строке.
+     * @throws IllegalArgumentException Если базы данных с указанным именем не существует.
      */
     String save(String dbName);
 }

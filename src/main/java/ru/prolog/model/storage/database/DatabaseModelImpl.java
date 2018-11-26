@@ -50,7 +50,8 @@ public class DatabaseModelImpl extends AbstractModelObject implements DatabaseMo
 
     @Override
     public boolean contains(String dbName, String predicateName) {
-        if(!databases.containsKey(dbName)) addDatabase(dbName);
+        if (!databases.containsKey(dbName))
+            throw new IllegalArgumentException("Database with name '" + dbName + "' does not exist");
         Map<String, DatabasePredicate> db = databases.get(dbName);
         return db.containsKey(predicateName);
     }
