@@ -31,7 +31,7 @@ public class SimpleVariable extends SimpleValue implements Variable {
     }
 
     public boolean isFree() {
-        return value == null;
+        return content == null;
     }
 
     public Set<Variable> getRelated() {
@@ -40,15 +40,15 @@ public class SimpleVariable extends SimpleValue implements Variable {
 
     @Override
     public boolean unify(Value other) {
-        if (other.getValue() != null) {
-            if (getValue() != null) {
-                return getValue().equals(other.getValue());
+        if (other.getContent() != null) {
+            if (getContent() != null) {
+                return getContent().equals(other.getContent());
             } else {
-                applyValue(other);
+                setContent(other);
                 return true;
             }
         } else {
-            if (getValue() != null) {
+            if (getContent() != null) {
                 return other.unify(this);
             } else {
                 Variable variable = (Variable) other;
@@ -69,19 +69,12 @@ public class SimpleVariable extends SimpleValue implements Variable {
     public ValueModel toModel() {
         if(isFree())
             return new VariableModel(getType(), getName());
-        return new SimpleValueModel(getType(), getValue());
-    }
-
-    @Override
-    public void applyValue(Value value) {
-        if(!this.isFree()) return;
-        this.value = value.getValue();
-        if(related!=null) related.forEach(var->var.applyValue(value));
+        return new SimpleValueModel(getType(), getContent());
     }
 
     @Override
     public void setFree() {
-        value = null;
+        content = null;
     }
 
     @Override
@@ -131,6 +124,12 @@ public class SimpleVariable extends SimpleValue implements Variable {
     @Override
     public String toString() {
         if(isFree()) return name;
-        return ToStringUtil.simpleToString(type, value);
+        return ToStringUtil.simpleToString(type, content);
+    }
+
+    private void setContent(Value value) {
+        if (!this.isFree()) return;
+        this.content = value.getContent();
+        if (related != null) related.forEach(var -> var.unify(value));
     }
 }

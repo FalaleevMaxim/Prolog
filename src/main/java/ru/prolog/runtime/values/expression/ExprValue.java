@@ -6,11 +6,11 @@ import ru.prolog.runtime.values.Value;
 public interface ExprValue extends Value {
     String getName();
     @Override
-    Number getValue();
+    Number getContent();
     @Override
     ExprValueModel toModel();
 
     default boolean hasFreeVariables() {
-        return innerFreeVariables().size() > 0;
+        return !innerFreeVariables().isEmpty();
     }
 }

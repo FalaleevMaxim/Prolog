@@ -164,17 +164,17 @@ public class ExprValueModel extends AbstractModelObject implements ValueModel{
                 exceptions.add(new ValueStateException(this, "Expression \"" + name + "\" does not exist"));
             }
         }
-        //Check expression is value or has at least one operand
+        //Check expression is content or has at least one operand
         if(value==null && left==null) {
-            exceptions.add(new ValueStateException(this, "Neither value nor operand set for expression"));
+            exceptions.add(new ValueStateException(this, "Neither content nor operand set for expression"));
         }else{
             if(left==null && !"".equals(name))
-                exceptions.add(new ValueStateException(this, "Expression is not value, but does not have operand"));
+                exceptions.add(new ValueStateException(this, "Expression is not content, but does not have operand"));
         }
         //No sense to continue if there are exceptions already
         if(!exceptions.isEmpty())
             return exceptions;
-        //Check operands or value for exceptions
+        //Check operands or content for exceptions
         if(value!=null) exceptions.addAll(value.exceptions());
         if(left!=null) exceptions.addAll(left.exceptions());
         if(right!=null) exceptions.addAll(right.exceptions());
@@ -182,22 +182,22 @@ public class ExprValueModel extends AbstractModelObject implements ValueModel{
             return exceptions;
 
         if(value!=null && !name.equals("")){
-            exceptions.add(new ValueStateException(this, "Expression is not value, but value is not null"));
+            exceptions.add(new ValueStateException(this, "Expression is not content, but content is not null"));
         }
 
         //Operator-specific checks
         Type real = Type.primitives.get("real");
         Type integer = Type.primitives.get("integer");
         switch (name){
-            //Empty name means expression is value. Check value is not null and is number.
+            //Empty name means expression is content. Check content is not null and is number.
             case "":
                 if(value==null){
-                    exceptions.add(new ValueStateException(this, "Empty operator name means this expression is value, but value is null"));
+                    exceptions.add(new ValueStateException(this, "Empty operator name means this expression is content, but content is null"));
                 }else if(!value.getType().isPrimitive() || !value.getType().getPrimitiveType().isNumber()){
-                    exceptions.add(new ValueStateException(this, "Wrong value type. Expected: integer or real."));
+                    exceptions.add(new ValueStateException(this, "Wrong content type. Expected: integer or real."));
                 }
                 if(left!=null || right!=null)
-                    exceptions.add(new ValueStateException(this, "Expression is value, operands should be null"));
+                    exceptions.add(new ValueStateException(this, "Expression is content, operands should be null"));
                 break;
             //Unary operators. Should not have right operand.
             case "sin":

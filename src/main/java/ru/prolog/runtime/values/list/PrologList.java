@@ -7,7 +7,10 @@ public interface PrologList extends Value {
     boolean isEmpty();
     boolean isLast();
     Value head();
-    default Value getValue(){return head();}
+
+    default Value getContent() {
+        return head();
+    }
     PrologList tail();
     PrologList join(Value value);
 

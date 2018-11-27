@@ -33,14 +33,14 @@ public class PlusExpr extends IntRealExpr {
         }
         if (res.getType().getPrimitiveType().isInteger()) {
             //Если тип результата integer, то оба слагаемых тоже integer, и вычисления можно производить в целых числах
-            Integer nonFreeVal = (Integer) nonFree.getValue();
-            Integer resVal = (Integer) res.getValue();
+            Integer nonFreeVal = (Integer) nonFree.getContent();
+            Integer resVal = (Integer) res.getContent();
             res = new SimpleValue(free.getType(), resVal - nonFreeVal);
             free.unify(res);
         } else {
             //Для real сложнее. Оба значения приводятся к Double
-            Double nonFreeVal = nonFree.getValue().doubleValue();
-            Double resVal = ((Number) res.getValue()).doubleValue();
+            Double nonFreeVal = nonFree.getContent().doubleValue();
+            Double resVal = ((Number) res.getContent()).doubleValue();
             //Результат создаётся в зависимости от типа слагаемого, содержащего свободную переменную
             if (free.getType().getPrimitiveType().isReal()) {
                 res = new SimpleValue(free.getType(), (resVal - nonFreeVal));

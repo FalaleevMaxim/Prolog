@@ -29,7 +29,7 @@ public class FileLinesPredicate extends AbstractPredicate {
             Value arg = args.get(0);
             if (isFreeVariable(arg)) throw new FreeVariableException("File name is free variable", (Variable) arg);
 
-            String fileName = (String) arg.getValue();
+            String fileName = (String) arg.getContent();
             File file = new File(fileName);
             if (!file.exists()) {
                 err.println("File does not exist: " + file);

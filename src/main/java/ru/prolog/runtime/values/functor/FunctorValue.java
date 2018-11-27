@@ -7,7 +7,7 @@ import java.util.List;
 public interface FunctorValue extends Value {
     String getFunctorName();
     @Override
-    default List<Value> getValue(){
+    default List<Value> getContent() {
         return getArgs();
     }
     List<Value> getArgs();

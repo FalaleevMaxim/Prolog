@@ -25,7 +25,7 @@ public class SavePredicate extends AbstractPredicate {
         Value fileNameArg = args.get(0);
         if(isFreeVariable(fileNameArg))
             throw new FreeVariableException("File name for save is free variable", (Variable) fileNameArg);
-        String fileName = (String) fileNameArg.getValue();
+        String fileName = (String) fileNameArg.getContent();
         try {
             PrintWriter pw = new PrintWriter(fileName);
             pw.print(context.programContext().database().save());

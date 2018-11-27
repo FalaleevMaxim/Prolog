@@ -38,7 +38,7 @@ public class ListValue implements PrologList {
     }
 
     @Override
-    public Value getValue() {
+    public Value getContent() {
         return head;
     }
 
@@ -49,11 +49,10 @@ public class ListValue implements PrologList {
         if(isEmpty() && otherList.isEmpty()) return true;
         if(this.isEmpty() || otherList.isEmpty()) return false;
         if(!head.unify(otherList.head())) return false;
-        PrologList tail = tail();
         PrologList otherTail = otherList.tail();
-        if(tail==null && otherTail==null) return true;
-        if(tail==null || otherTail==null) return false;
-        return tail.unify(otherTail);
+        if (tail() == null && otherTail == null) return true;
+        if (tail() == null || otherTail == null) return false;
+        return tail().unify(otherTail);
     }
 
     @Override
@@ -72,7 +71,7 @@ public class ListValue implements PrologList {
                 model.setTail((VariableModel) list.toModel());
                 break;
             }
-            model.addElement(list.getValue().toModel());
+            model.addElement(list.getContent().toModel());
         }
         return model;
     }

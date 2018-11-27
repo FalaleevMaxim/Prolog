@@ -25,7 +25,7 @@ public class RandomPredicate extends AbstractPredicate {
     @Override
     public PredicateResult run(PredicateContext context, List<Value> args) {
         //Получение из аргументов максимального числа
-        Integer max = (Integer)args.get(0).getValue();
+        Integer max = (Integer) args.get(0).getContent();
 
         //Исключение, если первый аргумент (максимальное число) - свободная переменная
         if(max==null) throw new FreeVariableException((Variable) args.get(0));

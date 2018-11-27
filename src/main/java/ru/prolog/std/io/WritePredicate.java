@@ -28,8 +28,8 @@ public class WritePredicate extends AbstractPredicate {
             OutputDevice out = context.programContext().getOutputDevices();
 
             //toString() of SimpleValue for string or char type returns string with quotes and escape-characters.
-            // That is good for printing in list or functor, but for just printing string or char you need to print value
-            if(isStringOrChar(arg)) out.print(arg.getValue().toString());
+            // That is good for printing in list or functor, but for just printing string or char you need to print content
+            if (isStringOrChar(arg)) out.print(arg.getContent().toString());
             else out.print(arg.toString());
         }
         return PredicateResult.LAST_RESULT;

@@ -14,7 +14,7 @@ public class StrIntCastPredicate extends AbstractCastPredicate {
         if(isFreeVariable(left)){
             return new SimpleValue(typeStorage.get("string"), right.toString()).unify(left);
         }
-        String str = (String) left.getValue();
+        String str = (String) left.getContent();
         try{
             return new SimpleValue(typeStorage.get("integer"), Integer.valueOf(str)).unify(right);
         }catch (NumberFormatException nfe){

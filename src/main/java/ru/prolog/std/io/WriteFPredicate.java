@@ -19,7 +19,7 @@ public class WriteFPredicate extends AbstractPredicate{
 
     @Override
     public PredicateResult run(PredicateContext context, List<Value> args) {
-        String format = (String)args.get(0).getValue();
+        String format = (String) args.get(0).getContent();
         OutputDevice out = context.programContext().getOutputDevices();
         out.print(ToStringUtil.prologFormat(format, args.subList(1,args.size())));
         return PredicateResult.LAST_RESULT;

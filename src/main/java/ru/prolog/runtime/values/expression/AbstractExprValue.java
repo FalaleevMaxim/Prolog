@@ -36,7 +36,7 @@ public abstract class AbstractExprValue implements ExprValue {
         int freeCount = freeVars.size();
         //Если свободных переменных нет, сравниваем значения
         if (freeCount == 0)
-            return other.getValue().equals(getValue());
+            return other.getContent().equals(getContent());
         //Если одна переменная, то пытаемся найти её значение из результата выражение (с которым унифицируемся)
         if (freeCount == 1) {
             reverse(other);
@@ -48,7 +48,7 @@ public abstract class AbstractExprValue implements ExprValue {
 
     @Override
     public String toString() {
-        return getValue().toString();
+        return getContent().toString();
     }
 
     protected void checkFreeVariables(){

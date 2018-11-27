@@ -15,7 +15,7 @@ import java.util.Set;
 
 public class ListVariableImpl extends ListValue implements ListVariable {
     private RuleContext ruleContext;
-    //В отличие от ListValue, null значение value может означать как пустой список, так и отсутствие значения переменной
+    //В отличие от ListValue, null значение content может означать как пустой список, так и отсутствие значения переменной
     //isEmpty true означает, что переменная содержит пустой список.
     private boolean isEmpty;
     private Set<Variable> related;
@@ -40,7 +40,7 @@ public class ListVariableImpl extends ListValue implements ListVariable {
                 return true;
             }
         }
-        applyValue(other);
+        setContent(other);
         return true;
     }
 
@@ -104,22 +104,6 @@ public class ListVariableImpl extends ListValue implements ListVariable {
     }
 
     @Override
-    public void applyValue(Value value) {
-        if(!isFree()) return;
-        ListValue listValue = (ListValue) value;
-        if(listValue.isEmpty()){
-            isEmpty = true;
-        }else{
-            this.head = listValue.getValue();
-            if(!listValue.isLast()){
-                this.tail = listValue.tail();
-            }
-        }
-
-        if(related!=null) related.forEach(var->var.applyValue(value));
-    }
-
-    @Override
     public boolean isFree(){
         return !isEmpty && head ==null;
     }
@@ -148,5 +132,20 @@ public class ListVariableImpl extends ListValue implements ListVariable {
     public String toString() {
         if(isFree()) return name;
         return super.toString();
+    }
+
+    private void setContent(Value value) {
+        if (!isFree()) return;
+        ListValue listValue = (ListValue) value;
+        if (listValue.isEmpty()) {
+            isEmpty = true;
+        } else {
+            this.head = listValue.getContent();
+            if (!listValue.isLast()) {
+                this.tail = listValue.tail();
+            }
+        }
+
+        if (related != null) related.forEach(var -> var.unify(value));
     }
 }

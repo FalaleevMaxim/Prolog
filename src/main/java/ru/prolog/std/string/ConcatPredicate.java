@@ -30,8 +30,8 @@ public class ConcatPredicate extends AbstractPredicate {
 
         //If first two not free, unify their sum with third arg.
         if(!isFreeVariable(strVal1) && !isFreeVariable(strVal2)){
-            String s1 = (String) strVal1.getValue();
-            String s2 = (String) strVal2.getValue();
+            String s1 = (String) strVal1.getContent();
+            String s2 = (String) strVal2.getContent();
             return new SimpleValue(string, s1 + s2).unify(strSumVal)
                     ? PredicateResult.NEXT_RESULT
                     : PredicateResult.FAIL;
@@ -46,11 +46,11 @@ public class ConcatPredicate extends AbstractPredicate {
                 throw new FreeVariableException("One of strings ans sum string ("+free+" and "+strSumVal+") in concat predicate are free variables", free);
         }
 
-        String sum = (String) strSumVal.getValue();
+        String sum = (String) strSumVal.getContent();
 
         //Calculate 2nd string from 1st and sum
         if(!isFreeVariable(strVal1)){
-            String s1 = (String) strVal1.getValue();
+            String s1 = (String) strVal1.getContent();
             if (sum.length() < s1.length()) return PredicateResult.FAIL;
             String s1FromSum = sum.substring(0, s1.length());
             if (!s1.equals(s1FromSum)) return PredicateResult.FAIL;
@@ -62,7 +62,7 @@ public class ConcatPredicate extends AbstractPredicate {
 
         //Calculate 1st string from 2nd and sum
         if(!isFreeVariable(strVal2)){
-            String s2 = (String) strVal2.getValue();
+            String s2 = (String) strVal2.getContent();
             if (sum.length() < s2.length()) return PredicateResult.FAIL;
             String s2FromSum = sum.substring(s2.length());
             if (!s2.equals(s2FromSum)) return PredicateResult.FAIL;

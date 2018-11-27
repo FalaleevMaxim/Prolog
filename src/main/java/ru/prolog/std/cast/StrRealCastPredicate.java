@@ -14,7 +14,7 @@ public class StrRealCastPredicate extends AbstractCastPredicate {
         if(isFreeVariable(left)){
             return new SimpleValue(typeStorage.get("string"), right.toString()).unify(left);
         }
-        String str = (String) left.getValue();
+        String str = (String) left.getContent();
         try{
             return new SimpleValue(typeStorage.get("real"), Double.valueOf(str)).unify(right);
         }catch (NumberFormatException nfe){

@@ -19,10 +19,10 @@ public abstract class IntRealExpr extends AbstractBinaryExpr {
     }
 
     @Override
-    public Number getValue() {
+    public Number getContent() {
         checkFreeVariables();
-        Number lVal = left.getValue();
-        Number rVal = right.getValue();
+        Number lVal = left.getContent();
+        Number rVal = right.getContent();
         if(left.getType().getPrimitiveType().isReal() || right.getType().getPrimitiveType().isReal()){
             double l = lVal.doubleValue();
             double r = rVal.doubleValue();

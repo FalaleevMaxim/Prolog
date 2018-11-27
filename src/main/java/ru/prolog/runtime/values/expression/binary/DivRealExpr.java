@@ -9,9 +9,9 @@ public class DivRealExpr extends AbstractBinaryExpr {
     }
 
     @Override
-    public Double getValue() {
+    public Double getContent() {
         checkFreeVariables();
-        return left.getValue().doubleValue() / right.getValue().doubleValue();
+        return left.getContent().doubleValue() / right.getContent().doubleValue();
     }
 
     @Override

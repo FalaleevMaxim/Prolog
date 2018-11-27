@@ -31,13 +31,13 @@ public class MinusExpr extends IntRealExpr {
 
     private void reverseInteger(Value res) {
         if (left.innerFreeVariables().size() > 0) {
-            Integer rightVal = (Integer) right.getValue();
-            Integer resVal = (Integer) res.getValue();
+            Integer rightVal = (Integer) right.getContent();
+            Integer resVal = (Integer) res.getContent();
             res = new SimpleValue(left.getType(), rightVal + resVal);
             left.unify(res);
         } else {
-            Integer leftVal = (Integer) left.getValue();
-            Integer resVal = (Integer) res.getValue();
+            Integer leftVal = (Integer) left.getContent();
+            Integer resVal = (Integer) res.getContent();
             res = new SimpleValue(left.getType(), leftVal - resVal);
             right.unify(res);
         }
@@ -46,14 +46,14 @@ public class MinusExpr extends IntRealExpr {
     private void reverseReal(Value res) {
         if (left.innerFreeVariables().size() > 0) {
             checkFreeNotInteger(left);
-            Double rightVal = right.getValue().doubleValue();
-            Double resVal = (Double) res.getValue();
+            Double rightVal = right.getContent().doubleValue();
+            Double resVal = (Double) res.getContent();
             res = new SimpleValue(left.getType(), rightVal + resVal);
             left.unify(res);
         } else {
             checkFreeNotInteger(right);
-            Double leftVal = left.getValue().doubleValue();
-            Double resVal = (Double) res.getValue();
+            Double leftVal = left.getContent().doubleValue();
+            Double resVal = (Double) res.getContent();
             res = new SimpleValue(left.getType(), leftVal - resVal);
             right.unify(res);
         }

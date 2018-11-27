@@ -12,11 +12,11 @@ public class IntCharCastPredicate extends AbstractCastPredicate {
     @Override
     protected boolean castUnify(Value left, Value right) {
         if(isFreeVariable(left)){
-            char value = (Character)right.getValue();
+            char value = (Character) right.getContent();
             Integer intVal = (int)value;
             return new SimpleValue(typeStorage.get("integer"), intVal).unify(left);
         }
-        int value = (Integer)left.getValue();
+        int value = (Integer) left.getContent();
         if(value<0 || value>Character.MAX_VALUE) return false;
         Character c = (char) value;
         return new SimpleValue(typeStorage.get("char"), c).unify(right);

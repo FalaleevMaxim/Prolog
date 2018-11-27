@@ -12,8 +12,8 @@ public class RealIntCastPredicate extends AbstractCastPredicate {
     @Override
     protected boolean castUnify(Value left, Value right) {
         if(isFreeVariable(left)){
-            return new SimpleValue(typeStorage.get("real"), ((Number) right.getValue()).doubleValue()).unify(left);
+            return new SimpleValue(typeStorage.get("real"), ((Number) right.getContent()).doubleValue()).unify(left);
         }
-        return new SimpleValue(typeStorage.get("integer"), ((Number) left.getValue()).intValue()).unify(right);
+        return new SimpleValue(typeStorage.get("integer"), ((Number) left.getContent()).intValue()).unify(right);
     }
 }

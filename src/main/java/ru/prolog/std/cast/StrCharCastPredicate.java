@@ -12,9 +12,9 @@ public class StrCharCastPredicate extends AbstractCastPredicate {
     @Override
     protected boolean castUnify(Value left, Value right) {
         if(isFreeVariable(left)){
-            return new SimpleValue(typeStorage.get("string"), right.getValue().toString()).unify(left);
+            return new SimpleValue(typeStorage.get("string"), right.getContent().toString()).unify(left);
         }
-        String str = (String) left.getValue();
+        String str = (String) left.getContent();
         if(str.length()!=1) return false;
         return new SimpleValue(typeStorage.get("char"), str.charAt(0)).unify(right);
     }

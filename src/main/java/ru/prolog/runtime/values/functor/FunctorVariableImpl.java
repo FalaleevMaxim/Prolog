@@ -36,7 +36,7 @@ public class FunctorVariableImpl extends FunctorValueImpl implements FunctorVari
                 return true;
             }
         }
-        applyValue(other);
+        setContent(other);
         return true;
     }
 
@@ -92,15 +92,6 @@ public class FunctorVariableImpl extends FunctorValueImpl implements FunctorVari
     }
 
     @Override
-    public void applyValue(Value value) {
-        if(!isFree()) return;
-        FunctorValue funcVal = (FunctorValue)value;
-        functorName = funcVal.getFunctorName();
-        args = funcVal.getValue();
-        if(related!=null) related.forEach(var->var.applyValue(value));
-    }
-
-    @Override
     public void setFree() {
         functorName = null;
         args = null;
@@ -120,5 +111,13 @@ public class FunctorVariableImpl extends FunctorValueImpl implements FunctorVari
     public String toString() {
         if(isFree()) return name;
         return super.toString();
+    }
+
+    private void setContent(Value value) {
+        if (!isFree()) return;
+        FunctorValue funcVal = (FunctorValue) value;
+        functorName = funcVal.getFunctorName();
+        args = funcVal.getContent();
+        if (related != null) related.forEach(var -> var.unify(value));
     }
 }

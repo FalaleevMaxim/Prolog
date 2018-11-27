@@ -20,7 +20,7 @@ public class FrontCharPredicate extends AbstractPredicate {
     @Override
     public PredicateResult run(PredicateContext context, List<Value> args) {
         if(!isFreeVariable(args.get(0))){
-            String str = (String) args.get(0).getValue();
+            String str = (String) args.get(0).getContent();
             char front = str.charAt(0);
             String rest = str.substring(1);
             if (!new SimpleValue(typeStorage.get("char"), front).unify(args.get(1))) return PredicateResult.FAIL;
@@ -32,8 +32,8 @@ public class FrontCharPredicate extends AbstractPredicate {
             throw new FreeVariableException("Full string and front char are free variables", (Variable) args.get(1));
         if(isFreeVariable(args.get(2)))
             throw new FreeVariableException("Full string and ret part are free variables", (Variable) args.get(2));
-        char front = (char) args.get(1).getValue();
-        String rest = (String) args.get(2).getValue();
+        char front = (char) args.get(1).getContent();
+        String rest = (String) args.get(2).getContent();
         String full = front+rest;
         if (!new SimpleValue(typeStorage.get("string"), full).unify(args.get(0))) return PredicateResult.FAIL;
         return PredicateResult.LAST_RESULT;

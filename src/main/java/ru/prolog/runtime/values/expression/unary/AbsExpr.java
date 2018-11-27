@@ -9,9 +9,9 @@ public class AbsExpr extends AbstractUnaryExpr{
     }
 
     @Override
-    public Number getValue() {
+    public Number getContent() {
         checkFreeVariables();
-        Number innerVal = innerExpr.getValue();
+        Number innerVal = innerExpr.getContent();
         if(innerExpr.getType().getPrimitiveType().isReal())
             return Math.abs(innerVal.doubleValue());
         return Math.abs(innerVal.intValue());

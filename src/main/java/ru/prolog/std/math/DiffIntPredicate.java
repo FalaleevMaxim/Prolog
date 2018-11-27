@@ -30,9 +30,9 @@ public class DiffIntPredicate extends AbstractPredicate {
         if(freeCount>1){
             throw new FreeVariableException("More than one free variable in diffInt predicate", (Variable) firstFree);
         }
-        Integer left = (Integer)args.get(0).getValue();
-        Integer right = (Integer)args.get(1).getValue();
-        Integer diff = (Integer)args.get(2).getValue();
+        Integer left = (Integer) args.get(0).getContent();
+        Integer right = (Integer) args.get(1).getContent();
+        Integer diff = (Integer) args.get(2).getContent();
         if(left==null){
             return new SimpleValue(typeStorage.get("integer"), diff + right).unify(args.get(0))
                     ? PredicateResult.LAST_RESULT

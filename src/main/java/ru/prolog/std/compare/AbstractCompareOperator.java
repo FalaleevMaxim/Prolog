@@ -22,19 +22,19 @@ public abstract class AbstractCompareOperator extends AbstractPredicate {
         List<Variable> free = args.get(0).innerFreeVariables();
         if (free.isEmpty()) free = args.get(1).innerFreeVariables();
         if (!free.isEmpty())
-            throw new FreeVariableException("Free variable " + free.get(0) + " in compare operator " + name, free.get(0));
+            throw new FreeVariableException(String.format("Free variable %s in compare operator %s", free.get(0), name), free.get(0));
         if (!args.get(0).getType().isPrimitive())
-            throw new PrologRuntimeException("Illegal argument " + args.get(0) + " for operator " + name + ". Can compare only primitives.");
+            throw new PrologRuntimeException(String.format("Illegal argument %s for operator %s. Can compare only primitives.", args.get(0), name));
         if (!args.get(1).getType().isPrimitive())
-            throw new PrologRuntimeException("Illegal argument " + args.get(0) + " for operator " + name + ". Can compare only primitives.");
+            throw new PrologRuntimeException(String.format("Illegal argument %s for operator %s. Can compare only primitives.", args.get(0), name));
         if (args.get(0).getType().getPrimitiveType().isString()) {
             if (!args.get(1).getType().getPrimitiveType().isString())
-                throw new PrologRuntimeException("Illegal arguments " + args.get(0) + " and " + args.get(1) + " for operator " + name + ". Can not compare string with number.");
-            return compareStrings((String) args.get(0).getValue(), (String) args.get(1).getValue()) >= 0
+                throw new PrologRuntimeException(String.format("Illegal arguments %s and %s for operator %s. Can not compare string with number.", args.get(0), args.get(1), name));
+            return compareStrings((String) args.get(0).getContent(), (String) args.get(1).getContent()) >= 0
                     ? PredicateResult.LAST_RESULT
                     : PredicateResult.FAIL;
         }
-        return compareNumbers(((Number) args.get(0).getValue()).doubleValue(), ((Number) args.get(1).getValue()).doubleValue()) >= 0
+        return compareNumbers(((Number) args.get(0).getContent()).doubleValue(), ((Number) args.get(1).getContent()).doubleValue()) >= 0
                 ? PredicateResult.LAST_RESULT
                 : PredicateResult.FAIL;
     }

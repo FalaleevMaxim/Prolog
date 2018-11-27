@@ -9,9 +9,9 @@ public class SinExpr extends AbstractUnaryExpr {
     }
 
     @Override
-    public Double getValue() {
+    public Double getContent() {
         checkFreeVariables();
-        return Math.sin(innerExpr.getValue().doubleValue());
+        return Math.sin(innerExpr.getContent().doubleValue());
     }
 
     @Override

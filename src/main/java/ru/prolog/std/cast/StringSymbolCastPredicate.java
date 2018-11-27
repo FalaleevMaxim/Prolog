@@ -12,8 +12,8 @@ public class StringSymbolCastPredicate extends AbstractCastPredicate {
     @Override
     protected boolean castUnify(Value left, Value right) {
         if(isFreeVariable(left)){
-            return new SimpleValue(typeStorage.get("string"), right.getValue()).unify(left);
+            return new SimpleValue(typeStorage.get("string"), right.getContent()).unify(left);
         }
-        return new SimpleValue(typeStorage.get("symbol"), left.getValue()).unify(right);
+        return new SimpleValue(typeStorage.get("symbol"), left.getContent()).unify(right);
     }
 }

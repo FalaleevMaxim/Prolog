@@ -12,9 +12,9 @@ public class MinusUnaryExpr extends AbstractUnaryExpr {
     }
 
     @Override
-    public Number getValue() {
+    public Number getContent() {
         checkFreeVariables();
-        Number innerVal = innerExpr.getValue();
+        Number innerVal = innerExpr.getContent();
         if(innerExpr.getType().getPrimitiveType().isReal())
             return -innerVal.doubleValue();
         return -innerVal.intValue();
@@ -28,9 +28,9 @@ public class MinusUnaryExpr extends AbstractUnaryExpr {
     @Override
     protected void reverse(Value res) {
         Object val;
-        if (res.getValue() instanceof Integer)
-            val = -((Integer) res.getValue());
-        else val = -((Double) res.getValue());
+        if (res.getContent() instanceof Integer)
+            val = -((Integer) res.getContent());
+        else val = -((Double) res.getContent());
         innerExpr.unify(new SimpleValue(res.getType(), val));
     }
 }

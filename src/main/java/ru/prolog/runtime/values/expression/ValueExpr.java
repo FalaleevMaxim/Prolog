@@ -16,8 +16,8 @@ public class ValueExpr extends AbstractExprValue {
     }
 
     @Override
-    public Number getValue() {
-        return (Number)value.getValue();
+    public Number getContent() {
+        return (Number) value.getContent();
     }
 
     @Override

@@ -28,7 +28,7 @@ public class ConsultPredicate extends AbstractPredicate {
         Value arg = args.get(0);
         if(isFreeVariable(arg))
             throw new FreeVariableException("File name for consult is free variable", (Variable) arg);
-        String fileName = (String) arg.getValue();
+        String fileName = (String) arg.getContent();
 
         try {
             List<CompileException> exceptions = new ArrayList<>();

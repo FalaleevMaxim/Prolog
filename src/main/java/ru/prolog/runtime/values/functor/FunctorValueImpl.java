@@ -48,8 +48,8 @@ public class FunctorValueImpl implements FunctorValue {
             return false;
         }
         //Unify args
-        for(int i=0; i<otherFunc.getValue().size(); i++){
-            if(!otherFunc.getValue().get(i).unify(this.getValue().get(i)))
+        for (int i = 0; i < otherFunc.getContent().size(); i++) {
+            if (!otherFunc.getContent().get(i).unify(this.getContent().get(i)))
                 return false;
         }
         return true;
