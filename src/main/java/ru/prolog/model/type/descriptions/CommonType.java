@@ -1,18 +1,30 @@
 package ru.prolog.model.type.descriptions;
 
 /**
- * Type for predicate arguments which can be any type
- * Values and variables can not use this type
+ * Тип для аргументов предиката, которые могут быть любого типа.
+ * Не может использоваться в качестве типа для значения или переменной.
  */
 public class CommonType {
-    public final Type type;
+    /**
+     * Вид обобщённного типа
+     */
+    public final CommonTypeKind kind;
 
-    public CommonType(Type type) {
-        this.type = type;
+    public CommonType(CommonTypeKind kind) {
+        this.kind = kind;
     }
 
-    public enum Type{
-        ANY,//one argument of any type
+    /**
+     * Вид обобщённого типа
+     */
+    public enum CommonTypeKind {
+        /**
+         * Один аргумент любого типа
+         */
+        ANY,
+        /**
+         * Один или более аргументов любого типа
+         */
         VARARG//one or more arguments of any types
     }
 
@@ -23,11 +35,11 @@ public class CommonType {
 
         CommonType that = (CommonType) o;
 
-        return type == that.type;
+        return kind == that.kind;
     }
 
     @Override
     public int hashCode() {
-        return type.hashCode();
+        return kind.hashCode();
     }
 }

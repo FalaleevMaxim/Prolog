@@ -26,4 +26,20 @@ public interface PrologWindow extends OutputDevice, InputDevice {
      * Очищает содержимое окна.
      */
     void clear();
+
+    /**
+     * Устанавливает цвет текста и фона кодом.
+     *
+     * @param code Код цвета текста и фона
+     * @see WindowColor#textAndBackgroundColors(int)
+     */
+    void setTextAndBgColor(int code);
+
+    /**
+     * Устанавливает цвет рамки кодом.
+     *
+     * @param code код цвета рамки
+     * @see WindowColor#windowBorderColor(int)
+     */
+    void setFrameColor(int code);
 }

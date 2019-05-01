@@ -3,6 +3,7 @@ package ru.prolog.model.predicate;
 import ru.prolog.etc.exceptions.model.ModelStateException;
 import ru.prolog.etc.exceptions.model.predicate.PredicateArgTypeNotExistsException;
 import ru.prolog.etc.exceptions.model.predicate.VarArgNotLastException;
+import ru.prolog.etc.exceptions.runtime.FreeVariablesException;
 import ru.prolog.model.AbstractModelObject;
 import ru.prolog.model.storage.type.TypeStorage;
 import ru.prolog.model.type.Type;
@@ -137,16 +138,6 @@ public abstract class AbstractPredicate extends AbstractModelObject implements P
         return ToStringUtil.funcToString(name, argTypes);
     }
 
-    /**
-     * Проверяет, является ли переданное значение свободной переменной. Может пригодиться при реализации метода {@link #run(PredicateContext, List)}
-     *
-     * @param arg проверяемое значение
-     * @return {@code true} если значение является переменной
-     */
-    protected static boolean isFreeVariable(Value arg){
-        return arg instanceof Variable && ((Variable) arg).isFree();
-    }
-
     protected static int getRuleNumberToStart(PredicateContext context) {
         Integer startWith = (Integer) context.getContextData(KEY_START_RULE);
         return startWith == null ? 0 : startWith;
@@ -154,5 +145,36 @@ public abstract class AbstractPredicate extends AbstractModelObject implements P
 
     protected static void setSuccessRule(PredicateContext context, int num) {
         context.putContextData(KEY_START_RULE, num);
+    }
+
+    /**
+     * Проверяет, является ли переданное значение свободной переменной. Может пригодиться при реализации метода {@link #run(PredicateContext, List)}
+     *
+     * @param arg проверяемое значение
+     * @return {@code true} если значение является переменной
+     */
+    protected static boolean isFreeVariable(Value arg) {
+        return arg instanceof Variable && ((Variable) arg).isFree();
+    }
+
+    /**
+     * Проверяет, содержит ли список аргументов свободные переменные.
+     * Бросает исключение {@link FreeVariablesException} если есть хотя бы одна свободная переменная.
+     *
+     * @param args Аргументы предиката, в которых не должно быть свободных переменных.
+     */
+    protected void checkFreeVariables(List<Value> args) {
+        List<Variable> freeVariables = args.stream()
+                .filter(AbstractPredicate::isFreeVariable)
+                .map(value -> (Variable) value)
+                .collect(Collectors.toList());
+        if (!freeVariables.isEmpty()) {
+            throw new FreeVariablesException(
+                    String.format("Free variables %s in makeWindow predicate",
+                            freeVariables.toString()
+                                    .replace('[', '(')
+                                    .replace(']', ')')),
+                    freeVariables);
+        }
     }
 }

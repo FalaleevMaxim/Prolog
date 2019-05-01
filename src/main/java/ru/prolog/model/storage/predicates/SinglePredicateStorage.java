@@ -26,12 +26,12 @@ public class SinglePredicateStorage extends AbstractModelObject implements Predi
 
     @Override
     public Collection<Predicate> get(String name) {
-        return predicate.getName().equals(name)?predicateCollection:null;
+        return predicate.getName().toLowerCase().equals(name) ? predicateCollection : null;
     }
 
     @Override
     public Predicate get(String name, int arity) {
-        return (predicate.getName().equals(name) && predicate.getArity()==arity )?predicate:null;
+        return (predicate.getName().toLowerCase().equals(name) && predicate.getArity() == arity) ? predicate : null;
     }
 
     @Override
@@ -41,7 +41,12 @@ public class SinglePredicateStorage extends AbstractModelObject implements Predi
 
     @Override
     public Predicate getFitting(String name, List<Type> types) {
-        return predicate.getName().equals(name)?predicate:null;
+        return predicate.getName().equals(name) ? predicate : null;
+    }
+
+    @Override
+    public int matchArgTypes(Predicate p, List<Type> types) {
+        return 0;
     }
 
     @Override

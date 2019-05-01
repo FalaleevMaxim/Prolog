@@ -6,7 +6,7 @@ import ru.prolog.model.AbstractModelObject;
 import java.util.*;
 
 /**
- * Type consisting of one or more functors.
+ * Составной тип, состоящий из одного или нескольких функторов.
  */
 public class CompoundType extends AbstractModelObject{
     private Map<String, Functor> functors;

@@ -58,6 +58,7 @@ public class FunctorType extends AbstractModelObject implements Functor{
 
     @Override
     public void setCompoundType(CompoundType type) {
+        if (fixed) throw new IllegalStateException("State is fixed. You can not change it anymore.");
         this.compoundType = type;
     }
 

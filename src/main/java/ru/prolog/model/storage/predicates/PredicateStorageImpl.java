@@ -35,24 +35,26 @@ public class PredicateStorageImpl extends AbstractModelObject implements Predica
 
     @Override
     public Collection<Predicate> get(String name) {
+        name = name.toLowerCase();
         if (!predicates.containsKey(name)) return Collections.emptyList();
         return predicates.get(name).values();
     }
 
     @Override
     public Predicate get(String name, int arity) {
+        name = name.toLowerCase();
         if (!predicates.containsKey(name)) return null;
         return predicates.get(name).get(arity);
     }
 
     @Override
     public Predicate getVarArgPredicate(String name) {
-        if (!predicates.containsKey(name)) return null;
-        return predicates.get(name).get(Integer.MAX_VALUE);
+        return get(name, Integer.MAX_VALUE);
     }
 
     @Override
     public Predicate getFitting(String name, List<Type> types) {
+        name = name.toLowerCase();
         if (!predicates.containsKey(name)) return null;
         Predicate p = get(name, types.size());
         if (p == null) p = getVarArgPredicate(name);
@@ -72,27 +74,16 @@ public class PredicateStorageImpl extends AbstractModelObject implements Predica
         return p;
     }
 
-    private int matchArgTypes(Predicate p, List<Type> types) {
-        int count = 0;
-        for (int i = 0; i < p.getArgTypeNames().size() && i < types.size(); i++) {
-            Type predType = p.getTypeStorage().get(p.getArgTypeNames().get(i));
-            Type reqType = types.get(i);
-            if (predType.isCommonType() || predType.equals(reqType)) {
-                count++;
-            }
-        }
-        return count;
-    }
-
     @Override
     public void add(Predicate predicate) {
         if (fixed) throw new IllegalStateException("State is fixed. You can not change it anymore.");
         SortedMap<Integer, Predicate> predMap;
-        if (!predicates.containsKey(predicate.getName())) {
+        String name = predicate.getName().toLowerCase();
+        if (!predicates.containsKey(name)) {
             predMap = new TreeMap<>();
-            predicates.put(predicate.getName(), predMap);
+            predicates.put(name, predMap);
         } else {
-            predMap = predicates.get(predicate.getName());
+            predMap = predicates.get(name);
         }
         int arity = predicate.getArity();
         if (!predMap.containsKey(arity)) {
@@ -165,13 +156,16 @@ public class PredicateStorageImpl extends AbstractModelObject implements Predica
                 .forEach(this::add);
     }
 
+    /**
+     * Проверяет, является ли предикат встроенным.
+     * Все встроенные предикаты находятся в пакете {@link ru.prolog.std}
+     *
+     * @param p Проверяемый предикат.
+     * @return true если класс предиката находится внутри {@link ru.prolog.std}
+     */
     @Override
     public boolean isBuiltInPredicate(Predicate p) {
-        Reflections reflections = new Reflections("ru.prolog.std");
-        Set<Class<? extends Predicate>> builtInPredClasses = reflections.getSubTypesOf(AbstractPredicate.class).stream()
-                .filter(c -> !Modifier.isAbstract(c.getModifiers()))
-                .collect(Collectors.toSet());
-        return builtInPredClasses.contains(p.getClass());
+        return p.getClass().getPackage().getName().startsWith("ru.prolog.std");
     }
 
     /**
