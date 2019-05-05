@@ -25,7 +25,7 @@ public class SimpleVariable extends SimpleValue implements Variable {
     private Backup lastBackup;
 
     public SimpleVariable(Type type, String name, RuleContext ruleContext) {
-        super(type, null);
+        super(type);
         this.name = name;
         this.ruleContext = ruleContext;
     }
