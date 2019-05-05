@@ -139,7 +139,7 @@ REAL:INT '.' INT;
 INTEGER:INT
        |'$' HEX_INT
        ;
-STRING:'"' (ESC|~'"')* '"';
+STRING:'"' (ESC|~["\\])* '"';
 CHAR: '\'' (ESC|~'\'') '\'';
 
 LSQ:'[';
@@ -164,6 +164,7 @@ fragment HEX:DIGIT
             |'a'..'f'
             ;
 fragment ESC:'\\"'
+            |'\\\\'
             |'\\t'
             |'\\r'
             |'\\n'

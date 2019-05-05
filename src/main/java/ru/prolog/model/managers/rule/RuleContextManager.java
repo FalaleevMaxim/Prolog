@@ -11,6 +11,4 @@ import java.util.List;
 
 public interface RuleContextManager extends Manager<RuleContext> {
     RuleContext context(Rule rule, List<Value> args, PredicateContext predicateContext);
-
-    RuleContext context(Rule rule, List<Value> args, ProgramContext programContext);
 }

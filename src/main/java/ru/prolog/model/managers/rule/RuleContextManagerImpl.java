@@ -29,10 +29,4 @@ public class RuleContextManagerImpl extends AbstractManager<RuleContext> impleme
         RuleContext ruleContext = new BaseRuleContext(rule, args, predicateContext);
         return decorate(ruleContext);
     }
-
-    @Override
-    public RuleContext context(Rule rule, List<Value> args, ProgramContext programContext) {
-        RuleContext ruleContext = new BaseRuleContext(rule, args, programContext);
-        return decorate(ruleContext);
-    }
 }

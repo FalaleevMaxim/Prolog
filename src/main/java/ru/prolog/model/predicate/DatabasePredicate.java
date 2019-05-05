@@ -12,7 +12,6 @@ import ru.prolog.runtime.context.predicate.PredicateContext;
 import ru.prolog.runtime.context.rule.RuleContext;
 import ru.prolog.runtime.values.Value;
 import ru.prolog.util.NameChecker;
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -91,6 +90,5 @@ public class DatabasePredicate extends AbstractPrologPredicate implements Functo
 
     @Override
     public void setCompoundType(CompoundType type) {
-        throw new NotImplementedException();
     }
 }
