@@ -22,7 +22,7 @@ public enum TokenType {
     RB(SYNTAX, new RightBracketRecognizer()),
     COMMA(SYNTAX, new CommaRecognizer()),
     SEMICOLON(SYNTAX, new SemicolonRecognizer()),
-    IF_IGN(SYNTAX, new IfSignRecognizer()),
+    IF_SIGN(SYNTAX, new IfSignRecognizer()),
     IF_KEYWORD(SYNTAX, new IfKeywordRecognizer());
 
 
