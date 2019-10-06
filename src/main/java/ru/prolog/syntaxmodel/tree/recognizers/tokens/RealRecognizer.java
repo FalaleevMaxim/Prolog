@@ -10,6 +10,9 @@ import static ru.prolog.syntaxmodel.tree.recognizers.RecognitionResult.NOT_RECOG
 /**
  * Распознаёт токен-вещественное число.
  * Не распознаёт токен, если в нём нет точки. Число без точки целое, и распознавать его нужно с помощью {@link IntegerRecognizer}
+ * Знаки + или - не входят в состав числа, т.к. могут быть отдельными токенами даже находясь вплотную к цифрам.
+ * Например, знаки в выражениях p(-1.1) и X=Y-1.1 имеют разный смысл. Во втором случае знак входит в состав грамматической констркции (математического выражения), а не числа.
+ * Поэтому лучше сделать знак отдельным токеном, а число со знаком сделть синтаксической конструкцией.
  */
 public class RealRecognizer extends TokenRecognizer {
 
@@ -17,9 +20,6 @@ public class RealRecognizer extends TokenRecognizer {
     public RecognitionResult recognize(CharSequence code) {
         if (code.length() == 0) return NOT_RECOGNIZED;
         int i = 0;
-        char first = code.charAt(0);
-        if (first == '+' || first == '-') i++;
-        if (code.length() == i) new RecognitionResult(0);
         Predicate<Character> digitCondition = c -> c >= '0' && c <= '9';
 
         int beforePoint = matchCharacters(code.subSequence(i, code.length() - 1), digitCondition);
@@ -29,8 +29,8 @@ public class RealRecognizer extends TokenRecognizer {
         i++;
         int afterPoint = (i == code.length()) ? 0 : matchCharacters(code.subSequence(i, code.length()), digitCondition);
         if (afterPoint == 0 && beforePoint == 0) {
-            return new RecognitionResult(i, true, new Hint("No digits before and after point", null));
+            return new RecognitionResult(tokenText(code, i), true, new Hint("No digits before and after point", null));
         }
-        return new RecognitionResult(i + afterPoint);
+        return new RecognitionResult(tokenText(code, i + afterPoint));
     }
 }

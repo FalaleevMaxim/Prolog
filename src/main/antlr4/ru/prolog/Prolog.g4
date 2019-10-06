@@ -148,7 +148,7 @@ LPAR :'(';
 RPAR :')';
 
 COMMENT: '/*' ('/'*? COMMENT | ('/'* | '*'*) ~[/*])*? '*'*? '*/' -> skip;
-LINE_COMMENT:'//' ~[\r\n]* -> skip;
+LINE_COMMENT:'%' ~[\r\n]* -> skip;
 
 WS:[ \t]->skip;
 NL:'\r'?'\n'->skip;

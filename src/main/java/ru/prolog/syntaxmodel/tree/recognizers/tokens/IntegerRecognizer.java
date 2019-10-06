@@ -9,6 +9,9 @@ import static ru.prolog.syntaxmodel.tree.recognizers.RecognitionResult.NOT_RECOG
 
 /**
  * Распознаёт токен-целое число.
+ * Знаки + или - не входят в состав числа, т.к. могут быть отдельными токенами даже находясь вплотную к цифрам.
+ * Например, знаки в выражениях p(-1) и X=Y-1 имеют разный смысл. Во втором случае знак входит в состав грамматической констркции (математического выражения), а не числа.
+ * Поэтому лучше сделать знак отдельным токеном, а число со знаком сделть синтаксической конструкцией.
  */
 public class IntegerRecognizer extends TokenRecognizer {
 
@@ -16,9 +19,6 @@ public class IntegerRecognizer extends TokenRecognizer {
     public RecognitionResult recognize(CharSequence code) {
         if (code.length() == 0) return NOT_RECOGNIZED;
         int i = 0;
-        char first = code.charAt(0);
-        if (first == '+' || first == '-') i++;
-        if (code.length() == i) new RecognitionResult(0);
         Predicate<Character> digitCondition = charBetween('0', '9');
         //После $ число в шестнадцатиричной системе.
         boolean hex = code.charAt(i) == '$';
@@ -31,7 +31,7 @@ public class IntegerRecognizer extends TokenRecognizer {
         if (digitsCount == 0) {
             if (hex) {
                 //Знак $ используется только в целых числах, поэтому его наличия достаточно чтобы частично определить токен.
-                return new RecognitionResult(i, true, new Hint("Missing digits after '$'", null));
+                return new RecognitionResult(tokenText(code, i), true, new Hint("Missing digits after '$'", null));
             } else {
                 //Если не распознано ни одной цифры, то токен не распознан совсем.
                 return NOT_RECOGNIZED;
@@ -41,13 +41,13 @@ public class IntegerRecognizer extends TokenRecognizer {
         //Если за числом следует точка, то это число должно распознаваться как вещественное.
         boolean pointAfter = code.length() > i && code.charAt(i) == '.';
         //Но только если число не шестнадцатиричное. Шестнадцатиричным может быть только целое число.
-        //Если за шестнадцатиричным числом следует точка, то шестнадцатиричное число будет распознано, а позже точка будет нераспознанным токеном.
+        //Если за шестнадцатиричным числом следует точка, то шестнадцатиричное число будет распознано, а позже точка будет лишним токеном.
         pointAfter = pointAfter && !hex;
         if (pointAfter) {
             return NOT_RECOGNIZED;
         }
         //Если цифры есть, то токен распознан.
-        return new RecognitionResult(i);
+        return new RecognitionResult(tokenText(code, i));
     }
 
     private Predicate<Character> charBetween(char start, char end) {

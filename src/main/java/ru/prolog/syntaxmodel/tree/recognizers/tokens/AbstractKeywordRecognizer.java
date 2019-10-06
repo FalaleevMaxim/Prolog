@@ -1,30 +1,41 @@
 package ru.prolog.syntaxmodel.tree.recognizers.tokens;
 
-import ru.prolog.syntaxmodel.tree.recognizers.Hint;
 import ru.prolog.syntaxmodel.tree.recognizers.RecognitionResult;
 
+/**
+ * Распознаёт конкретный текст в коде.
+ */
 public abstract class AbstractKeywordRecognizer extends TokenRecognizer {
+    /**
+     * Текст ключевого слова.
+     */
     private final String keyword;
-    private final boolean isText;
+    /**
+     * Является ли {@link #keyword} словом (состоит только из букв)
+     */
+    private final boolean isWord;
 
     public String getKeyword() {
         return keyword;
     }
 
-    public boolean isText() {
-        return isText;
+    public boolean isWord() {
+        return isWord;
     }
 
     public AbstractKeywordRecognizer(String keyword) {
         this.keyword = keyword;
-        isText = keyword.chars().allMatch(Character::isLetter);
+        isWord = keyword.chars().allMatch(Character::isLetter);
     }
 
     @Override
     public RecognitionResult recognize(CharSequence code) {
-        int matched = matchText(code, keyword);
-        return matched == keyword.length() ?
-                new RecognitionResult(matched) :
-                new RecognitionResult(matched, true, new Hint(null, keyword));
+        //Начало текста совпадает с ключевым словом, а следующий за ключевым словом символ не является текстовым
+        //Если за ключевым словом идут символы, допустимые в SymbolRecognizer, то этот токен будет символьным, а не ключевое слово.
+        //Например, слово goals должно быть распознано как 1 токен символьного типа, а не как ключевое слово goal и символьный токен s.
+        //Однако если текст не является словом (например, распознаются знаки +, -, :-, !), то он точно не может быть символьным токеном, и после него допустимы любые символы.
+        return matchText(code, keyword) && !(code.length() > keyword.length() && isWord() && SymbolRecognizer.OTHER_CHARS.test(code.charAt(keyword.length()))) ?
+                new RecognitionResult(keyword) :
+                RecognitionResult.NOT_RECOGNIZED;
     }
 }

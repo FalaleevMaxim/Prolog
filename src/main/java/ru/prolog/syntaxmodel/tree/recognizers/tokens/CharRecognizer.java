@@ -10,17 +10,18 @@ import java.util.regex.Pattern;
 import static ru.prolog.syntaxmodel.tree.recognizers.RecognitionResult.NOT_RECOGNIZED;
 
 /**
- * Токен строки в двойных кавычках
+ * Токен символа в одинарных кавычках
  */
-public class StringRecognizer extends TokenRecognizer {
+public class CharRecognizer extends TokenRecognizer {
     @Override
     public RecognitionResult recognize(CharSequence code) {
-        if (code.length() == 0 || code.charAt(0) != '"') return NOT_RECOGNIZED;
+        if (code.length() == 0 || code.charAt(0) != '\'') return NOT_RECOGNIZED;
 
         int i = 1;
+        int charCount = 0;
         int errorPos = -1;
-        for (; i < code.length(); i++) {
-            if (code.charAt(i) == '"') {
+        for (; i < code.length(); i++, charCount++) {
+            if (code.charAt(i) == '\'') {
                 i++;
                 break;
             }
@@ -32,10 +33,13 @@ public class StringRecognizer extends TokenRecognizer {
                 i += special;
             }
         }
-        if (i == code.length() && code.charAt(i - 1) != '"')
-            return new RecognitionResult(tokenText(code, i), true, new Hint("No closing '\"'", Collections.singletonList(code.toString() + '"')));
+        if (i == code.length() && code.charAt(i - 1) != '\'')
+            return new RecognitionResult(tokenText(code, i), true, new Hint("No closing '\''", Collections.singletonList(code.toString() + '\'')));
         if (errorPos >= 0) return new RecognitionResult(tokenText(code, i), true,
                 new Hint("Illegal escape character " + code.subSequence(errorPos, errorPos + 1 > code.length() ? code.length() : errorPos + 2), null));
+        if (charCount > 1)
+            return new RecognitionResult(tokenText(code, i), true, new Hint("Too many characters in character literal"));
+        if (charCount == 0) return new RecognitionResult(tokenText(code, i), true, new Hint("Empty character literal"));
         return new RecognitionResult(tokenText(code, i));
     }
 

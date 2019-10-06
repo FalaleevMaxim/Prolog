@@ -1,5 +1,8 @@
 package ru.prolog.syntaxmodel.tree.recognizers;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class Hint {
     /**
      * Текст ошибки
@@ -9,10 +12,19 @@ public class Hint {
     /**
      * Текст предложения по автодополнению
      */
-    public String completion;
+    private List<String> completions;
 
-    public Hint(String errorText, String completion) {
+    public Hint(String errorText, List<String> completions) {
         this.errorText = errorText;
-        this.completion = completion;
+        this.completions = completions;
+    }
+
+    public Hint(String errorText) {
+        this.errorText = errorText;
+    }
+
+    public List<String> getCompletions() {
+        if (completions == null) completions = new ArrayList<>();
+        return completions;
     }
 }

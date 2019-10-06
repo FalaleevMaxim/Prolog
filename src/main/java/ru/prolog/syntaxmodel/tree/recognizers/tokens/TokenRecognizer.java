@@ -4,6 +4,9 @@ import ru.prolog.syntaxmodel.tree.recognizers.NodeRecognizer;
 
 import java.util.function.Predicate;
 
+/**
+ * Предоставляет методы, которые пригодятся при распознавании токена.
+ */
 public abstract class TokenRecognizer implements NodeRecognizer {
 
     protected int matchCharacters(CharSequence code, Predicate<Character> predicate) {
@@ -15,14 +18,19 @@ public abstract class TokenRecognizer implements NodeRecognizer {
         return matched;
     }
 
-    protected int matchText(CharSequence code, String keyword) {
+    protected boolean matchText(CharSequence code, String keyword) {
+        if (code.length() < keyword.length()) return false;
         for (int i = 0; i < keyword.length(); i++) {
-            if (keyword.charAt(i) != code.charAt(i)) return 0;
+            if (keyword.charAt(i) != code.charAt(i)) return false;
         }
-        return keyword.length();
+        return true;
     }
 
     protected static CharSequence subSequence(CharSequence code, int start) {
         return code.subSequence(start, code.length());
+    }
+
+    protected static String tokenText(CharSequence code, int count) {
+        return code.subSequence(0, count).toString();
     }
 }

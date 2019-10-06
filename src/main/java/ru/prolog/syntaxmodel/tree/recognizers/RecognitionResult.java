@@ -4,12 +4,12 @@ package ru.prolog.syntaxmodel.tree.recognizers;
  * Результат распознавания
  */
 public class RecognitionResult {
-    public static RecognitionResult NOT_RECOGNIZED = new RecognitionResult(0);
+    public static RecognitionResult NOT_RECOGNIZED = new RecognitionResult("");
 
     /**
-     * Количество распознанных символов (0 если совсем не распознан)
+     * Распознанный текст
      */
-    public final int recognized;
+    public final String recognizedText;
     /**
      * Распознан частично (достаточно чтобы понять что это должен быть узел, но чего-то не хватает. Например, ключевое слово написано не полностью)
      */
@@ -19,17 +19,21 @@ public class RecognitionResult {
      */
     public final Hint hint;
 
-    public RecognitionResult(int recognized, boolean partial, Hint hint) {
-        this.recognized = recognized;
+    public RecognitionResult(String recognizedText, boolean partial, Hint hint) {
+        this.recognizedText = recognizedText;
         this.partial = partial;
         this.hint = hint;
     }
 
-    public RecognitionResult(int recognized, boolean partial) {
-        this(recognized, partial, null);
+    public RecognitionResult(String recognizedText, boolean partial) {
+        this(recognizedText, partial, null);
     }
 
-    public RecognitionResult(int recognized) {
-        this(recognized, false);
+    public RecognitionResult(String recognizedText) {
+        this(recognizedText, false);
+    }
+
+    public boolean success() {
+        return !recognizedText.isEmpty();
     }
 }

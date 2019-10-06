@@ -1,6 +1,7 @@
 package ru.prolog.syntaxmodel.tree;
 
 import ru.prolog.syntaxmodel.TokenKind;
+import ru.prolog.syntaxmodel.source.CodeSource;
 import ru.prolog.syntaxmodel.util.MappingCharSequence;
 
 import java.util.ArrayList;
@@ -14,7 +15,7 @@ public abstract class AbstractNode implements Node {
     private List<Node> children = new ArrayList<>();
     private List<Node> unmodifiebleChildren = Collections.unmodifiableList(children);
     private AbstractNode parent;
-    private String source;
+    private CodeSource source;
 
     /**
      * Закэшированная длина элемента в символах.
@@ -33,7 +34,7 @@ public abstract class AbstractNode implements Node {
      */
     private int cachedLineBreaks;
 
-    protected AbstractNode(String source) {
+    protected AbstractNode(CodeSource source) {
         this.source = source;
     }
 
@@ -83,6 +84,41 @@ public abstract class AbstractNode implements Node {
         return cachedLength;
     }
 
+    public void insertBefore(Node newChild, Node before) {
+        int index = children.indexOf(before);
+        if (index < 0) return;
+        insertChild(newChild, index);
+    }
+
+    public void insertBefore(List<? extends Node> newChildren, Node before) {
+        int index = children.indexOf(before);
+        if (index < 0) return;
+        children.addAll(index, newChildren);
+        updateLength(sumLength(newChildren));
+    }
+
+    public void insertAfter(Node newChild, Node after) {
+        int index = children.indexOf(after);
+        if (index < 0) return;
+        insertChild(newChild, index + 1);
+    }
+
+    public void insertAfter(List<? extends Node> newChildren, Node after) {
+        int index = children.indexOf(after);
+        if (index < 0) return;
+        children.addAll(index + 1, newChildren);
+        updateLength(sumLength(newChildren));
+    }
+
+    public void addChild(Node child) {
+        insertChild(child, children.size());
+    }
+
+    public void addChildren(List<? extends Node> newChildren) {
+        children.addAll(newChildren);
+        updateLength(sumLength(newChildren));
+    }
+
     public void insertChild(Node child, int index) {
         children.add(index, child);
         updateLength(child.length());
@@ -124,6 +160,10 @@ public abstract class AbstractNode implements Node {
         if (parent != null) {
             parent.updateLength(change);
         }
+    }
+
+    private int sumLength(Collection<? extends Node> nodes) {
+        return nodes.stream().mapToInt(Node::length).sum();
     }
 
     @Override
@@ -168,7 +208,7 @@ public abstract class AbstractNode implements Node {
     @Override
     public String getText() {
         int startPos = startPos();
-        return source.substring(startPos, startPos + length());
+        return source.getTreeSource().substring(startPos, startPos + length());
     }
 
     @Override

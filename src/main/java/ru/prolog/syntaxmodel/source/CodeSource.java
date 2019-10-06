@@ -24,17 +24,22 @@ public abstract class CodeSource {
      */
     public abstract boolean actual();
 
+    /**
+     * Исходный код, соответствующий синтаксическому дереву
+     */
+    public abstract String getTreeSource();
+
+    /**
+     * Обновлённый исходный код
+     */
+    public abstract String getUpdatedSource();
+
     public CodeSource() {
     }
 
     public CodeSource(String fileName) {
         this.fileName = fileName;
     }
-
-    /**
-     * Возвращает текст исходного кода.
-     */
-    public abstract CharSequence getSourceText();
 
     public String getFileName() {
         return fileName;
@@ -43,6 +48,4 @@ public abstract class CodeSource {
     public void setFileName(String fileName) {
         this.fileName = fileName;
     }
-
-
 }

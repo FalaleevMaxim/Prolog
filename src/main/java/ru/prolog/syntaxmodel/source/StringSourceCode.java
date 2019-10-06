@@ -16,7 +16,12 @@ public class StringSourceCode extends CodeSource {
     }
 
     @Override
-    public CharSequence getSourceText() {
+    public String getTreeSource() {
+        return text;
+    }
+
+    @Override
+    public String getUpdatedSource() {
         return text;
     }
 }

@@ -11,6 +11,6 @@ public class WhitespaceRecognizer extends TokenRecognizer {
 
     @Override
     public RecognitionResult recognize(CharSequence code) {
-        return new RecognitionResult(matchCharacters(code, WHITESPACES::contains));
+        return new RecognitionResult(tokenText(code, matchCharacters(code, WHITESPACES::contains)));
     }
 }
