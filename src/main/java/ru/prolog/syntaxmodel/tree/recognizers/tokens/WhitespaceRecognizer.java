@@ -1,6 +1,6 @@
 package ru.prolog.syntaxmodel.tree.recognizers.tokens;
 
-import ru.prolog.syntaxmodel.tree.recognizers.RecognitionResult;
+import ru.prolog.syntaxmodel.tree.Token;
 
 import java.util.Arrays;
 import java.util.HashSet;
@@ -10,7 +10,7 @@ public class WhitespaceRecognizer extends TokenRecognizer {
     public static Set<Character> WHITESPACES = new HashSet<>(Arrays.asList(' ', '\t', '\n', '\r'));
 
     @Override
-    public RecognitionResult recognize(CharSequence code) {
-        return new RecognitionResult(tokenText(code, matchCharacters(code, WHITESPACES::contains)));
+    public Token recognize(CharSequence code) {
+        return tokenOf(tokenText(code, matchCharacters(code, WHITESPACES::contains)));
     }
 }

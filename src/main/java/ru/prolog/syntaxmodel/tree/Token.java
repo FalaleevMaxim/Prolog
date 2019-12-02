@@ -5,6 +5,7 @@ import ru.prolog.syntaxmodel.TokenType;
 import ru.prolog.syntaxmodel.tree.recognizers.Hint;
 
 import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -27,12 +28,23 @@ public class Token implements Node {
      * Родительский узел
      */
     private AbstractNode parent;
+
+    /**
+     * Предыдущий токен
+     */
+    private Token prev;
+
+    /**
+     * Следующий токен
+     */
+    private Token next;
     /**
      * Количество переносов строк внутри токена
      */
     private int lineBreaks;
     /**
-     * Распознан полностью или частично
+     * Распознан частично.
+     * {@code true} означает, что имеющегося текста было достаточно, чтобы точно определить тип токена, но есть ошибки.
      */
     private boolean partial = false;
     /**
@@ -91,6 +103,16 @@ public class Token implements Node {
     }
 
     @Override
+    public Token firstToken() {
+        return this;
+    }
+
+    @Override
+    public Token lastToken() {
+        return this;
+    }
+
+    @Override
     public AbstractNode parent() {
         return parent;
     }
@@ -135,9 +157,67 @@ public class Token implements Node {
         return this;
     }
 
+    /**
+     * Проверяет, что данный токен находится после переданного
+     */
+    public boolean isAfter(Token before) {
+        if (prev == null) return false;
+        if (prev == before) return true;
+        return prev.isAfter(before);
+    }
+
+    /**
+     * Проверяет, что данный токен находится перед переданным
+     */
+    public boolean isBefore(Token after) {
+        if (next == null) return false;
+        if (next == after) return true;
+        return next.isBefore(after);
+    }
+
+    public List<Token> intervalTo(Token to) {
+        List<Token> interval = new LinkedList<>();
+        if (intervalTo(interval, to)) {
+            return interval;
+        }
+        return null;
+    }
+
+    private boolean intervalTo(List<Token> acc, Token to) {
+        if (this == to) {
+            acc.add(this);
+            return true;
+        }
+        if (next == null) {
+            if (to == null) {
+                acc.add(this);
+                return true;
+            }
+            return false;
+        }
+        acc.add(this);
+        return intervalTo(acc, to);
+    }
+
     private void checkPos(int relativeStartPos) {
         if (relativeStartPos < 0 || relativeStartPos >= length())
             throw new StringIndexOutOfBoundsException(relativeStartPos);
+    }
+
+    public Token getPrev() {
+        return prev;
+    }
+
+    public void setPrev(Token prev) {
+        this.prev = prev;
+    }
+
+    public Token getNext() {
+        return next;
+    }
+
+    public void setNext(Token next) {
+        this.next = next;
     }
 
     public boolean isPartial() {

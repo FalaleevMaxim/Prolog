@@ -1,8 +1,6 @@
 package ru.prolog.syntaxmodel.tree.recognizers.tokens;
 
-import ru.prolog.syntaxmodel.tree.recognizers.RecognitionResult;
-
-import static ru.prolog.syntaxmodel.tree.recognizers.RecognitionResult.NOT_RECOGNIZED;
+import ru.prolog.syntaxmodel.tree.Token;
 
 /**
  * Распознаватель однострочного комментария
@@ -15,9 +13,9 @@ public class SingleLineCommentRecognizer extends TokenRecognizer {
     private final String PREFIX = "%";
 
     @Override
-    public RecognitionResult recognize(CharSequence code) {
-        if (!matchText(code, PREFIX)) return NOT_RECOGNIZED;
-        return new RecognitionResult(
+    public Token recognize(CharSequence code) {
+        if (!matchText(code, PREFIX)) return null;
+        return tokenOf(
                 tokenText(code, PREFIX.length() + matchCharacters(
                         subSequence(code, PREFIX.length()),
                         c -> c != '\n' && c != '\r')));

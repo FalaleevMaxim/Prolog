@@ -4,8 +4,6 @@ package ru.prolog.syntaxmodel.tree.recognizers;
  * Результат распознавания
  */
 public class RecognitionResult {
-    public static RecognitionResult NOT_RECOGNIZED = new RecognitionResult("");
-
     /**
      * Распознанный текст
      */

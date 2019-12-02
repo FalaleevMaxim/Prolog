@@ -18,6 +18,10 @@ public class MappingCharSequence implements CharSequence {
         this.length = length;
     }
 
+    public MappingCharSequence(String source) {
+        this(source, 0, source.length());
+    }
+
     @Override
     public int length() {
         return length;

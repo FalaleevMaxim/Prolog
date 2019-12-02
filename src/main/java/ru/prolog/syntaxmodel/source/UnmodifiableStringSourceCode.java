@@ -3,10 +3,10 @@ package ru.prolog.syntaxmodel.source;
 /**
  * Упрощённый источник кода для тестов, код неизменяемый.
  */
-public class StringSourceCode extends CodeSource {
+public class UnmodifiableStringSourceCode extends CodeSource {
     private final String text;
 
-    public StringSourceCode(String text) {
+    public UnmodifiableStringSourceCode(String text) {
         this.text = text;
     }
 

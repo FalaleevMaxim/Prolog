@@ -51,6 +51,16 @@ public interface Node {
      */
     List<Token> meaningTokens();
 
+    /**
+     * Первый токен в составе узла (если узел и есть токен, он возвращает себя)
+     */
+    Token firstToken();
+
+    /**
+     * Последний токен в составе узла (если узел и есть токен, он возвращает себя)
+     */
+    Token lastToken();
+
     void setParent(AbstractNode parent);
 
     /**

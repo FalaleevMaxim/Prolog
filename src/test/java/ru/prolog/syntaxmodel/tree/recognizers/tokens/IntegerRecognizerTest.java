@@ -1,7 +1,7 @@
 package ru.prolog.syntaxmodel.tree.recognizers.tokens;
 
 import org.junit.Test;
-import ru.prolog.syntaxmodel.tree.recognizers.RecognitionResult;
+import ru.prolog.syntaxmodel.tree.Token;
 
 import static org.junit.Assert.*;
 
@@ -10,68 +10,57 @@ public class IntegerRecognizerTest {
 
     @Test
     public void recognizeBaseTest() {
-        RecognitionResult result = recognizer.recognize("123");
-        assertEquals(3, result.recognizedText.length());
-        assertTrue(result.success());
+        Token result = recognizer.recognize("123");
+        assertEquals(3, result.getText().length());
+        assertFalse(result.isPartial());
     }
 
     @Test
     public void recognizeStartTest() {
-        RecognitionResult result = recognizer.recognize("123asd");
-        assertEquals(3, result.recognizedText.length());
-        assertTrue(result.success());
+        Token result = recognizer.recognize("123asd");
+        assertEquals(3, result.getText().length());
+        assertFalse(result.isPartial());
     }
 
     @Test
-    public void recognizeWithSignTest() {
-        RecognitionResult result = recognizer.recognize("+123asd");
-        assertEquals(0, result.recognizedText.length());
-        assertFalse(result.success());
+    public void notRcognizeWithSignTest() {
+        Token result = recognizer.recognize("+123asd");
+        assertNull(result);
         result = recognizer.recognize("-123asd");
-        assertEquals(0, result.recognizedText.length());
-        assertFalse(result.success());
+        assertNull(result);
     }
 
     @Test
     public void recognizeHexTest() {
-        RecognitionResult result = recognizer.recognize("$f1asd");
-        assertEquals("$f1a", result.recognizedText);
-        assertTrue(result.success());
-        result = recognizer.recognize("-$f1asd");
-        assertFalse(result.success());
-        result = recognizer.recognize("+$f1asd");
-        assertFalse(result.success());
+        Token result = recognizer.recognize("$f1asd");
+        assertEquals("$f1a", result.getText());
+        assertFalse(result.isPartial());
     }
 
     @Test
     public void recognizeWithPointTest() {
-        RecognitionResult result = recognizer.recognize("123.0asd");
-        assertEquals("123.0", result.recognizedText);
-        assertTrue(result.success());
+        Token result = recognizer.recognize("123.0asd");
+        assertNull(result);
         result = recognizer.recognize("-123.asd");
-        assertEquals(0, result.recognizedText.length());
-        assertFalse(result.success());
+        assertNull(result);
         result = recognizer.recognize("+123.asd");
-        assertEquals(0, result.recognizedText.length());
-        assertFalse(result.success());
+        assertNull(result);
         result = recognizer.recognize("$f1.asd");
-        assertEquals(3, result.recognizedText.length());
-        assertFalse(result.success());
+        assertEquals(3, result.getText().length());
+        assertFalse(result.isPartial());
     }
 
     @Test
     public void recognizePartialTest() {
-        RecognitionResult result = recognizer.recognize("$");
-        assertEquals(1, result.recognizedText.length());
-        assertTrue(result.partial);
+        Token result = recognizer.recognize("$");
+        assertEquals(1, result.getText().length());
+        assertTrue(result.isPartial());
         result = recognizer.recognize("$qwe");
-        assertEquals(1, result.recognizedText.length());
-        assertTrue(result.partial);
+        assertEquals(1, result.getText().length());
+        assertTrue(result.isPartial());
         result = recognizer.recognize("-$qwe");
-        assertEquals(2, result.recognizedText.length());
-        assertTrue(result.partial);
+        assertNull(result);
         result = recognizer.recognize("+$qwe");
-        assertEquals(2, result.recognizedText.length());
-        assertTrue(result.partial);
+        assertNull(result);
     }
 }

@@ -1,7 +1,7 @@
 package ru.prolog.syntaxmodel.tree.recognizers.tokens;
 
 import org.junit.Test;
-import ru.prolog.syntaxmodel.tree.recognizers.RecognitionResult;
+import ru.prolog.syntaxmodel.tree.Token;
 
 import static org.junit.Assert.*;
 
@@ -11,72 +11,72 @@ public class StringRecognizerTest {
     @Test
     public void recognizeBaseTest() {
         String testString = "\"1q2w3e_ASD\"";
-        RecognitionResult result = recognizer.recognize(testString);
-        assertEquals(testString, result.recognizedText);
-        assertFalse(result.partial);
+        Token result = recognizer.recognize(testString);
+        assertEquals(testString, result.getText());
+        assertFalse(result.isPartial());
 
         result = recognizer.recognize(testString + "asd");
-        assertEquals(testString, result.recognizedText);
-        assertFalse(result.partial);
+        assertEquals(testString, result.getText());
+        assertFalse(result.isPartial());
     }
 
     @Test
     public void recognizeEmptyTest() {
         String testString = "\"\"asd";
-        RecognitionResult result = recognizer.recognize(testString);
-        assertEquals(2, result.recognizedText.length());
-        assertFalse(result.partial);
+        Token result = recognizer.recognize(testString);
+        assertEquals(2, result.getText().length());
+        assertFalse(result.isPartial());
     }
 
     @Test
     public void recognizeSpecialsTest() {
         String testString = "\"\\n\\r\\t\\ufa12\\\\ \\\" \"";
-        RecognitionResult result = recognizer.recognize(testString);
-        assertEquals(testString, result.recognizedText);
-        assertFalse(result.partial);
+        Token result = recognizer.recognize(testString);
+        assertEquals(testString, result.getText());
+        assertFalse(result.isPartial());
         result = recognizer.recognize(testString + "asd");
-        assertEquals(testString, result.recognizedText);
-        assertFalse(result.partial);
+        assertEquals(testString, result.getText());
+        assertFalse(result.isPartial());
     }
 
     @Test
     public void recognizeWrongSpecialTest() {
         String testString = "\"\\kasd\"";
-        RecognitionResult result = recognizer.recognize(testString);
-        assertEquals(testString, result.recognizedText);
-        assertTrue(result.partial);
+        Token result = recognizer.recognize(testString);
+        assertEquals(testString, result.getText());
+        assertTrue(result.isPartial());
         result = recognizer.recognize(testString + "asd");
-        assertEquals(testString, result.recognizedText);
-        assertTrue(result.partial);
+        assertEquals(testString, result.getText());
+        assertTrue(result.isPartial());
     }
 
     @Test
     public void recognizeWrongUnicodeTest() {
         String testString = "\"\\u\"";
-        RecognitionResult result = recognizer.recognize(testString);
-        assertEquals(testString, result.recognizedText);
-        assertTrue(result.partial);
-        assertNotNull(result.hint.errorText);
+        Token result = recognizer.recognize(testString);
+        assertEquals(testString, result.getText());
+        assertTrue(result.isPartial());
+        assertNotNull(result.getHint().errorText);
 
         testString = "\"\\u12qwe\"";
         result = recognizer.recognize(testString);
-        assertEquals(testString, result.recognizedText);
-        assertTrue(result.partial);
-        assertNotNull(result.hint.errorText);
+        assertEquals(testString, result.getText());
+        assertTrue(result.isPartial());
+        assertNotNull(result.getHint().errorText);
     }
 
     @Test
     public void recognizeNoClosingTest() {
         String testString = "\"";
-        RecognitionResult result = recognizer.recognize(testString);
-        assertEquals(testString, result.recognizedText);
-        assertTrue(result.partial);
-        assertNotNull(result.hint.errorText);
+        Token result = recognizer.recognize(testString);
+        assertEquals(testString, result.getText());
+        assertTrue(result.isPartial());
+        assertNotNull(result.getHint().errorText);
 
         testString = "\"qwe";
         result = recognizer.recognize(testString);
-        assertEquals(testString, result.recognizedText);
-        assertTrue(result.partial);
-        assertNotNull(result.hint.errorText);
+        assertEquals(testString, result.getText());
+        assertTrue(result.isPartial());
+        assertNotNull(result.getHint().errorText);
     }
 }

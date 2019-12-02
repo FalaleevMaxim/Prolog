@@ -1,6 +1,5 @@
 package ru.prolog.syntaxmodel;
 
-import ru.prolog.syntaxmodel.tree.recognizers.tokens.TokenRecognizer;
 import ru.prolog.syntaxmodel.tree.recognizers.tokens.*;
 import ru.prolog.syntaxmodel.tree.recognizers.tokens.keywords.*;
 
@@ -53,6 +52,7 @@ public enum TokenType {
     TokenType(TokenKind tokenKind, TokenRecognizer recognizer) {
         this.tokenKind = tokenKind;
         this.recognizer = recognizer;
+        recognizer.setTokenType(this);
     }
 
     /**

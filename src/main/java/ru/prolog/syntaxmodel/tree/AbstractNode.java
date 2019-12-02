@@ -2,7 +2,6 @@ package ru.prolog.syntaxmodel.tree;
 
 import ru.prolog.syntaxmodel.TokenKind;
 import ru.prolog.syntaxmodel.source.CodeSource;
-import ru.prolog.syntaxmodel.util.MappingCharSequence;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -12,8 +11,8 @@ import java.util.function.ToIntFunction;
 import java.util.stream.Collectors;
 
 public abstract class AbstractNode implements Node {
-    private List<Node> children = new ArrayList<>();
-    private List<Node> unmodifiebleChildren = Collections.unmodifiableList(children);
+    private final List<Node> children = new ArrayList<>();
+    private final List<Node> unmodifiebleChildren = Collections.unmodifiableList(children);
     private AbstractNode parent;
     private CodeSource source;
 
@@ -70,6 +69,18 @@ public abstract class AbstractNode implements Node {
     }
 
     @Override
+    public Token firstToken() {
+        if (children.isEmpty()) return null;
+        return children.get(0).firstToken();
+    }
+
+    @Override
+    public Token lastToken() {
+        if (children.isEmpty()) return null;
+        return children.get(children.size() - 1).lastToken();
+    }
+
+    @Override
     public AbstractNode parent() {
         return parent;
     }
@@ -103,15 +114,29 @@ public abstract class AbstractNode implements Node {
         insertChild(newChild, index + 1);
     }
 
-    public void insertAfter(List<? extends Node> newChildren, Node after) {
-        int index = children.indexOf(after);
-        if (index < 0) return;
-        children.addAll(index + 1, newChildren);
-        updateLength(sumLength(newChildren));
+    public void addChild(Node child) {
+        //ToDo переработать добавление узлов чтобы ссылки между токенами согласовались!!!!!
+        //ToDo возможно, придётся совместить метод с canAdd чтобы сразу найти подходящее место для вставки.
+        if (canAdd(child)) {
+            children.add(child);
+        }
     }
 
-    public void addChild(Node child) {
-        insertChild(child, children.size());
+    /**
+     * Ппроверка, можно ли добавить узел в список дочерних
+     *
+     * @param child Предлагаемый к добавлению узел
+     * @return true если узел можно добавить
+     */
+    private boolean canAdd(Node child) {
+        // Если узел пустой, добавлять нельзя.
+        if (child.firstToken() == null) return false;
+
+        //Если первый токен не имеет предыдущего и последний не имеет следующего, узел можно будет добавить, граничные токены с соседними узлами.
+        if (child.firstToken().getPrev() == null && child.lastToken().getNext() == null) return true;
+
+        //ToDo проверить остальные случаи, если по ссылкам между токенами, узел привязан между дочерними узлами, перед первым узлом или после последнего.
+        return false;
     }
 
     public void addChildren(List<? extends Node> newChildren) {

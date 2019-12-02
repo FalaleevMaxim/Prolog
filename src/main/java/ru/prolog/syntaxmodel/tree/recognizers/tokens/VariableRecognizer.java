@@ -1,10 +1,8 @@
 package ru.prolog.syntaxmodel.tree.recognizers.tokens;
 
-import ru.prolog.syntaxmodel.tree.recognizers.RecognitionResult;
+import ru.prolog.syntaxmodel.tree.Token;
 
 import java.util.function.Predicate;
-
-import static ru.prolog.syntaxmodel.tree.recognizers.RecognitionResult.NOT_RECOGNIZED;
 
 /**
  * Токен переменной.
@@ -17,10 +15,10 @@ public class VariableRecognizer extends TokenRecognizer {
     private static final Predicate<Character> OTHER_CHARS = ((Predicate<Character>) Character::isLetterOrDigit).or(c -> c == '_');
 
     @Override
-    public RecognitionResult recognize(CharSequence code) {
+    public Token recognize(CharSequence code) {
         char first = code.charAt(0);
-        if (!FIRST_CHAR.test(first)) return NOT_RECOGNIZED;
+        if (!FIRST_CHAR.test(first)) return null;
         int matched = 1 + matchCharacters(code.subSequence(1, code.length()), OTHER_CHARS);
-        return new RecognitionResult(tokenText(code, matched));
+        return tokenOf(tokenText(code, matched));
     }
 }

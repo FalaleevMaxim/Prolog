@@ -1,11 +1,9 @@
 package ru.prolog.syntaxmodel.tree.recognizers.tokens;
 
+import ru.prolog.syntaxmodel.tree.Token;
 import ru.prolog.syntaxmodel.tree.recognizers.Hint;
-import ru.prolog.syntaxmodel.tree.recognizers.RecognitionResult;
 
 import java.util.function.Predicate;
-
-import static ru.prolog.syntaxmodel.tree.recognizers.RecognitionResult.NOT_RECOGNIZED;
 
 /**
  * Распознаёт токен-целое число.
@@ -16,8 +14,8 @@ import static ru.prolog.syntaxmodel.tree.recognizers.RecognitionResult.NOT_RECOG
 public class IntegerRecognizer extends TokenRecognizer {
 
     @Override
-    public RecognitionResult recognize(CharSequence code) {
-        if (code.length() == 0) return NOT_RECOGNIZED;
+    public Token recognize(CharSequence code) {
+        if (code.length() == 0) return null;
         int i = 0;
         Predicate<Character> digitCondition = charBetween('0', '9');
         //После $ число в шестнадцатиричной системе.
@@ -31,10 +29,10 @@ public class IntegerRecognizer extends TokenRecognizer {
         if (digitsCount == 0) {
             if (hex) {
                 //Знак $ используется только в целых числах, поэтому его наличия достаточно чтобы частично определить токен.
-                return new RecognitionResult(tokenText(code, i), true, new Hint("Missing digits after '$'", null));
+                return partialTokenOf(tokenText(code, i), new Hint("Missing digits after '$'", null));
             } else {
                 //Если не распознано ни одной цифры, то токен не распознан совсем.
-                return NOT_RECOGNIZED;
+                return null;
             }
         }
         i += digitsCount;
@@ -44,10 +42,10 @@ public class IntegerRecognizer extends TokenRecognizer {
         //Если за шестнадцатиричным числом следует точка, то шестнадцатиричное число будет распознано, а позже точка будет лишним токеном.
         pointAfter = pointAfter && !hex;
         if (pointAfter) {
-            return NOT_RECOGNIZED;
+            return null;
         }
         //Если цифры есть, то токен распознан.
-        return new RecognitionResult(tokenText(code, i));
+        return tokenOf(tokenText(code, i));
     }
 
     private Predicate<Character> charBetween(char start, char end) {
