@@ -2,6 +2,7 @@ package ru.prolog.model.type;
 
 import ru.prolog.etc.exceptions.model.ModelStateException;
 import ru.prolog.model.AbstractModelObject;
+import ru.prolog.model.ModelObject;
 import ru.prolog.model.type.descriptions.CommonType;
 import ru.prolog.model.type.descriptions.CompoundType;
 import ru.prolog.model.type.exceptions.NoValuesTypeException;
@@ -188,7 +189,8 @@ public final class Type extends AbstractModelObject{
      * @return Объект переменной данного типа.
      */
     public Variable createVariable(String name, RuleContext context) {
-        if (!fixed) throw new IllegalStateException("Type not fixed");
+        if (!fixed)
+            throw new IllegalStateException("Type not fixed");
         if(isPrimitive())
             return new SimpleVariable(this, name, context);
         if(isList())
@@ -196,6 +198,11 @@ public final class Type extends AbstractModelObject{
         if(isCompoundType())
             return new FunctorVariableImpl(this, name, context);
         throw new NoValuesTypeException(this);
+    }
+
+    @Override
+    public Type fix() {
+        return (Type) super.fix();
     }
 
     @Override

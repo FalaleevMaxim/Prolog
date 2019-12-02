@@ -60,6 +60,11 @@ public class TypeStorageImpl extends AbstractModelObject implements TypeStorage 
     }
 
     @Override
+    public Set<Type> getAllTypes() {
+        return names.keySet();
+    }
+
+    @Override
     public void addTypes(TypeStorage other) {
         for (String name : other.getAllTypeNames()) {
             addType(name, other.get(name));

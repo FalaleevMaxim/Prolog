@@ -865,15 +865,28 @@ public class PrologParseListener extends PrologBaseListener implements ANTLRErro
 
     private Type getListType(Type elType) {
         Type listType = null;
-        if(elType!=null) {
-            String elTypeName = null;
-            if(elType.isPrimitive())
-                elTypeName = elType.getPrimitiveType().getName();
-            else{
+        if (elType != null) {
+            if (elType.isPrimitive()) {
+                String elTypeName = elType.getPrimitiveType().getName();
+                if (elTypeName != null) {
+                    listType = program.domains().getAllTypes()
+                            .stream()
+                            .filter(Type::isList)
+                            .filter(type -> elTypeName.equals(type.getListTypeName()))
+                            .findFirst()
+                            .orElse(null);
+                }
+            } else {
                 Collection<String> names = program.domains().names(elType);
-                if(names!=null && !names.isEmpty()) elTypeName = names.iterator().next();
+                if (names != null && !names.isEmpty()) {
+                    listType = program.domains().getAllTypes()
+                            .stream()
+                            .filter(Type::isList)
+                            .filter(type -> names.contains(type.getListTypeName()))
+                            .findFirst()
+                            .orElse(null);
+                }
             }
-            if(elTypeName!=null) listType = new Type(elType, elTypeName);
         }
         return listType;
     }

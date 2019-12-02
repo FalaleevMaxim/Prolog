@@ -15,6 +15,8 @@ public interface TypeStorage extends ModelObject {
     Functor getFunctor(String name);
     void addType(String name, Type type);
     Set<String> getAllTypeNames();
+
+    Set<Type> getAllTypes();
     void addTypes(TypeStorage other);
     boolean contains(String typeName);
     Type getDatabaseType();
