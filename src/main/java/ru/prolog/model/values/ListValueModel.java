@@ -65,7 +65,9 @@ public class ListValueModel extends AbstractModelObject implements ValueModel {
                 head.setType(type.getListType());
             exceptions.addAll(head.exceptions());
             if(!head.getType().equals(type.getListType())){
-                exceptions.add(new WrongListElementTypeException(this, head));
+                exceptions.add(new WrongListElementTypeException(this, head, String.format(
+                        "List head %s has type %s which does not match list type %s",
+                        head.toString(), head.getType().toString(), type.getListType())));
             }
         }
         if(tail!=null){

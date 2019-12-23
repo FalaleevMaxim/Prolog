@@ -107,6 +107,7 @@ public abstract class AbstractRule extends AbstractModelObject implements Rule {
                     exceptions.add(new WrongRuleArgTypeException(predicate, this, i));
                 }
             }
+            exceptions.addAll(toUnifyList.get(i).exceptions());
         }
         return exceptions;
     }
