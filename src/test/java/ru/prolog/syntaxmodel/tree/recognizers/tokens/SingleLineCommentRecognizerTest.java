@@ -12,14 +12,14 @@ public class SingleLineCommentRecognizerTest {
     @Test
     public void recognizeBaseTest() {
         Token result = recognizer.recognize("%");
-        assertEquals(1, result.getText().length());
+        assertEquals(1, result.length());
         result = recognizer.recognize("%asd");
-        assertEquals(4, result.getText().length());
+        assertEquals(4, result.length());
         result = recognizer.recognize("%asd\n");
-        assertEquals(4, result.getText().length());
+        assertEquals(4, result.length());
         result = recognizer.recognize("%asd\r\n");
-        assertEquals(4, result.getText().length());
+        assertEquals(4, result.length());
         result = recognizer.recognize("%asd\r\ncode");
-        assertEquals(4, result.getText().length());
+        assertEquals(4, result.length());
     }
 }

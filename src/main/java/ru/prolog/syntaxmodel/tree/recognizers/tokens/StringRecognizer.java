@@ -26,8 +26,9 @@ public class StringRecognizer extends TokenRecognizer {
                 int special = matchSpecialCharacter(code.subSequence(i, code.length() - 1));
                 if (special == 0) {
                     if (errorPos < 0) errorPos = i;
+                } else {
+                    i += special - 1;
                 }
-                i += special;
             }
         }
         if (i == 1 || (i == code.length() && code.charAt(i - 1) != '"'))

@@ -27,7 +27,7 @@ public class RealRecognizer extends TokenRecognizer {
         i++;
         int afterPoint = (i == code.length()) ? 0 : matchCharacters(code.subSequence(i, code.length()), digitCondition);
         if (afterPoint == 0 && beforePoint == 0) {
-            return partialTokenOf(tokenText(code, i), new Hint("No digits before and after point", null));
+            return null;
         }
         return tokenOf(tokenText(code, i + afterPoint));
     }

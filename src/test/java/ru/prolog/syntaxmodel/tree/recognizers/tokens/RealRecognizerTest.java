@@ -33,14 +33,10 @@ public class RealRecognizerTest {
     }
 
     @Test
-    public void recognizePointPartialTest() {
+    public void notRecognizePointTest() {
         Token result = recognizer.recognize(".");
-        assertEquals(1, result.getText().length());
-        assertTrue(result.isPartial());
-        assertNotNull(result.getHint().errorText);
-        result = recognizer.recognize(".qwe");
-        assertEquals(1, result.getText().length());
-        assertTrue(result.isPartial());
-        assertNotNull(result.getHint().errorText);
+        assertNull(result);
+        recognizer.recognize(".qwe");
+        assertNull(result);
     }
 }

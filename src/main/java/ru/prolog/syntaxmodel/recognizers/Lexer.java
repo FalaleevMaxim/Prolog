@@ -216,7 +216,7 @@ public class Lexer {
         code = code.subSequence(token.length(), code.length());
         //Токен соединяется ссылками с предыдущим
         token.setPrev(pointer);
-        pointer.setNext(token);
+        if(pointer != null) pointer.setNext(token);
         //Токен записывается как последний распознанный
         lastRecognized = token;
         //Указатель устанавливается на новый токен
@@ -233,7 +233,7 @@ public class Lexer {
         //Если длина распознанного участка идеально совпадает с расстоянием между начальным и конечным токенами, то можно замкнуть цепояку токенов.
         if (recognizedLength == diffLength) {
             pointer.setNext(after);
-            after.setPrev(pointer);
+            if(after != null) after.setPrev(pointer);
             closed = true;
         }
     }

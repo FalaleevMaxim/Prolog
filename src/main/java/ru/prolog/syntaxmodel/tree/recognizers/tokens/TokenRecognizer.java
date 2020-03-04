@@ -55,6 +55,7 @@ public abstract class TokenRecognizer implements NodeRecognizer {
     }
 
     protected Token tokenOf(String text) {
+        if(text.isEmpty()) return null;
         return new Token(tokenType, text, null, false);
     }
 

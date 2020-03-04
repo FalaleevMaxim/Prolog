@@ -1,7 +1,7 @@
 include
-//predicate("/home/mfalaleev/IdeaProjects/Prolog/target/test-classes/", "ru.prolog.logic.model.predicate.HelloPredicate")
-//predicate("/home/mfalaleev/IdeaProjects/Prolog/target/test-classes/", "ru.prolog.logic.model.predicate.Return7Predicate")
-//module("/home/mfalaleev/IdeaProjects/Prolog/target/test-classes/", "ru.prolog.logic.model.predicate.IntegersListPredicateModule")
+%predicate("/home/mfalaleev/IdeaProjects/Prolog/target/test-classes/", "ru.prolog.logic.model.predicate.HelloPredicate")
+%predicate("/home/mfalaleev/IdeaProjects/Prolog/target/test-classes/", "ru.prolog.logic.model.predicate.Return7Predicate")
+%module("/home/mfalaleev/IdeaProjects/Prolog/target/test-classes/", "ru.prolog.logic.model.predicate.IntegersListPredicateModule")
 
 domains
 имя, фамилия = string
@@ -11,23 +11,23 @@ database
 	человек(человек)
 	flag
 predicates
-    //test functors
+    %test functors
 	однофамилец(человек, человек)
 	тёзка(человек, человек)
 	имя(человек, имя)
 
-	//Test parsing char as integer or char
+	%Test parsing char as integer or char
 	p(integer)
 	p1(char)
 
-	//Sum numbers from 0 to first arg. Second arg is sum. Test math operations
+	%Sum numbers from 0 to first arg. Second arg is sum. Test math operations
 	sum(integer, integer)
-	//equal lists
+	%equal lists
 	eq(lst, lst)
-	//Concatenate lists
+	%Concatenate lists
 	conc(lst,lst,lst)
 
-	//bubble sort
+	%bubble sort
 	bubble(lst,lst)
 	swap(lst,lst)
 
