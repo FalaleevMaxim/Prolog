@@ -20,7 +20,7 @@ public abstract class DeviceHub<T> {
         devices.add(device);
     }
 
-    private boolean remove(T device){
+    public boolean remove(T device){
         return devices.remove(device);
     }
 

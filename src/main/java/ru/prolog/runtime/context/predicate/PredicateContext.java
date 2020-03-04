@@ -75,6 +75,7 @@ public interface PredicateContext extends RuntimeObject {
      * Сохраняет данные по ключу в контексте вызова предиката. Получить данные сможет только предикат из того же вызова.
      * Предназначен для хранения данных в контексте вызова на случай бэктрекинга к этому же вызову.
      * Сохранённые данные будут удалены при выходе из контекста вызова (если предикат вернёт {@link PredicateResult#FAIL} или {@link PredicateResult#LAST_RESULT}).
+     * Ключи, используемые встроенными функциями интерпретатора и языка, перечислены в {@link ru.prolog.util.keys.PredicateKeys}
      *
      * @param key  Ключ, по которому будет сохранён объект.
      * @param data Сохраняемый объект
@@ -84,6 +85,7 @@ public interface PredicateContext extends RuntimeObject {
 
     /**
      * Возвращает данные, сохранённые в контексте по ключу.
+     * Ключи, используемые встроенными функциями интерпретатора и языка, перечислены в {@link ru.prolog.util.keys.PredicateKeys}
      *
      * @param key ключ, по которому объект был сохранён в методе {@link #putContextData(String, Object) putContextData}.
      * @return сохранённый по ключу объект или {@code null}.

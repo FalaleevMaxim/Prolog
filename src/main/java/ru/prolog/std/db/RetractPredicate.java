@@ -10,14 +10,15 @@ import ru.prolog.runtime.context.rule.RuleContext;
 import ru.prolog.runtime.database.Database;
 import ru.prolog.runtime.values.Value;
 import ru.prolog.runtime.values.functor.FunctorValue;
+import ru.prolog.util.keys.PredicateKeys;
 
 import java.util.Collections;
 import java.util.List;
 
 public class RetractPredicate extends AbstractPredicate{
 
-    private static final String KEY_RULE_COUNT = "rule_count";
-    private static final String KEY_START_RULE = "startWith";
+    private static final String KEY_RULE_COUNT = PredicateKeys.RETRACT_RULE_COUNT;
+    private static final String KEY_START_RULE = PredicateKeys.START_WITH_RULE;
 
     public RetractPredicate(TypeStorage typeStorage) {
         super("retract", Collections.singletonList("database"), typeStorage);

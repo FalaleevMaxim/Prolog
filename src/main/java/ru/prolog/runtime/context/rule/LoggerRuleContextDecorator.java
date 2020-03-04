@@ -1,7 +1,9 @@
 package ru.prolog.runtime.context.rule;
 
 import ru.prolog.runtime.context.program.ProgramContext;
+import ru.prolog.util.keys.PredicateKeys;
 import ru.prolog.util.ToStringUtil;
+import ru.prolog.util.keys.ProgramKeys;
 
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -11,15 +13,22 @@ import java.util.stream.IntStream;
 
 /**
  * Выводит в файл лог вызовов правил.
- * Файл задаётся {@link ProgramContext#KEY_DEBUG_FILE}
+ * Файл задаётся {@link #FILE_KEY}
  */
-public class DebuggerRuleContextDecorator extends BaseRuleContextDecorator {
+public class LoggerRuleContextDecorator extends BaseRuleContextDecorator {
     /**
      * Ключ, по которому в контексте программы хранится уровень вызова.
      *
      * @see ProgramContext#getContextData(String)
      */
-    public static final String LEVEL_KEY = "Debug.level";
+    private static final String LEVEL_KEY = ProgramKeys.LOG_LEVEL;
+
+    /**
+     * Ключ, по которому в контексте программы хранится уровень вызова.
+     *
+     * @see ProgramContext#getContextData(String)
+     */
+    private static final String FILE_KEY = ProgramKeys.LOG_LEVEL;
 
     /**
      * Уровень вызова. Перед обработкой вызова уровень берётся из контекста программы.
@@ -40,7 +49,7 @@ public class DebuggerRuleContextDecorator extends BaseRuleContextDecorator {
      *
      * @param decorated декорируемый вызов правила.
      */
-    public DebuggerRuleContextDecorator(RuleContext decorated) {
+    public LoggerRuleContextDecorator(RuleContext decorated) {
         super(decorated);
         Object level = programContext().getContextData(LEVEL_KEY);
         if(level==null) {
@@ -61,8 +70,8 @@ public class DebuggerRuleContextDecorator extends BaseRuleContextDecorator {
      */
     @Override
     public boolean redo() {
-        String fileName = (String) programContext().getContextData(ProgramContext.KEY_DEBUG_FILE);
-        if(fileName==null) return decorated.execute();
+        String fileName = (String) programContext().getContextData(FILE_KEY);
+        if(fileName==null) return decorated.redo();
         try (PrintWriter pw = new PrintWriter(new FileOutputStream(fileName, true))) {
             pw.println(offset + "Redo rule " + rule());
             pw.println(offset + ToStringUtil.funcToString(rule().getPredicate().getName(), getArgs()));
@@ -101,7 +110,7 @@ public class DebuggerRuleContextDecorator extends BaseRuleContextDecorator {
      */
     @Override
     public boolean execute() {
-        String fileName = (String) programContext().getContextData(ProgramContext.KEY_DEBUG_FILE);
+        String fileName = (String) programContext().getContextData(FILE_KEY);
         if(fileName==null) return decorated.execute();
         try (PrintWriter pw = new PrintWriter(new FileOutputStream(fileName, true))) {
             pw.println(offset + "Execute rule " + rule());

@@ -15,5 +15,8 @@ public class OutputDeviceHub extends DeviceHub<OutputDevice> implements OutputDe
         devices.forEach(d->d.println(s));
     }
 
-
+    @Override
+    public void clear() {
+        devices.forEach(OutputDevice::clear);
+    }
 }

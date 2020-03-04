@@ -10,10 +10,10 @@ import ru.prolog.PrologParser;
 import ru.prolog.model.program.Program;
 import ru.prolog.model.rule.FactRule;
 import ru.prolog.model.rule.StatementExecutorRule;
-import ru.prolog.runtime.context.predicate.DebuggerPredicateContextDecorator;
-import ru.prolog.runtime.context.program.ProgramContext;
-import ru.prolog.runtime.context.rule.DebuggerRuleContextDecorator;
+import ru.prolog.runtime.context.predicate.LoggerPredicateContextDecorator;
+import ru.prolog.runtime.context.rule.LoggerRuleContextDecorator;
 import ru.prolog.util.io.LogFileOutput;
+import ru.prolog.util.keys.ProgramKeys;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -63,8 +63,8 @@ public class PrologCompiler {
         }
 
         if(debugFileName!=null){
-            compiler.getProgram().managers().getRuleManager().addOption(DebuggerRuleContextDecorator::new);
-            compiler.getProgram().managers().getPredicateManager().addOption(DebuggerPredicateContextDecorator::new);
+            compiler.getProgram().managers().getRuleManager().addOption(LoggerRuleContextDecorator::new);
+            compiler.getProgram().managers().getPredicateManager().addOption(LoggerPredicateContextDecorator::new);
             compiler.getProgram().managers().getProgramManager()
                     .addOption(context->{
                         //Clear debug file
@@ -72,7 +72,7 @@ public class PrologCompiler {
                             pw.print("");
                         } catch (FileNotFoundException ignored) { }
                         //Put file name to context data
-                        context.putContextData(ProgramContext.KEY_DEBUG_FILE, debugFileName);
+                        context.putContextData(ProgramKeys.LOG_FILE, debugFileName);
                         //Write all output and exceptions to debug file
                         LogFileOutput fileWriter = new LogFileOutput(debugFileName);
                         context.getErrorListeners().add(fileWriter);

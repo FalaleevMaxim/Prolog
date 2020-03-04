@@ -5,6 +5,7 @@ import ru.prolog.model.storage.type.TypeStorage;
 import ru.prolog.model.type.Type;
 import ru.prolog.runtime.context.predicate.PredicateContext;
 import ru.prolog.runtime.values.Value;
+import ru.prolog.util.keys.PredicateKeys;
 
 import java.util.List;
 
@@ -14,9 +15,9 @@ import java.util.List;
  */
 public interface Predicate extends ModelObject {
     /**
-     * Ключ, по которому в контексте предиуата предикаты могут хранить номер правила
+     * Ключ, по которому в контексте предиката предикаты могут хранить номер правила
      */
-    String KEY_START_RULE = "startWith";
+    String KEY_START_RULE = PredicateKeys.START_WITH_RULE;
 
     /**
      * Возвращает имя предиката

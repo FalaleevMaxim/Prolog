@@ -63,7 +63,7 @@ public class ProgramTest {
     private void runTest(TestProgram test){
         Program program = test.getProgram();
         //Uncomment next line to enable debug
-        //program.managers().getRuleManager().addOption(DebuggerRuleContextDecorator::new);
+        //program.managers().getRuleManager().addOption(LoggerRuleContextDecorator::new);
         program.fix();
 
         System.out.println("-------Program text-------");

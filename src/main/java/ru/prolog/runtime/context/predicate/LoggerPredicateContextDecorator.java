@@ -2,8 +2,9 @@ package ru.prolog.runtime.context.predicate;
 
 import ru.prolog.model.predicate.PredicateResult;
 import ru.prolog.runtime.context.program.ProgramContext;
-import ru.prolog.runtime.context.rule.DebuggerRuleContextDecorator;
+import ru.prolog.util.keys.PredicateKeys;
 import ru.prolog.util.ToStringUtil;
+import ru.prolog.util.keys.ProgramKeys;
 
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -13,15 +14,22 @@ import java.util.stream.IntStream;
 
 /**
  * Выводит в файл лог вызовов предикатов.
- * Файл задаётся {@link ProgramContext#KEY_DEBUG_FILE}
+ * Файл задаётся {@link #FILE_KEY}
  */
-public class DebuggerPredicateContextDecorator extends BasePredicateContextDecorator {
+public class LoggerPredicateContextDecorator extends BasePredicateContextDecorator {
     /**
      * Ключ, по которому в контексте программы хранится уровень вызова.
      *
      * @see ProgramContext#getContextData(String)
      */
-    public static final String LEVEL_KEY = DebuggerRuleContextDecorator.LEVEL_KEY;
+    private static final String LEVEL_KEY = ProgramKeys.LOG_LEVEL;
+
+    /**
+     * Ключ, по которому в контексте программы хранится уровень вызова.
+     *
+     * @see ProgramContext#getContextData(String)
+     */
+    private static final String FILE_KEY = ProgramKeys.LOG_FILE;
 
     /**
      * Уровень вызова. Перед обработкой вызова уровень берётся из контекста программы
@@ -42,7 +50,7 @@ public class DebuggerPredicateContextDecorator extends BasePredicateContextDecor
      *
      * @param decorated декорируемый вызов предиката.
      */
-    public DebuggerPredicateContextDecorator(PredicateContext decorated) {
+    public LoggerPredicateContextDecorator(PredicateContext decorated) {
         super(decorated);
 
         Object level = programContext().getContextData(LEVEL_KEY);
@@ -67,7 +75,7 @@ public class DebuggerPredicateContextDecorator extends BasePredicateContextDecor
      */
     @Override
     public PredicateResult execute() {
-        String fileName = (String) programContext().getContextData(ProgramContext.KEY_DEBUG_FILE);
+        String fileName = (String) programContext().getContextData(FILE_KEY);
         if (fileName == null) return decorated.execute();
         try (PrintWriter pw = new PrintWriter(new FileOutputStream(fileName, true))) {
             pw.println(offset + "Execute predicate " + predicate());

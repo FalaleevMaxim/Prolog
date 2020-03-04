@@ -27,4 +27,9 @@ public class ErrorListenerHub extends DeviceHub<ErrorListener> implements ErrorL
     public void println(String s) {
         devices.forEach(device -> device.println(s));
     }
+
+    @Override
+    public void clear() {
+        devices.forEach(OutputDevice::clear);
+    }
 }

@@ -12,7 +12,8 @@ import java.util.Collection;
 public class Main {
     public static void main(String[] args) throws IOException {
         if(args.length==0){
-            System.err.println("arguments: <Code file> [-d <debug output file>]");
+            System.err.println("Arguments: <Code file> [-log <log output file>]");
+            return;
         }
 
         String fileName = args[0].replace("\"", "");

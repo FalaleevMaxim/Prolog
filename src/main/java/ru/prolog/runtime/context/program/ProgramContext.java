@@ -4,9 +4,7 @@ import ru.prolog.model.ModelObject;
 import ru.prolog.model.program.Program;
 import ru.prolog.runtime.RuntimeObject;
 import ru.prolog.runtime.database.Database;
-import ru.prolog.util.io.ErrorListenerHub;
-import ru.prolog.util.io.InputDevice;
-import ru.prolog.util.io.OutputDeviceHub;
+import ru.prolog.util.io.*;
 import ru.prolog.util.window.PrologWindowManager;
 
 /**
@@ -17,8 +15,6 @@ import ru.prolog.util.window.PrologWindowManager;
  * через этот объект можно наладить взаимодействие между предикатами программы и вызывающей Пролог-программу средой.
  */
 public interface ProgramContext extends RuntimeObject {
-    String KEY_DEBUG_FILE = "DebugFile";
-    String KEY_DEBUG_OUTPUT_DEVICE = "DebugOutput";
 
     /**
      * Возвращает объект программы, для которого создан этот вызов.
@@ -43,6 +39,7 @@ public interface ProgramContext extends RuntimeObject {
 
     /**
      * Возвращает данные, хранящиеся в контексте программы по ключу.
+     * Ключи, используемые встроенными функциями интерпретатора и языка, перечислены в {@link ru.prolog.util.keys.ProgramKeys}
      *
      * @return Возвращает данные, сохранённые в контексте программы по ключу, или {@code null}.
      * @see #putContextData(String, Object)
@@ -54,6 +51,7 @@ public interface ProgramContext extends RuntimeObject {
      * <p>
      * Любой предикат программы может получить доступ к этим данным используя метод {@link #getContextData(String) getContextData}.
      * Таким образом можно обмениваться данными между разными вызовами предиката, между разными предикатами или даже между предикатами и вызывающей Пролог-программу средой.
+     * Ключи, используемые встроенными функциями интерпретатора и языка, перечислены в {@link ru.prolog.util.keys.ProgramKeys}
      *
      * @param key  Ключ, по которому будет сохранён объект. Должен быть уникальным, чтобы не допускать коллизий с другими предикатами в проекте, которые могут использовать такой же ключ.
      * @param data Любой объект, который нужно сохранить в контексте программы для обмена данными.
@@ -92,7 +90,7 @@ public interface ProgramContext extends RuntimeObject {
      * Используется предикатами вывода {@link ru.prolog.std.io.WritePredicate}, {@link ru.prolog.std.io.NlPredicate}.
      * Может использоваться другими предикатами.
      * <p>
-     * Можно добавлять и удалять устройства, используя методы {@link OutputDeviceHub#add(Object)} и {@link OutputDeviceHub#remove(Object)}.
+     * Можно добавлять и удалять устройства, используя методы {@link DeviceHub#add(Object)} и {@link DeviceHub#remove(Object)}.
      *
      * @return Объект, управляющий устройствами вывода программы.
      */
@@ -103,7 +101,7 @@ public interface ProgramContext extends RuntimeObject {
      * <p>
      * Может использоваться любыми предикатами для сообщения пользователю об ошибке.
      * <p>
-     * Можно добавлять и удалять устройства, используя методы {@link ErrorListenerHub#add(Object)} и {@link ErrorListenerHub#remove(Object)}.
+     * Можно добавлять и удалять устройства, используя методы {@link ErrorListenerHub#add(ErrorListener)} и {@link ErrorListenerHub#remove(ErrorListener)}.
      *
      * @return Объект, управляющий устройствами вывода ошибок программы.
      */
