@@ -59,21 +59,14 @@ public abstract class AbstractPrologPredicate extends AbstractPredicate implemen
         }
 
         Collection<ModelStateException> argTypesExceptions = super.exceptions();
+        exceptions.addAll(argTypesExceptions);
+        if(!argTypesExceptions.isEmpty()) {
+            return exceptions;
+        }
         for (int i = 0; i < argTypes.size(); i++) {
             Type type = typeStorage.get(argTypes.get(i));
             if (type.isCommonType())
                 exceptions.add(new IllegalArgTypeException(this, type, i, "Common type can not be argument of RuleExecutorPredicate"));
-        }
-        exceptions.addAll(argTypesExceptions);
-        //It is no sense to check rules if there are troubles with argument types.
-        if (!argTypesExceptions.isEmpty())
-            return exceptions;
-
-        for (Rule rule : rules) {
-            //If getRule does not have set predicate, just set it.
-            if (rule.getPredicate() != this)
-                rule.setPredicate(this);
-            exceptions.addAll(rule.exceptions());
         }
         return exceptions;
     }

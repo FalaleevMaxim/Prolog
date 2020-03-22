@@ -89,6 +89,9 @@ public interface PredicateStorage extends ModelObject {
                         p.getArgTypeNames().get(p.getArgTypeNames().size() - 1));
             } else {
                 predType = p.getTypeStorage().get(p.getArgTypeNames().get(i));
+                if(predType==null) {
+                    continue;
+                }
                 if (predType.isVarArg()) varArg = true;
             }
             Type reqType = types.get(i);

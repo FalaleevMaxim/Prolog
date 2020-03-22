@@ -60,8 +60,11 @@ public class Statement extends AbstractModelObject {
         }
         if(predicate==null) {
             exceptions.add(new StatementStateException(this, "No predicate for statement "+this));
+        }
+        if(!exceptions.isEmpty() || !predicate.exceptions().isEmpty()) {
             return exceptions;
         }
+
         boolean vararg = false; //Sets true after vararg type in predicate. Any arguments in statement can follow vararg.
         for(int i = 0; i<predicate.getArgTypeNames().size() || i<args.size(); i++){
             if(vararg) continue;

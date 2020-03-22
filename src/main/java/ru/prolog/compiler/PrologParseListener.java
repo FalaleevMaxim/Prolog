@@ -396,11 +396,21 @@ public class PrologParseListener extends PrologBaseListener implements ANTLRErro
         }
         if(program.predicates().get(name).isEmpty()){
             exceptions.add(new CompileException(tokenInterval(ctx.ruleLeft.NAME().getSymbol()), "Predicate "+name+" does not exist"));
+            return;
         }
         Predicate predicate = program.predicates().get(name, arity);
-        List<Type> predTypes = predicate==null?
-                        Collections.emptyList():
-                        predicate.getArgTypes();
+        if(predicate==null){
+            exceptions.add(new CompileException(
+                    tokenInterval(ctx.ruleLeft.NAME().getSymbol()),
+                    "Predicate "+name+" with arity "+arity+" does not exist. Possible arity: " +
+                            program.predicates().get(name)
+                                    .stream()
+                                    .map(Predicate::getArity)
+                                    .map(Object::toString)
+                                    .collect(Collectors.joining(", "))));
+            return;
+        }
+        List<Type> predTypes = predicate.getArgTypes();
         List<ValueModel> toUnifyList = parseArgs(argList, variables, predTypes);
         if(predicate instanceof DatabasePredicate){
             FactRule fact = new FactRule(predicate, toUnifyList);
@@ -661,7 +671,15 @@ public class PrologParseListener extends PrologBaseListener implements ANTLRErro
             if(expected!=null && expected.isCompoundType()) {
                 Functor func = program.domains().getFunctor(ctx.symbol.getText());
                 if (func != null) {
-                    return new FunctorValueModel(new Type(func.getCompoundType()), func.getName(), Collections.emptyList());
+                    return new FunctorValueModel(
+                            program.domains().getAllTypes()
+                                    .stream()
+                                    .filter(Type::isCompoundType)
+                                    .filter(type -> type.getCompoundType().getFunctors().contains(func))
+                                    .findFirst()
+                                    .orElse(null),
+                            func.getName(),
+                            Collections.emptyList());
                 }
             }
             return new SimpleValueModel(program.domains().get("symbol"), ctx.symbol.getText());
@@ -788,17 +806,18 @@ public class PrologParseListener extends PrologBaseListener implements ANTLRErro
         else argTypes = func.getArgTypes();
         List<ValueModel> args = parseArgs(ctx.functorVal().argList(), variables, argTypes);
         if(func==null){
-            func = new FunctorType(name,
-                    args.stream()
-                            .map(ValueModel::getType)
-                            .map(type -> {
-                                Iterator<String> it = program.domains().names(type).iterator();
-                                return it.hasNext()?it.next():null;
-                            }).collect(Collectors.toList()),
-                    program.domains());
-            new CompoundType(Collections.singletonList(func));
+            exceptions.add(new CompileException(
+                    tokenInterval(ctx.functorVal().NAME().getSymbol()),
+                    "Functor with name \""+ name +"\" does not exist"));
         }
-        FunctorValueModel val = new FunctorValueModel(new Type(func.getCompoundType()), func.getName(), args);
+        FunctorValueModel val = new FunctorValueModel(
+                program.domains().getAllTypes()
+                        .stream()
+                        .filter(Type::isCompoundType)
+                        .filter(type -> type.getCompoundType().getFunctors().contains(func))
+                        .findFirst()
+                        .orElse(null),
+                func.getName(), args);
         val.setCodeIntervals(new ModelCodeIntervals(
                 tokenInterval(ctx.functorVal().NAME().getSymbol()),
                 fullInterval(ctx.getStart(), ctx.getStop()),

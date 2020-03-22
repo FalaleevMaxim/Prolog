@@ -102,8 +102,8 @@ public class StatementExecutorRule extends AbstractRule {
                     ExecutedStatement executedStatement = st.executions.get(st.executions.size() - 1);
                     //Выражения, которые не произведут новых результатов, становятся null, и их нужно пропустить при возврате.
                     while (executedStatement == null) {
-                        st.executions.remove(st.currentStatement);
                         st.currentStatement--;
+                        st.executions.remove(st.currentStatement - st.cutIndex);
                         if (st.currentStatement <= st.cutIndex) {
                             break statements;
                         }

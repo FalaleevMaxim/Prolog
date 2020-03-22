@@ -118,7 +118,17 @@ public class PredicateStorageImpl extends AbstractModelObject implements Predica
                     }
                 }
             }
-            exceptions.addAll(p.exceptions());
+            Collection<ModelStateException> predicateExceptions = p.exceptions();
+            exceptions.addAll(predicateExceptions);
+            //Правила проверяются только если в предикате не было ошибок, и предикат содержит правила
+            if (predicateExceptions.isEmpty() && p instanceof PrologPredicate) {
+                for (Rule rule : ((PrologPredicate) p).getRules()) {
+                    //Установить ссылку на предикат, если её нет в правиле
+                    if (rule.getPredicate() != p)
+                        rule.setPredicate(p);
+                    exceptions.addAll(rule.exceptions());
+                }
+            }
         }
         return exceptions;
     }
@@ -171,9 +181,10 @@ public class PredicateStorageImpl extends AbstractModelObject implements Predica
     /**
      * Служебный метод для метода {@link #addBuiltInPredicates()}, создающий объекты предикатов.
      * Получает класс предиката, находит конструктор без параметров или конструктор, принимающий {@link TypeStorage} и создаёт объект с помощью конструктора
-     * @throws IllegalStateException Если не удалось создать объект.
+     *
      * @param pClass класс предиката
      * @return объект переданного класса
+     * @throws IllegalStateException Если не удалось создать объект.
      */
     private Predicate instantiate(Class<? extends AbstractPredicate> pClass) {
         for (Constructor<?> constructor : pClass.getConstructors()) {
@@ -188,7 +199,7 @@ public class PredicateStorageImpl extends AbstractModelObject implements Predica
             if (constructor.getParameters()[0].getType().equals(TypeStorage.class)) {
                 try {
                     return (Predicate) constructor.newInstance(typeStorage);
-                }catch (Exception ignored){
+                } catch (Exception ignored) {
                 }
             }
         }
