@@ -1,20 +1,42 @@
 package ru.prolog.syntaxmodel.tree;
 
 import ru.prolog.syntaxmodel.TokenKind;
-import ru.prolog.syntaxmodel.source.CodeSource;
+import ru.prolog.syntaxmodel.TokenType;
+import ru.prolog.syntaxmodel.recognizers.Lexer;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.function.Predicate;
 import java.util.function.ToIntFunction;
 import java.util.stream.Collectors;
 
 public abstract class AbstractNode implements Node {
+
+    /**
+     * Показывает, выполнился ли успешно последний parse этого объекта.
+     */
+    private boolean initialized;
+
+    /**
+     * Хранит изменяемый список дочерних узлов.
+     */
     private final List<Node> children = new ArrayList<>();
+    /**
+     * Обёртка, не позволяющая напрямую редактировать список дочерних узлов за пределами класса.
+     */
     private final List<Node> unmodifiebleChildren = Collections.unmodifiableList(children);
+
+    /**
+     * Родительский узел. Для корневого узла будет {@code null};
+     */
     private AbstractNode parent;
-    private CodeSource source;
+
+    /**
+     * Показывает, полностью ли правильно распознан узел. Если {@code false}, то узел распознан с ошибками
+     */
+    protected boolean valid;
 
     /**
      * Закэшированная длина элемента в символах.
@@ -33,17 +55,41 @@ public abstract class AbstractNode implements Node {
      */
     private int cachedLineBreaks;
 
-    protected AbstractNode(CodeSource source) {
-        this.source = source;
+    public AbstractNode(AbstractNode parent) {
+        this.parent = parent;
     }
 
+    /**
+     * Распознавание внутренних элементов узла.
+     *
+     * @param lexer Лексер для получения токенов.
+     * @return Успешно ли распознавание.
+     */
+    public final boolean parse(Lexer lexer) {
+        Token checkpoint = lexer.getPointer();
+        initialized = parseInternal(lexer);
+        if (!initialized) {
+            lexer.setPointer(checkpoint);
+            children.clear();
+        }
+        return initialized;
+    }
+
+    /**
+     * Логика распознавания, специфическая для каждого типа узла.
+     *
+     * @param lexer Лексер для получения токенов.
+     * @return Успешно ли распознавание.
+     */
+    protected abstract boolean parseInternal(Lexer lexer);
+
     @Override
-    public List<Node> children() {
+    public final List<Node> children() {
         return unmodifiebleChildren;
     }
 
     @Override
-    public List<Token> tokens() {
+    public final List<Token> tokens() {
         return children.stream()
                 .map(Node::tokens)
                 .flatMap(Collection::stream)
@@ -51,7 +97,7 @@ public abstract class AbstractNode implements Node {
     }
 
     @Override
-    public List<Token> tokens(TokenKind type) {
+    public final List<Token> tokens(TokenKind type) {
         return children.stream()
                 .map(Node::tokens)
                 .flatMap(Collection::stream)
@@ -60,7 +106,7 @@ public abstract class AbstractNode implements Node {
     }
 
     @Override
-    public List<Token> meaningTokens() {
+    public final List<Token> meaningTokens() {
         return children.stream()
                 .map(Node::tokens)
                 .flatMap(Collection::stream)
@@ -69,134 +115,128 @@ public abstract class AbstractNode implements Node {
     }
 
     @Override
-    public Token firstToken() {
+    public final Token firstToken() {
         if (children.isEmpty()) return null;
         return children.get(0).firstToken();
     }
 
     @Override
-    public Token lastToken() {
+    public final Token lastToken() {
         if (children.isEmpty()) return null;
         return children.get(children.size() - 1).lastToken();
     }
 
     @Override
-    public AbstractNode parent() {
+    public final AbstractNode parent() {
         return parent;
     }
 
     @Override
-    public void setParent(AbstractNode parent) {
+    public final void setParent(AbstractNode parent) {
         this.parent = parent;
     }
 
-    @Override
-    public int length() {
-        return cachedLength;
-    }
+    /**
+     * Добавляет узел в конец {@link #children} если это возможно.
+     * @param child Добавляемый узел.
+     * @throws IllegalArgumentException Если добавляемый узел пустой или если его нельзя добавить в конец {@link #children}.
+     */
+    public final void addChild(Node child) {
+        //Если узел пустой, его нельзя добавлять.
+        if (child.tokens().isEmpty()) throw new IllegalArgumentException("Can not add empty nodes");
+        //Если узлов ещё не добавлено, то новый узел можно добавлять
+        if (children.isEmpty()) {
+            //Если узел корневой, то ему принадлежат все токены перед первым его дочерним узлом
+            if (parent == null) {
+                Token prev = child.firstToken().getPrev();
+                for (Token token = prev; token != null; token = token.getPrev()) {
+                    addChildAndUpdate(token);
+                    token.setParent(this);
+                }
+            }
+            addChildAndUpdate(child);
+            return;
+        }
 
-    public void insertBefore(Node newChild, Node before) {
-        int index = children.indexOf(before);
-        if (index < 0) return;
-        insertChild(newChild, index);
-    }
+        //Если последний токен последнего узла совпадает с первым токеном добавляемого узла, то можно добавить в конец.
+        if (children.get(children.size() - 1).lastToken().getNext() == child.firstToken()) {
+            addChildAndUpdate(child);
+            return;
+        }
 
-    public void insertBefore(List<? extends Node> newChildren, Node before) {
-        int index = children.indexOf(before);
-        if (index < 0) return;
-        children.addAll(index, newChildren);
-        updateLength(sumLength(newChildren));
-    }
-
-    public void insertAfter(Node newChild, Node after) {
-        int index = children.indexOf(after);
-        if (index < 0) return;
-        insertChild(newChild, index + 1);
-    }
-
-    public void addChild(Node child) {
-        //ToDo переработать добавление узлов чтобы ссылки между токенами согласовались!!!!!
-        //ToDo возможно, придётся совместить метод с canAdd чтобы сразу найти подходящее место для вставки.
-        if (canAdd(child)) {
-            children.add(child);
+        //Если последний токен последнего узла аходится перед первым токеном добавляемого узла, то можно добавить в конец, но сначала нужно добавить все токены между узлами.
+        if (children.get(children.size() - 1).lastToken().isBefore(child.firstToken())) {
+            List<Token> interval = lastToken().getNext().intervalTo(child.firstToken().getPrev());
+            interval.forEach(this::addChildAndUpdate);
+            addChildAndUpdate(child);
+        } else {
+            throw new IllegalArgumentException("Unable to add node to the end");
         }
     }
 
     /**
-     * Ппроверка, можно ли добавить узел в список дочерних
-     *
-     * @param child Предлагаемый к добавлению узел
-     * @return true если узел можно добавить
+     * Пропускает игнорируемые токены, добавляя их в дочерние узлы
      */
-    private boolean canAdd(Node child) {
-        // Если узел пустой, добавлять нельзя.
-        if (child.firstToken() == null) return false;
-
-        //Если первый токен не имеет предыдущего и последний не имеет следующего, узел можно будет добавить, граничные токены с соседними узлами.
-        if (child.firstToken().getPrev() == null && child.lastToken().getNext() == null) return true;
-
-        //ToDo проверить остальные случаи, если по ссылкам между токенами, узел привязан между дочерними узлами, перед первым узлом или после последнего.
-        return false;
-    }
-
-    public void addChildren(List<? extends Node> newChildren) {
-        children.addAll(newChildren);
-        updateLength(sumLength(newChildren));
-    }
-
-    public void insertChild(Node child, int index) {
-        children.add(index, child);
-        updateLength(child.length());
-    }
-
-    @Override
-    public int line() {
-        if (parent == null) return 0;
-        return parent.linesBefore(this);
+    protected final void skipIgnored(Lexer lexer) {
+        Token token = lexer.skipIgnored();
+        if(token!=null) {
+            addChild(token);
+        }
     }
 
     /**
-     * Подсчитывает, сколько переносов строк было перед началом переданного элемента.
-     *
-     * @param child Элемент, для которого требуется найти строку начала.
-     * @return Номер строки на которой начинается элемент.
+     * Вспомогательный метод для парсинга необязательных частей. Ставит чекпоинт для лексера, и если часть не распознана, откатывает к нему.
+     * @param lexer Лексер
+     * @param parseFunc Функция распознавания части узла. Возвращает {@code true} если часть распознана успешно.
      */
-    public int linesBefore(Node child) {
-        return countUntilFoundChild(child,
-                parent::linesBefore,
-                Node::lineBreaks);
+    protected final void parseOptional(Lexer lexer, Predicate<Lexer> parseFunc) {
+        Token checkpoint = lexer.getPointer();
+        if (!parseFunc.test(lexer)) {
+            lexer.setPointer(checkpoint);
+        }
+    }
+
+    /**
+     * Использовать вместо {@code children.add(child)} для поддержания целостности.
+     */
+    private void addChildAndUpdate(Node child) {
+        children.add(child);
+        child.setParent(this);
+        updateLength(cachedLength + child.length());
+        updateLineBreaks(cachedLineBreaks + child.lineBreaks());
+    }
+
+    @Override
+    public final int length() {
+        return cachedLength;
     }
 
     /**
      * Обновляет сохранённую длину при изменении длины составляющих элементов
      */
-    public void updateLength() {
+    public final void updateLength() {
         int newSize = children.stream().mapToInt(Node::length).sum();
         if (newSize == cachedLength) return;
         int change = newSize - cachedLength;
         cachedLength = newSize;
-        if (parent != null) {
+        if (parent != null && parent.initialized) {
             parent.updateLength(change);
         }
     }
 
     private void updateLength(int change) {
         cachedLength += change;
-        if (parent != null) {
+        if (parent != null && parent.initialized) {
             parent.updateLength(change);
         }
     }
 
-    private int sumLength(Collection<? extends Node> nodes) {
-        return nodes.stream().mapToInt(Node::length).sum();
-    }
-
     @Override
-    public int lineBreaks() {
+    public final int lineBreaks() {
         return cachedLineBreaks;
     }
 
-    public void updateLineBreaks() {
+    public final void updateLineBreaks() {
         int newSize = children.stream().mapToInt(Node::lineBreaks).sum();
         if (newSize == cachedLineBreaks) return;
         int change = newSize - cachedLineBreaks;
@@ -213,31 +253,57 @@ public abstract class AbstractNode implements Node {
         }
     }
 
-    public void update() {
+    public final void update() {
         updateLength();
         updateLineBreaks();
     }
 
     @Override
-    public int startPos() {
+    public final int line() {
         if (parent == null) return 0;
+        if (!parent.initialized) throw new IllegalStateException("Parent not initialized yet!");
+        return parent.linesBefore(this);
+    }
+
+    /**
+     * Подсчитывает, сколько переносов строк было перед началом переданного элемента.
+     *
+     * @param child Элемент, для которого требуется найти строку начала.
+     * @return Номер строки на которой начинается элемент.
+     */
+    public final int linesBefore(Node child) {
+        if (!parent.initialized) throw new IllegalStateException("Parent not initialized yet!");
+        return countUntilFoundChild(child,
+                parent::linesBefore,
+                Node::lineBreaks);
+    }
+
+    @Override
+    public final int startPos() {
+        if (parent == null) return 0;
+        if (!parent.initialized) throw new IllegalStateException("Parent not initialized yet!");
         return parent.startPos(this);
     }
 
-    public int startPos(Node child) {
+    public final int startPos(Node child) {
+        if (!parent.initialized) throw new IllegalStateException("Parent not initialized yet!");
         return countUntilFoundChild(child,
                 parent::startPos,
                 Node::length);
     }
 
     @Override
-    public String getText() {
-        int startPos = startPos();
-        return source.getTreeSource().substring(startPos, startPos + length());
+    public final String getText() {
+        return tokens().stream().map(Token::getText).collect(Collectors.joining());
     }
 
     @Override
-    public Token tokenByRelativePos(int relativePos) {
+    public final boolean isValid() {
+        return initialized && valid;
+    }
+
+    @Override
+    public final Token tokenByRelativePos(int relativePos) {
         checkPos(relativePos);
         int start;
         int end = 0;
@@ -250,7 +316,7 @@ public abstract class AbstractNode implements Node {
     }
 
     @Override
-    public Node minNodeIncludes(int relativeStartPos, int relativeEndPos) {
+    public final Node minNodeIncludes(int relativeStartPos, int relativeEndPos) {
         checkPos(relativeStartPos);
         checkPos(relativeEndPos);
         int start;
@@ -294,5 +360,22 @@ public abstract class AbstractNode implements Node {
         }
         if (!found) throw new IllegalArgumentException("Given node is not child!");
         return counter;
+    }
+
+    protected static boolean ofType(Token token, TokenType type) {
+        return token!=null && token.getTokenType() == type;
+    }
+
+    protected static boolean ofKind(Token token, TokenKind kind) {
+        if(token == null) return false;
+        if(token.getTokenType() == null) {
+            return kind == TokenKind.IGNORED;
+        }
+        return token.getTokenType().getTokenKind() == kind;
+    }
+
+    @Override
+    public String toString() {
+        return "<" + getClass().getSimpleName() + ">" + getText();
     }
 }

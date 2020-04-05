@@ -94,13 +94,17 @@ public class Lexer {
     /**
      * Ставит указатель лексера на заданный токен. Понадобится при возврате в предыдущее правило парсера, когда правило парсера завершилось неудачно.
      *
-     * @throws IllegalArgumentException если переданный токен не связан с {@link #before}
+     * @throws IllegalArgumentException если переданный токен не связан с екущим указателем
      */
     public void setPointer(Token token) {
-        if (!token.isAfter(before) && !token.isBefore(before)) {
-            throw new IllegalArgumentException("Token to point is not connected to start token");
+        if (token != pointer && !token.isAfter(pointer) && !token.isBefore(pointer)) {
+            throw new IllegalArgumentException("Token to point is not connected to current pointer");
         }
         this.pointer = token;
+    }
+
+    public Token getPointer() {
+        return pointer;
     }
 
     public boolean isClosed() {
@@ -119,7 +123,9 @@ public class Lexer {
             pointer = next;
             return next;
         }
-        return tokenType.getRecognizer().recognize(code);
+        Token recognized = tokenType.getRecognizer().recognize(code);
+        if(recognized!=null) onTokenRecognize(recognized);
+        return recognized;
     }
 
     private Token nextAfterPointer() {
@@ -190,6 +196,11 @@ public class Lexer {
      * @return следующий токен (берёт уже распозныанный или распознаёт новый)
      */
     public Token nextToken() {
+        if(nextAfterPointer()!=null) {
+            Token token = nextAfterPointer();
+            pointer = nextAfterPointer();
+            return token;
+        }
         if (code.length() == 0) return null;
         for (TokenType tokenType : TokenType.values()) {
             TokenRecognizer recognizer = tokenType.getRecognizer();

@@ -30,7 +30,7 @@ public interface Node {
     AbstractNode parent();
 
     /**
-     * Список дочерних узлов.
+     * Неизменяемый список дочерних узлов.
      */
     List<Node> children();
 

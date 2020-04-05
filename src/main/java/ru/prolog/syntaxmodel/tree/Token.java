@@ -235,4 +235,9 @@ public class Token implements Node {
     public Hint getHint() {
         return hint;
     }
+
+    @Override
+    public String toString() {
+        return "<" + type +">" + text;
+    }
 }
