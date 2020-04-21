@@ -11,8 +11,9 @@ public class MappingCharSequence implements CharSequence {
 
     public MappingCharSequence(String source, int start, int length) {
         if (source == null) throw new IllegalArgumentException("Source string is null");
+        if (length < 0) throw new IllegalArgumentException("Length is negative");
         if (start < 0 || start > source.length()) throw new StringIndexOutOfBoundsException(start);
-        if (start + length >= source.length()) throw new StringIndexOutOfBoundsException(start + length);
+        if (start + length > source.length()) throw new StringIndexOutOfBoundsException(start + length);
         this.source = source;
         this.start = start;
         this.length = length;
@@ -35,9 +36,10 @@ public class MappingCharSequence implements CharSequence {
 
     @Override
     public CharSequence subSequence(int start, int end) {
-        if (start >= length) throw new StringIndexOutOfBoundsException(start);
-        if (end >= length) throw new StringIndexOutOfBoundsException(end);
-        if (start == 0 && end == length - 1) return this;
+        if (start >= length && end != length) throw new StringIndexOutOfBoundsException(start);
+        if (end > length) throw new StringIndexOutOfBoundsException(end);
+        if (start == 0 && end == length) return this;
+        if(end == start) return "";
         return new MappingCharSequence(source, this.start + start, end - start);
     }
 

@@ -17,6 +17,14 @@ public class TypeDefNode extends AbstractNode {
     }
 
     @Override
+    protected void clearInternal() {
+        typeName = null;
+        equalsToken = null;
+        typeNameRight = null;
+        arraySymbol = null;
+    }
+
+    @Override
     protected boolean parseInternal(Lexer lexer) {
         Token token = lexer.nextNonIgnored();
         if(ofType(token, SYMBOL)) {

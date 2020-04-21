@@ -2,7 +2,6 @@ package ru.prolog.syntaxmodel.recognizers;
 
 import ru.prolog.syntaxmodel.TokenKind;
 import ru.prolog.syntaxmodel.TokenType;
-import ru.prolog.syntaxmodel.source.CodeSource;
 import ru.prolog.syntaxmodel.tree.Token;
 import ru.prolog.syntaxmodel.tree.recognizers.Hint;
 import ru.prolog.syntaxmodel.tree.recognizers.tokens.TokenRecognizer;
@@ -11,12 +10,15 @@ import ru.prolog.syntaxmodel.util.MappingCharSequence;
 import java.util.List;
 
 public class Lexer {
-    private final CodeSource codeSource;
-
     /**
      * Участок кода, начинающийся после токена {@link #before}, и заканчивающийся в конце всего кода.
      */
     private CharSequence code;
+
+    /**
+     * Первый токен в цепочке токенов.
+     */
+    private Token first;
 
     /**
      * Распознанный ранее токен, после которого идёт участок изменённого кода.
@@ -61,23 +63,22 @@ public class Lexer {
      */
     private boolean closed = false;
 
-    public Lexer(CodeSource codeSource, CharSequence code) {
-        this.codeSource = codeSource;
-        this.code = code;
+    public Lexer(String code) {
+        this.code = new MappingCharSequence(code);
     }
 
     /**
-     * @param codeSource Источник исходного кода
+     * @param code       Код
      * @param before     Последний токен перед изменившимся участком, которого не коснулось изменение ({@code null}) если перед изменившимся участком нет токенов.
      * @param after      Первый токен после изменившегося участка, которого не коснулось изменение.
+     * @param start      Индекс первого символа изменившегося участка
      * @param diffLength Количество символов между концом before и началом after. Если 0 или меньше, то before и after связываются ссылками.
      */
-    public Lexer(CodeSource codeSource, Token before, Token after, int diffLength) {
-        this.codeSource = codeSource;
-        String code = codeSource.getTreeSource();
-        this.code = new MappingCharSequence(code, code.length() - diffLength, code.length());
+    public Lexer(String code, Token before, Token after, int start, int diffLength) {
+        this.code = new MappingCharSequence(code, start, code.length() - start);
         this.before = before;
         this.pointer = before;
+
         this.after = after;
         this.diffLength = diffLength;
 
@@ -86,9 +87,23 @@ public class Lexer {
             if (after != null) after.setPrev(before);
             this.closed = true;
         } else {
-            before.setNext(null);
-            after.setPrev(null);
+            if (before != null) before.setNext(null);
+            if (after != null) after.setPrev(null);
         }
+    }
+
+    public Token getFirst() {
+        if(first != null) return first;
+        if(before == null) return null;
+        return getFirst(before);
+    }
+
+    private Token getFirst(Token before) {
+        if(before.getPrev() == null) {
+            first = before;
+            return first;
+        }
+        return getFirst(before.getPrev());
     }
 
     /**
@@ -97,7 +112,7 @@ public class Lexer {
      * @throws IllegalArgumentException если переданный токен не связан с екущим указателем
      */
     public void setPointer(Token token) {
-        if (token != pointer && !token.isAfter(pointer) && !token.isBefore(pointer)) {
+        if (token != null && token != pointer && !token.isAfter(pointer) && !token.isBefore(pointer)) {
             throw new IllegalArgumentException("Token to point is not connected to current pointer");
         }
         this.pointer = token;
@@ -129,7 +144,9 @@ public class Lexer {
     }
 
     private Token nextAfterPointer() {
-        if (pointer == null) return null;
+        if (pointer == null) {
+            return getFirst();
+        }
         return pointer.getNext();
     }
 
@@ -201,7 +218,7 @@ public class Lexer {
             pointer = nextAfterPointer();
             return token;
         }
-        if (code.length() == 0) return null;
+        if (code.length() == 0 || (diffLength > 0 && recognizedLength == diffLength)) return null;
         for (TokenType tokenType : TokenType.values()) {
             TokenRecognizer recognizer = tokenType.getRecognizer();
             Token token = recognizer.recognize(code);
@@ -247,9 +264,5 @@ public class Lexer {
             if(after != null) after.setPrev(pointer);
             closed = true;
         }
-    }
-
-    public CodeSource getCodeSource() {
-        return codeSource;
     }
 }

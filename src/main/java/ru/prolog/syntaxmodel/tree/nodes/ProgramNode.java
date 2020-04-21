@@ -2,13 +2,17 @@ package ru.prolog.syntaxmodel.tree.nodes;
 
 import ru.prolog.syntaxmodel.recognizers.Lexer;
 import ru.prolog.syntaxmodel.tree.AbstractNode;
-import ru.prolog.syntaxmodel.tree.Token;
 
 public class ProgramNode extends AbstractNode {
     private DomainsNode domainsNode;
 
     public ProgramNode(AbstractNode parent) {
         super(parent);
+    }
+
+    @Override
+    protected void clearInternal() {
+        domainsNode = null;
     }
 
     @Override

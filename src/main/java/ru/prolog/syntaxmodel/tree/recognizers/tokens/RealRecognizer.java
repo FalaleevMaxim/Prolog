@@ -20,13 +20,14 @@ public class RealRecognizer extends TokenRecognizer {
         int i = 0;
         Predicate<Character> digitCondition = c -> c >= '0' && c <= '9';
 
-        int beforePoint = matchCharacters(code.subSequence(i, code.length() - 1), digitCondition);
+        int beforePoint = matchCharacters(code.subSequence(i, code.length()), digitCondition);
         i += beforePoint;
         //Если нет точки, то тип токена не real, а integer, поэтому токен не распознан как real.
-        if (code.charAt(i) != '.') return null;
+        if (i == code.length() || code.charAt(i) != '.') return null;
         i++;
         int afterPoint = (i == code.length()) ? 0 : matchCharacters(code.subSequence(i, code.length()), digitCondition);
-        if (afterPoint == 0 && beforePoint == 0) {
+        //Если после точки нет символов, то такая точка может быть не частью числа (например: p(X):-X=5.)
+        if (afterPoint == 0) {
             return null;
         }
         return tokenOf(tokenText(code, i + afterPoint));

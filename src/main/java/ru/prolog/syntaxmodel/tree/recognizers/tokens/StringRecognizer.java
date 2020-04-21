@@ -23,7 +23,7 @@ public class StringRecognizer extends TokenRecognizer {
                 break;
             }
             if (code.charAt(i) == '\\') {
-                int special = matchSpecialCharacter(code.subSequence(i, code.length() - 1));
+                int special = matchSpecialCharacter(code.subSequence(i, code.length()));
                 if (special == 0) {
                     if (errorPos < 0) errorPos = i;
                 } else {
