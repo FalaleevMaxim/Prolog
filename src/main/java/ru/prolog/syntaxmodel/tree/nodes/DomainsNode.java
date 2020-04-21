@@ -17,6 +17,12 @@ public class DomainsNode extends AbstractNode {
     }
 
     @Override
+    protected void clearInternal() {
+        domainsKeyword = null;
+        typeDefNodes = null;
+    }
+
+    @Override
     protected boolean parseInternal(Lexer lexer) {
         Token token = lexer.nextNonIgnored();
         if(ofType(token, TokenType.DOMAINS_KEYWORD)) {

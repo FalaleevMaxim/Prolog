@@ -15,9 +15,9 @@ public class RealRecognizerTest {
     }
 
     @Test
-    public void recognizeBeforePointTest() {
+    public void notRecognizeBeforePointTest() {
         Token result = recognizer.recognize("123.");
-        assertEquals(4, result.getText().length());
+        assertNull(result);
     }
 
     @Test

@@ -17,7 +17,7 @@ public abstract class AbstractNode implements Node {
     /**
      * Показывает, выполнился ли успешно последний parse этого объекта.
      */
-    private boolean initialized;
+    private volatile boolean initialized;
 
     /**
      * Хранит изменяемый список дочерних узлов.
@@ -60,6 +60,23 @@ public abstract class AbstractNode implements Node {
     }
 
     /**
+     * Очищает содержимое узда перед повторным парсингом.
+     */
+    protected final void clear() {
+        initialized = false;
+        children.clear();
+        valid = false;
+        cachedLineBreaks = 0;
+        cachedLength = 0;
+        clearInternal();
+    }
+
+    /**
+     * Спеифическая для типа узла логика очистки.
+     */
+    protected abstract void clearInternal();
+
+    /**
      * Распознавание внутренних элементов узла.
      *
      * @param lexer Лексер для получения токенов.
@@ -73,6 +90,23 @@ public abstract class AbstractNode implements Node {
             children.clear();
         }
         return initialized;
+    }
+
+    /**
+     * Повторный парсинг узла при изменении кода внутри него. Очищает содержимое узда и заново вызывает {@link #parse(Lexer)}
+     *
+     * @param lexer Лексер с обновлённым кодом
+     * @param failed Внутренний узел, который не смог распознаться из нового кода. При первом вызове {@code null}
+     * @return Удачно ли прошёл повторный парсинг.
+     */
+    public final boolean reparse(Lexer lexer, Node failed) {
+        Token start = firstToken();
+        lexer.setPointer(start == null ? null : start.getPrev());
+        if(parse(lexer)) {
+            return true;
+        } else {
+            return parent != null && parent.reparse(lexer, this);
+        }
     }
 
     /**

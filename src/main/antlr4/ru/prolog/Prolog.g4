@@ -85,9 +85,9 @@ list: LSQ RSQ
 listValues:value (',' value)*;
 functorVal:NAME LPAR argList? RPAR
           ;
-goal:GOAL ruleBody '.'?;
+goal:GOAL ruleBody ('.' | EOF);
 
-outerGoal: ruleBody '.'?;
+outerGoal: ruleBody ('.' | EOF);
 
 consult: predExec+;
 
