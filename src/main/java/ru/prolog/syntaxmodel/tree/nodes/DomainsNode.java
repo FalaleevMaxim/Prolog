@@ -10,7 +10,7 @@ import java.util.List;
 
 public class DomainsNode extends AbstractNode {
     private Token domainsKeyword;
-    private List<TypeDefNode> typeDefNodes;
+    private List<TypeDefNode> typeDefNodes = new ArrayList<>();
 
     public DomainsNode(AbstractNode parent) {
         super(parent);
@@ -19,24 +19,22 @@ public class DomainsNode extends AbstractNode {
     @Override
     protected void clearInternal() {
         domainsKeyword = null;
-        typeDefNodes = null;
+        typeDefNodes.clear();
     }
 
     @Override
     protected boolean parseInternal(Lexer lexer) {
         Token token = lexer.nextNonIgnored();
-        if(ofType(token, TokenType.DOMAINS_KEYWORD)) {
+        if (ofType(token, TokenType.DOMAINS_KEYWORD)) {
             domainsKeyword = token;
             addChild(domainsKeyword);
-        }
-        else return false;
+        } else return false;
 
-        typeDefNodes = new ArrayList<>();
         boolean parsed;
         do {
             TypeDefNode typeDefNode = new TypeDefNode(this);
             parsed = typeDefNode.parse(lexer);
-            if(parsed) {
+            if (parsed) {
                 typeDefNodes.add(typeDefNode);
                 addChild(typeDefNode);
             }

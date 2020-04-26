@@ -21,6 +21,7 @@ public enum TokenType {
     REAL(SEMANTIC, new RealRecognizer()),
     STRING(SEMANTIC, new StringRecognizer()),
     CHAR(SEMANTIC, new CharRecognizer()),
+    PRIMITIVE(SEMANTIC, new PrimitiveTypeRecognizer()),
     SYMBOL(SEMANTIC, new SymbolRecognizer()),
     VARIABLE(SEMANTIC, new VariableRecognizer()),
     ANONYMOUS(SEMANTIC, new AnonymousVariableRecognizer()),
@@ -84,13 +85,15 @@ public enum TokenType {
      * @return Список всех ключевых слов
      */
     public static Set<String> getKeywords() {
-        return Arrays.stream(values())
+        Set<String> keywords = Arrays.stream(values())
                 .map(TokenType::getRecognizer)
                 .filter(recognizer -> recognizer instanceof AbstractKeywordRecognizer)
                 .map(recognizer -> (AbstractKeywordRecognizer) recognizer)
                 .filter(AbstractKeywordRecognizer::isWord)
                 .map(AbstractKeywordRecognizer::getKeyword)
                 .collect(Collectors.toSet());
+        keywords.addAll(PrimitiveTypeRecognizer.PRIMITIVES);
+        return keywords;
     }
 
     public TokenKind getTokenKind() {

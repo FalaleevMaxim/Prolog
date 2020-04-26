@@ -95,14 +95,14 @@ public abstract class AbstractNode implements Node {
     /**
      * Повторный парсинг узла при изменении кода внутри него. Очищает содержимое узда и заново вызывает {@link #parse(Lexer)}
      *
-     * @param lexer Лексер с обновлённым кодом
+     * @param lexer  Лексер с обновлённым кодом
      * @param failed Внутренний узел, который не смог распознаться из нового кода. При первом вызове {@code null}
      * @return Удачно ли прошёл повторный парсинг.
      */
     public final boolean reparse(Lexer lexer, Node failed) {
         Token start = firstToken();
         lexer.setPointer(start == null ? null : start.getPrev());
-        if(parse(lexer)) {
+        if (parse(lexer)) {
             return true;
         } else {
             return parent != null && parent.reparse(lexer, this);
@@ -172,6 +172,7 @@ public abstract class AbstractNode implements Node {
 
     /**
      * Добавляет узел в конец {@link #children} если это возможно.
+     *
      * @param child Добавляемый узел.
      * @throws IllegalArgumentException Если добавляемый узел пустой или если его нельзя добавить в конец {@link #children}.
      */
@@ -213,21 +214,24 @@ public abstract class AbstractNode implements Node {
      */
     protected final void skipIgnored(Lexer lexer) {
         Token token = lexer.skipIgnored();
-        if(token!=null) {
+        if (token != null) {
             addChild(token);
         }
     }
 
     /**
      * Вспомогательный метод для парсинга необязательных частей. Ставит чекпоинт для лексера, и если часть не распознана, откатывает к нему.
-     * @param lexer Лексер
+     *
+     * @param lexer     Лексер
      * @param parseFunc Функция распознавания части узла. Возвращает {@code true} если часть распознана успешно.
      */
-    protected final void parseOptional(Lexer lexer, Predicate<Lexer> parseFunc) {
+    protected final boolean parseOptional(Lexer lexer, Predicate<Lexer> parseFunc) {
         Token checkpoint = lexer.getPointer();
         if (!parseFunc.test(lexer)) {
             lexer.setPointer(checkpoint);
+            return false;
         }
+        return true;
     }
 
     /**
@@ -397,12 +401,12 @@ public abstract class AbstractNode implements Node {
     }
 
     protected static boolean ofType(Token token, TokenType type) {
-        return token!=null && token.getTokenType() == type;
+        return token != null && token.getTokenType() == type;
     }
 
     protected static boolean ofKind(Token token, TokenKind kind) {
-        if(token == null) return false;
-        if(token.getTokenType() == null) {
+        if (token == null) return false;
+        if (token.getTokenType() == null) {
             return kind == TokenKind.IGNORED;
         }
         return token.getTokenType().getTokenKind() == kind;
