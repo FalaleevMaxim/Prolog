@@ -30,16 +30,17 @@ public class DomainsNode extends AbstractNode {
             addChild(domainsKeyword);
         } else return false;
 
-        boolean parsed;
-        do {
-            TypeDefNode typeDefNode = new TypeDefNode(this);
-            parsed = typeDefNode.parse(lexer);
-            if (parsed) {
-                typeDefNodes.add(typeDefNode);
-                addChild(typeDefNode);
-            }
-        } while (parsed);
-
+        while (parseOptional(lexer, this::parseTypeDef));
         return true;
+    }
+
+    private boolean parseTypeDef(Lexer lexer) {
+        TypeDefNode typeDefNode = new TypeDefNode(this);
+        if (typeDefNode.parse(lexer)) {
+            typeDefNodes.add(typeDefNode);
+            addChild(typeDefNode);
+            return true;
+        }
+        return false;
     }
 }

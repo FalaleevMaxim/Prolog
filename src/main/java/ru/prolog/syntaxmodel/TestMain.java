@@ -5,7 +5,7 @@ import ru.prolog.syntaxmodel.tree.nodes.ProgramNode;
 
 public class TestMain {
     public static void main(String[] args) {
-        final String code = " domains\nfoo = foo(integer) ; bar(integer, foo)\narr = integer*  \n  int = integer ";
+        final String code = " domains\nfoo = foo(integer) ; bar(integer, foo)\narr = integer*  \n  int = integer\n predicates\npred \n f() _myPredicate(foo, arr, integer)  ";
         Lexer lexer = new Lexer(code);
         ProgramNode programNode = new ProgramNode(null);
         boolean parse = programNode.parse(lexer);

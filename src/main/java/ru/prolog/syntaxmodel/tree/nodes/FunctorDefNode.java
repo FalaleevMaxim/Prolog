@@ -12,6 +12,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+/**
+ * Узел описания функтора или предиката
+ */
 public class FunctorDefNode extends AbstractNode implements Named, Bracketed, Separated {
     /**
      * Имя функтора
@@ -52,7 +55,7 @@ public class FunctorDefNode extends AbstractNode implements Named, Bracketed, Se
     @Override
     protected boolean parseInternal(Lexer lexer) {
         Token token = lexer.nextNonIgnored();
-        if (token.getTokenType() == TokenType.SYMBOL) {
+        if (ofType(token, TokenType.SYMBOL)) {
             name = token;
             addChild(name);
         } else {
@@ -68,6 +71,8 @@ public class FunctorDefNode extends AbstractNode implements Named, Bracketed, Se
         if (ofType(token, TokenType.LB)) {
             lb = token;
             addChild(lb);
+        } else {
+            return false;
         }
 
         while (true) {
@@ -108,7 +113,7 @@ public class FunctorDefNode extends AbstractNode implements Named, Bracketed, Se
 
     private boolean parseCommaAndType(Lexer lexer) {
         Token token = lexer.nextNonIgnored();
-        if (token.getTokenType() == TokenType.COMMA) {
+        if (ofType(token, TokenType.COMMA)) {
             commas.add(token);
             addChild(token);
         } else {
