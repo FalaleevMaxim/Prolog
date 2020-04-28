@@ -122,6 +122,13 @@ public class Lexer {
         return pointer;
     }
 
+    /**
+     * @return {@code true} Если указатель показывает на конец файла
+     */
+    public boolean isEnd() {
+        return closed && (pointer != null && pointer.getNext() == null);
+    }
+
     public boolean isClosed() {
         return closed;
     }

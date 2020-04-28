@@ -1,9 +1,10 @@
-package ru.prolog.syntaxmodel.tree.nodes;
+package ru.prolog.syntaxmodel.tree.nodes.modules;
 
 import ru.prolog.syntaxmodel.TokenType;
 import ru.prolog.syntaxmodel.recognizers.Lexer;
 import ru.prolog.syntaxmodel.tree.AbstractNode;
 import ru.prolog.syntaxmodel.tree.Token;
+import ru.prolog.syntaxmodel.tree.nodes.FunctorDefNode;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -12,7 +13,7 @@ import java.util.List;
 public class PredicatesNode extends AbstractNode {
     private Token predicatesKeyword;
 
-    private List<FunctorDefNode> predicates = new ArrayList<>();
+    private final List<FunctorDefNode> predicates = new ArrayList<>();
 
     public PredicatesNode(AbstractNode parent) {
         super(parent);
@@ -30,6 +31,7 @@ public class PredicatesNode extends AbstractNode {
         if(token.getTokenType() != TokenType.PREDICATES_KEYWORD) return false;
         predicatesKeyword = token;
         addChild(token);
+
         while (parseOptional(lexer, this::parsePredicate));
         if(predicates.isEmpty()) {
             valid = false;

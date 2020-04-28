@@ -4,10 +4,7 @@ import ru.prolog.syntaxmodel.TokenKind;
 import ru.prolog.syntaxmodel.TokenType;
 import ru.prolog.syntaxmodel.recognizers.Lexer;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 import java.util.function.Predicate;
 import java.util.function.ToIntFunction;
 import java.util.stream.Collectors;
@@ -84,6 +81,7 @@ public abstract class AbstractNode implements Node {
      */
     public final boolean parse(Lexer lexer) {
         Token checkpoint = lexer.getPointer();
+        valid = true;
         initialized = parseInternal(lexer);
         if (!initialized) {
             lexer.setPointer(checkpoint);
@@ -316,6 +314,9 @@ public abstract class AbstractNode implements Node {
                 Node::lineBreaks);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public final int startPos() {
         if (parent == null) return 0;
@@ -323,6 +324,10 @@ public abstract class AbstractNode implements Node {
         return parent.startPos(this);
     }
 
+    /**
+     * Номер символа в исходном коде, с которого начинается переданный дочерний узел
+     * @param child Дочерний узел этого узла
+     */
     public final int startPos(Node child) {
         if (!parent.initialized) throw new IllegalStateException("Parent not initialized yet!");
         return countUntilFoundChild(child,
@@ -400,10 +405,46 @@ public abstract class AbstractNode implements Node {
         return counter;
     }
 
+    /**
+     * Проверяет что токен имеет указанный тип
+     * @param token Токен
+     * @param type Ожидаемый тип
+     * @return {@code true} если токен не null и имеет указанный тип.
+     */
     protected static boolean ofType(Token token, TokenType type) {
         return token != null && token.getTokenType() == type;
     }
 
+    /**
+     * Проверяет что токен имеет один из указанных типов
+     * @param token Токен
+     * @param types Ожидаемые типы
+     * @return {@code true} если токен не null и имеет указанный тип.
+     */
+    protected static boolean ofType(Token token, TokenType... types) {
+        if(token == null) return false;
+        for (TokenType type : types) {
+            if(token.getTokenType() == type) return true;
+        }
+        return false;
+    }
+
+    /**
+     * Проверяет, что токен является заголовком модуля
+     * @param token Токен
+     * @return {@code true} если токен относится к одному из типов звголовков
+     * @see TokenType#HEADERS
+     */
+    protected static boolean isModuleHeader(Token token) {
+        return token != null && TokenType.HEADERS.contains(token.getTokenType());
+    }
+
+    /**
+     * Проверяет, что токен относится к заданной категшории
+     * @param token Токен
+     * @param kind Ожидаемая категория токена
+     * @return {@code true} если токен не {@code null} и относится к заданной категории токенов
+     */
     protected static boolean ofKind(Token token, TokenKind kind) {
         if (token == null) return false;
         if (token.getTokenType() == null) {

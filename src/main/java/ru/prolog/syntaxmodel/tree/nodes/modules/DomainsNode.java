@@ -1,16 +1,18 @@
-package ru.prolog.syntaxmodel.tree.nodes;
+package ru.prolog.syntaxmodel.tree.nodes.modules;
 
 import ru.prolog.syntaxmodel.TokenType;
 import ru.prolog.syntaxmodel.recognizers.Lexer;
 import ru.prolog.syntaxmodel.tree.AbstractNode;
 import ru.prolog.syntaxmodel.tree.Token;
+import ru.prolog.syntaxmodel.tree.nodes.TypeDefNode;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class DomainsNode extends AbstractNode {
     private Token domainsKeyword;
-    private List<TypeDefNode> typeDefNodes = new ArrayList<>();
+    private final List<TypeDefNode> typeDefNodes = new ArrayList<>();
 
     public DomainsNode(AbstractNode parent) {
         super(parent);
@@ -42,5 +44,13 @@ public class DomainsNode extends AbstractNode {
             return true;
         }
         return false;
+    }
+
+    public Token getDomainsKeyword() {
+        return domainsKeyword;
+    }
+
+    public List<TypeDefNode> getTypeDefNodes() {
+        return Collections.unmodifiableList(typeDefNodes);
     }
 }

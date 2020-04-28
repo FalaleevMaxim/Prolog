@@ -196,7 +196,7 @@ public class Token implements Node {
             return false;
         }
         acc.add(this);
-        return intervalTo(acc, to);
+        return next.intervalTo(acc, to);
     }
 
     private void checkPos(int relativeStartPos) {

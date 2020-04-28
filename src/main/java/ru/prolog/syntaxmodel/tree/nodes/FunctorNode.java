@@ -12,33 +12,35 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * Узел описания функтора или предиката
+ * Узел, состоящий из имени и списка аргументов в скобках через запятую (функтор, вызов предиката или левая часть правила).
  */
-public class FunctorDefNode extends AbstractNode implements Bracketed, Separated {
+public class FunctorNode extends AbstractNode implements Bracketed, Separated {
     /**
      * Имя функтора
      */
     private Token name;
+
     /**
      * Открывающая скобка
      */
     private Token lb;
+
     /**
      * Закрывающая скобка
      */
     private Token rb;
 
     /**
-     * Запятые, разделяющие типы аргументов
+     * Аргументы функтора
+     */
+    private final List<ValueNode> args = new ArrayList<>();
+
+    /**
+     * Запятые, разделяющие аргументы.
      */
     private final List<Token> commas = new ArrayList<>();
 
-    /**
-     * Типы аргументов
-     */
-    private final List<TypeNameNode> argTypes = new ArrayList<>();
-
-    public FunctorDefNode(AbstractNode parent) {
+    public FunctorNode(AbstractNode parent) {
         super(parent);
     }
 
@@ -47,19 +49,16 @@ public class FunctorDefNode extends AbstractNode implements Bracketed, Separated
         name = null;
         lb = null;
         rb = null;
+        args.clear();
         commas.clear();
-        argTypes.clear();
     }
 
     @Override
     protected boolean parseInternal(Lexer lexer) {
         Token token = lexer.nextNonIgnored();
-        if (ofType(token, TokenType.SYMBOL)) {
-            name = token;
-            addChild(name);
-        } else {
-            return false;
-        }
+        if (!ofType(token, TokenType.SYMBOL)) return false;
+        name = token;
+        addChild(token);
 
         parseOptional(lexer, this::parseBrackets);
         return true;
@@ -76,13 +75,13 @@ public class FunctorDefNode extends AbstractNode implements Bracketed, Separated
 
         while (true) {
             if (parseOptional(lexer, this::parseClosing)) return true;
-            if (argTypes.isEmpty()) {
-                if (!parseOptional(lexer, this::parseType)) {
+            if (args.isEmpty()) {
+                if (!parseOptional(lexer, this::parseArg)) {
                     valid = false;
                     return false; //ToDo вместо return пропускать токены пока не найдётся закрывающая скобка
                 }
             } else {
-                if (!parseOptional(lexer, this::parseCommaAndType)) {
+                if (!parseOptional(lexer, this::parseCommaAndArg)) {
                     valid = false;
                     return false; //ToDo вместо return пропускать токены пока не найдётся закрывающая скобка
                 }
@@ -100,17 +99,17 @@ public class FunctorDefNode extends AbstractNode implements Bracketed, Separated
         return false;
     }
 
-    private boolean parseType(Lexer lexer) {
-        TypeNameNode typeName = new TypeNameNode(this);
-        if (typeName.parse(lexer)) {
-            argTypes.add(typeName);
-            addChild(typeName);
+    private boolean parseArg(Lexer lexer) {
+        ValueNode value = new ValueNode(this);
+        if (value.parse(lexer)) {
+            args.add(value);
+            addChild(value);
             return true;
         }
         return false;
     }
 
-    private boolean parseCommaAndType(Lexer lexer) {
+    private boolean parseCommaAndArg(Lexer lexer) {
         Token token = lexer.nextNonIgnored();
         if (ofType(token, TokenType.COMMA)) {
             commas.add(token);
@@ -119,7 +118,7 @@ public class FunctorDefNode extends AbstractNode implements Bracketed, Separated
             return false;
         }
 
-        if(!parseOptional(lexer, this::parseType)) {
+        if(!parseOptional(lexer, this::parseArg)) {
             valid = false;
         }
         return true;
@@ -139,16 +138,16 @@ public class FunctorDefNode extends AbstractNode implements Bracketed, Separated
         return rb;
     }
 
-    @Override
-    public List<Token> getSeparators() {
-        return getCommas();
+    public List<ValueNode> getArgs() {
+        return Collections.unmodifiableList(args);
     }
 
     public List<Token> getCommas() {
         return Collections.unmodifiableList(commas);
     }
 
-    public List<TypeNameNode> getArgTypes() {
-        return Collections.unmodifiableList(argTypes);
+    @Override
+    public List<Token> getSeparators() {
+        return getCommas();
     }
 }

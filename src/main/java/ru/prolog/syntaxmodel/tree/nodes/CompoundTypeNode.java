@@ -14,7 +14,7 @@ public class CompoundTypeNode extends AbstractNode implements Separated {
     /**
      * Точки с запятой, разделяющие функторы
      */
-    private List<Token> semicolons = new ArrayList<>();
+    private final List<Token> semicolons = new ArrayList<>();
 
     /**
      * Список функторов

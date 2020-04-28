@@ -3,18 +3,28 @@ package ru.prolog.syntaxmodel.tree.nodes;
 import ru.prolog.syntaxmodel.recognizers.Lexer;
 import ru.prolog.syntaxmodel.tree.AbstractNode;
 import ru.prolog.syntaxmodel.tree.Token;
-import ru.prolog.syntaxmodel.tree.interfaces.Named;
+import ru.prolog.syntaxmodel.tree.interfaces.Separated;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 import static ru.prolog.syntaxmodel.TokenType.*;
 
 /**
  * Описание типа данных из domains
  */
-public class TypeDefNode extends AbstractNode implements Named {
+public class TypeDefNode extends AbstractNode implements Separated {
     /**
-     * Имя типа слева
+     * Имена типа слева
      */
-    private Token typeName;
+    private List<Token> typeNames = new ArrayList<>();
+
+    /**
+     * Запятые, разделяющие имена типа
+     */
+    private List<Token> commas = new ArrayList<>();
+
     /**
      * Символ =
      */
@@ -35,21 +45,21 @@ public class TypeDefNode extends AbstractNode implements Named {
     /**
      * @return Является ли тип примитивным
      */
-    private boolean isPrimitive() {
+    public boolean isPrimitive() {
         return primitive != null;
     }
 
     /**
      * @return Является ли тип списковым
      */
-    private boolean isList() {
+    public boolean isList() {
         return listType != null;
     }
 
     /**
      * @return Является ли тип составным
      */
-    private boolean isCompound() {
+    public boolean isCompound() {
         return compoundType != null;
     }
 
@@ -59,7 +69,8 @@ public class TypeDefNode extends AbstractNode implements Named {
 
     @Override
     protected void clearInternal() {
-        typeName = null;
+        typeNames.clear();
+        commas.clear();
         equalsToken = null;
         primitive = null;
         listType = null;
@@ -68,13 +79,11 @@ public class TypeDefNode extends AbstractNode implements Named {
 
     @Override
     protected boolean parseInternal(Lexer lexer) {
-        Token token = lexer.nextNonIgnored();
-        if (ofType(token, SYMBOL)) {
-            typeName = token;
-            addChild(typeName);
-        } else return false;
+        if(!parseName(lexer)) return false;
 
-        token = lexer.nextNonIgnored();
+        while (parseOptional(lexer, this::parseCommaAndName));
+
+        Token token = lexer.nextNonIgnored();
         if (ofType(token, EQUALS)) {
             equalsToken = token;
             addChild(equalsToken);
@@ -84,6 +93,37 @@ public class TypeDefNode extends AbstractNode implements Named {
         if (parseOptional(lexer, this::parsePrimitive)) return true;
         if (parseOptional(lexer, this::parseCompound)) return true;
         valid = false;
+        return true;
+    }
+
+    private boolean parseName(Lexer lexer) {
+        Token token = lexer.nextNonIgnored();
+        if (ofType(token, SYMBOL)) {
+            typeNames.add(token);
+            addChild(token);
+            return true;
+        } return false;
+    }
+
+    private boolean parseComma(Lexer lexer) {
+        Token token = lexer.nextNonIgnored();
+        if (ofType(token, COMMA)) {
+            commas.add(token);
+            addChild(token);
+            return true;
+        } return false;
+    }
+
+    private boolean parseCommaAndName(Lexer lexer) {
+        boolean parseComma = parseOptional(lexer, this::parseComma);
+        boolean parseName = parseOptional(lexer, this::parseName);
+        if(!parseComma && !parseName) {
+            return false;
+        }
+
+        if(!parseComma || !parseName) {
+            valid = false;
+        }
         return true;
     }
 
@@ -118,11 +158,6 @@ public class TypeDefNode extends AbstractNode implements Named {
         return false;
     }
 
-    @Override
-    public Token getName() {
-        return typeName;
-    }
-
     public Token getEqualsToken() {
         return equalsToken;
     }
@@ -137,5 +172,18 @@ public class TypeDefNode extends AbstractNode implements Named {
 
     public CompoundTypeNode getCompoundType() {
         return compoundType;
+    }
+
+    public List<Token> getTypeNames() {
+        return Collections.unmodifiableList(typeNames);
+    }
+
+    public List<Token> getCommas() {
+        return Collections.unmodifiableList(commas);
+    }
+
+    @Override
+    public List<Token> getSeparators() {
+        return getCommas();
     }
 }

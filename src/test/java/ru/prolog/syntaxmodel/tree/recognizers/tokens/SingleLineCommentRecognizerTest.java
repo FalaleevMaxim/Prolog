@@ -2,9 +2,8 @@ package ru.prolog.syntaxmodel.tree.recognizers.tokens;
 
 import org.junit.Test;
 import ru.prolog.syntaxmodel.tree.Token;
-import ru.prolog.syntaxmodel.tree.recognizers.RecognitionResult;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 public class SingleLineCommentRecognizerTest {
     private final SingleLineCommentRecognizer recognizer = new SingleLineCommentRecognizer();

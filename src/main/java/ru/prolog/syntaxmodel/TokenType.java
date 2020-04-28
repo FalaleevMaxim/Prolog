@@ -2,10 +2,9 @@ package ru.prolog.syntaxmodel;
 
 import ru.prolog.syntaxmodel.tree.recognizers.tokens.*;
 import ru.prolog.syntaxmodel.tree.recognizers.tokens.keywords.*;
+import ru.prolog.syntaxmodel.tree.recognizers.tokens.math.*;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static ru.prolog.syntaxmodel.TokenKind.*;
@@ -35,13 +34,18 @@ public enum TokenType {
     PLUS(SYNTAX, new PlusRecognizer()),
     MINUS(SYNTAX, new MinusRecognizer()),
     DIVIDE(SYNTAX, new DivideRecognizer()),
+    DIV(SYNTAX, new DivRecognizer()),
+    MOD(SYNTAX, new ModRecognizer()),
     EQUALS(SYNTAX, new EqualSignRecognizer()),
     GREATER(SYNTAX, new GreaterSignRecognizer()),
     LESSER(SYNTAX, new LesserSignRecognizer()),
+    GREATER_EQUALS(SYNTAX, new GreaterEqualsSignRecognizer()),
+    LESSER_EQUALS(SYNTAX, new LesserEqualsSignRecognizer()),
+    NOT_EQUALS(SYNTAX, new NotEqualsSignRecognizer()),
     LB(SYNTAX, new LeftBracketRecognizer()),
     RB(SYNTAX, new RightBracketRecognizer()),
-    LSQB(SYNTAX, new RightSquareBracketRecognizer()),
-    RSQB(SYNTAX, new LeftSquareBracketRecognizer()),
+    LSQB(SYNTAX, new LeftSquareBracketRecognizer()),
+    RSQB(SYNTAX, new RightSquareBracketRecognizer()),
     TAILSEP(SYNTAX, new TailSeparatorRecognizer()),
     COMMA(SYNTAX, new CommaRecognizer()),
     DOT(SYNTAX, new DotRecognizer()),
@@ -59,6 +63,16 @@ public enum TokenType {
      * Распознаватель токена
      */
     private final TokenRecognizer recognizer;
+
+    /**
+     * Типы заголовков модулей программы
+     */
+    public static final Set<TokenType> HEADERS = Collections.unmodifiableSet(EnumSet.of(
+            TokenType.DOMAINS_KEYWORD,
+            TokenType.DATABASE_KEYWORD,
+            TokenType.PREDICATES_KEYWORD,
+            TokenType.CLAUSES_KEYWORD,
+            TokenType.GOAL_KEYWORD));
 
     TokenType(TokenKind tokenKind, TokenRecognizer recognizer) {
         this.tokenKind = tokenKind;

@@ -30,9 +30,7 @@ public class TypeNameNode extends AbstractNode {
     @Override
     protected boolean parseInternal(Lexer lexer) {
         Token token = lexer.nextNonIgnored();
-        if (token == null) return false;
-        TokenType tokenType = token.getTokenType();
-        if (tokenType == TokenType.PRIMITIVE || tokenType == TokenType.SYMBOL) {
+        if (ofType(token, TokenType.PRIMITIVE, TokenType.SYMBOL)) {
             typeName = token;
             addChild(token);
             return true;

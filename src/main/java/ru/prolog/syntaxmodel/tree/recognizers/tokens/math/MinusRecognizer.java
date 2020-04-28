@@ -1,4 +1,4 @@
-package ru.prolog.syntaxmodel.tree.recognizers.tokens.keywords;
+package ru.prolog.syntaxmodel.tree.recognizers.tokens.math;
 
 import ru.prolog.syntaxmodel.tree.recognizers.tokens.AbstractKeywordRecognizer;
 

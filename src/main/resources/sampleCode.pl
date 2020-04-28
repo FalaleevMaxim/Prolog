@@ -1,4 +1,4 @@
-include
+%include
 %predicate("/home/mfalaleev/IdeaProjects/Prolog/target/test-classes/", "ru.prolog.logic.model.predicate.HelloPredicate")
 %predicate("/home/mfalaleev/IdeaProjects/Prolog/target/test-classes/", "ru.prolog.logic.model.predicate.Return7Predicate")
 %module("/home/mfalaleev/IdeaProjects/Prolog/target/test-classes/", "ru.prolog.logic.model.predicate.IntegersListPredicateModule")
