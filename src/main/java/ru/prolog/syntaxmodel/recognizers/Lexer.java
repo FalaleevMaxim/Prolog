@@ -164,7 +164,7 @@ public class Lexer {
      */
     public Token nextNonIgnored() {
         while (nextAfterPointer() != null) {
-            Token next = pointer.getNext();
+            Token next = nextAfterPointer();
             pointer = next;
             if (next.getTokenType() != null && !TokenKind.IGNORED.equals(next.getTokenKind())) {
                 return next;
@@ -256,6 +256,8 @@ public class Lexer {
         lastRecognized = token;
         //Указатель устанавливается на новый токен
         pointer = token;
+        //Если первого токена ещё нет, токен записывается первым
+        if(getFirst() == null) first = token;
         //Длина распознанного участка кода увеличивается на длину распознанного токена.
         recognizedLength += token.length();
 

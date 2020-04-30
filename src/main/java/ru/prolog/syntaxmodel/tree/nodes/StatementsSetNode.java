@@ -5,16 +5,20 @@ import ru.prolog.syntaxmodel.recognizers.Lexer;
 import ru.prolog.syntaxmodel.tree.AbstractNode;
 import ru.prolog.syntaxmodel.tree.Token;
 import ru.prolog.syntaxmodel.tree.interfaces.Separated;
+import ru.prolog.syntaxmodel.tree.misc.ParsingResult;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
+
+import static ru.prolog.syntaxmodel.TokenType.*;
+import static ru.prolog.syntaxmodel.tree.misc.ParsingResult.*;
 
 /**
  * Набор выражений в цели или правой части правила, разделённых запятой или "and".
  * В составе правила может быть несколько таких наборов, разделённых
  */
 public class StatementsSetNode extends AbstractNode implements Separated {
+    public static final Set<TokenType> FOLLOW_SET = Collections.unmodifiableSet(EnumSet.of(COMMA, AND_KEYWORD));
+
     private final List<Token> andSigns = new ArrayList<>();
     private final List<StatementNode> statements = new ArrayList<>();
 
@@ -29,10 +33,10 @@ public class StatementsSetNode extends AbstractNode implements Separated {
     }
 
     @Override
-    protected boolean parseInternal(Lexer lexer) {
-        if (!parseOptional(lexer, this::parseStatement)) return false;
-        while (parseOptional(lexer, this::parseAndAndStatement));
-        return true;
+    protected ParsingResult parseInternal(Lexer lexer) { //ToDo использовать follow-set
+        if (!parseOptional(lexer, this::parseStatement).isOk()) return FAIL;
+        while (parseOptional(lexer, this::parseAndAndStatement).isOk());
+        return OK;
     }
 
     public List<Token> getAndSigns() {
@@ -48,27 +52,33 @@ public class StatementsSetNode extends AbstractNode implements Separated {
         return getAndSigns();
     }
 
-    private boolean parseStatement(Lexer lexer) {
+    private ParsingResult parseStatement(Lexer lexer) {
         StatementNode statement = new StatementNode(this);
-        if(statement.parse(lexer)) {
+        ParsingResult result = statement.parse(lexer);
+        if(result.isOk()) {
             statements.add(statement);
             addChild(statement);
-            return true;
         }
-        return false;
+        return result;
     }
 
-    private boolean parseAndAndStatement(Lexer lexer) {
+    private ParsingResult parseAndAndStatement(Lexer lexer) {
         Token token = lexer.nextNonIgnored();
         if (!ofType(token, TokenType.COMMA, TokenType.AND_KEYWORD)) {
-            return false;
+            return FAIL;
         }
         andSigns.add(token);
         addChild(token);
 
-        if(!parseOptional(lexer, this::parseStatement)) {
-            valid = false;
+        ParsingResult result = parseOptional(lexer, this::parseStatement);
+        if(!result.isOk()) {
+            addError(token, true, "Expected statement");
         }
-        return true;
+        return result;
+    }
+
+    @Override
+    protected Set<TokenType> initialFollowSet() {
+        return FOLLOW_SET;
     }
 }

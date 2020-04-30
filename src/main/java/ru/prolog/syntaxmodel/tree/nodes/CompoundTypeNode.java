@@ -5,12 +5,17 @@ import ru.prolog.syntaxmodel.recognizers.Lexer;
 import ru.prolog.syntaxmodel.tree.AbstractNode;
 import ru.prolog.syntaxmodel.tree.Token;
 import ru.prolog.syntaxmodel.tree.interfaces.Separated;
+import ru.prolog.syntaxmodel.tree.misc.ParsingResult;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
+
+import static ru.prolog.syntaxmodel.TokenType.*;
+import static ru.prolog.syntaxmodel.TokenType.MOD;
+import static ru.prolog.syntaxmodel.tree.misc.ParsingResult.*;
 
 public class CompoundTypeNode extends AbstractNode implements Separated {
+    public static final Set<TokenType> FOLLOW_SET = Collections.singleton(SEMICOLON);
+
     /**
      * Точки с запятой, разделяющие функторы
      */
@@ -19,7 +24,7 @@ public class CompoundTypeNode extends AbstractNode implements Separated {
     /**
      * Список функторов
      */
-    private List<FunctorDefNode> functors = new ArrayList<>();
+    private final List<FunctorDefNode> functors = new ArrayList<>();
 
     public CompoundTypeNode(AbstractNode parent) {
         super(parent);
@@ -32,35 +37,40 @@ public class CompoundTypeNode extends AbstractNode implements Separated {
     }
 
     @Override
-    protected boolean parseInternal(Lexer lexer) {
+    protected ParsingResult parseInternal(Lexer lexer) { //ToDo Использовать follow-set
         FunctorDefNode functor = new FunctorDefNode(this);
-        if (functor.parse(lexer)) {
+        if (functor.parse(lexer).isOk()) {
             functors.add(functor);
             addChild(functor);
         } else {
-            return false;
+            return FAIL;
         }
-        while (parseOptional(lexer, this::parseSemicolonAndFunctor)) ;
-        return true;
+        while (parseOptional(lexer, this::parseSemicolonAndFunctor).isOk()) ;
+        return OK;
     }
 
-    private boolean parseSemicolonAndFunctor(Lexer lexer) {
+    private ParsingResult parseSemicolonAndFunctor(Lexer lexer) {
         Token token = lexer.nextNonIgnored();
-        if (token.getTokenType() == TokenType.SEMICOLON) {
+        if (ofType(token, TokenType.SEMICOLON)) {
             semicolons.add(token);
             addChild(token);
         } else {
-            return false;
+            return FAIL;
         }
 
         FunctorDefNode functor = new FunctorDefNode(this);
-        if (functor.parse(lexer)) {
+        if (functor.parse(lexer).isOk()) {
             functors.add(functor);
             addChild(functor);
         } else {
-            valid = false;
+            addError(token, true, "Expected functor");
         }
-        return true;
+        return OK;
+    }
+
+    @Override
+    protected Set<TokenType> initialFollowSet() {
+        return FOLLOW_SET;
     }
 
     public List<Token> getSemicolons() {

@@ -4,6 +4,9 @@ import ru.prolog.syntaxmodel.TokenType;
 import ru.prolog.syntaxmodel.recognizers.Lexer;
 import ru.prolog.syntaxmodel.tree.AbstractNode;
 import ru.prolog.syntaxmodel.tree.Token;
+import ru.prolog.syntaxmodel.tree.misc.ParsingResult;
+
+import static ru.prolog.syntaxmodel.tree.misc.ParsingResult.*;
 
 public class ValueNode extends AbstractNode {
     private Token simpleValue;
@@ -22,39 +25,43 @@ public class ValueNode extends AbstractNode {
     }
 
     @Override
-    protected boolean parseInternal(Lexer lexer) {
-        return parseOptional(lexer, this::parseFunctor) || parseOptional(lexer, this::parseList) || parseOptional(lexer, this::parseSimpleValue);
+    protected ParsingResult parseInternal(Lexer lexer) {
+        ParsingResult result = parseOptional(lexer, this::parseFunctor);
+        if(result.isOk()) return result;
+        result = parseOptional(lexer, this::parseList);
+        if(result.isOk()) return result;
+        return parseOptional(lexer, this::parseSimpleValue);
     }
 
-    private boolean parseFunctor(Lexer lexer) {
+    private ParsingResult parseFunctor(Lexer lexer) {
         FunctorNode functorNode = new FunctorNode(this);
-        if(functorNode.parse(lexer)) {
+        if(functorNode.parse(lexer).isOk()) {
             functor = functorNode;
             addChild(functor);
-            return true;
+            return OK;
         }
-        return false;
+        return FAIL;
     }
 
-    private boolean parseList(Lexer lexer) {
+    private ParsingResult parseList(Lexer lexer) {
         ListValueNode listValueNode = new ListValueNode(this);
-        if(listValueNode.parse(lexer)) {
+        if(listValueNode.parse(lexer).isOk()) {
             list = listValueNode;
             addChild(list);
-            return true;
+            return OK;
         }
-        return false;
+        return FAIL;
     }
 
-    private boolean parseSimpleValue(Lexer lexer) {
+    private ParsingResult parseSimpleValue(Lexer lexer) {
         Token token = lexer.nextNonIgnored();
         //  списке нет SYMBOL, потому что он распознаётся как функтор без скобок
         if(ofType(token, TokenType.VARIABLE, TokenType.ANONYMOUS, TokenType.INTEGER, TokenType.REAL, TokenType.STRING, TokenType.CHAR)) {
             simpleValue = token;
             addChild(token);
-            return true;
+            return OK;
         }
-        return false;
+        return FAIL;
     }
 
     public boolean isVariable() {

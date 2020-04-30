@@ -3,13 +3,17 @@ package ru.prolog.syntaxmodel.tree;
 import ru.prolog.syntaxmodel.TokenKind;
 import ru.prolog.syntaxmodel.TokenType;
 import ru.prolog.syntaxmodel.recognizers.Lexer;
+import ru.prolog.syntaxmodel.tree.misc.NodeError;
+import ru.prolog.syntaxmodel.tree.misc.ParsingResult;
 
 import java.util.*;
-import java.util.function.Predicate;
+import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.function.ToIntFunction;
 import java.util.stream.Collectors;
 
 public abstract class AbstractNode implements Node {
+    public static final EnumSet<TokenType> EMPTY_FOLLOW_SET = EnumSet.noneOf(TokenType.class);
 
     /**
      * Показывает, выполнился ли успешно последний parse этого объекта.
@@ -31,11 +35,6 @@ public abstract class AbstractNode implements Node {
     private AbstractNode parent;
 
     /**
-     * Показывает, полностью ли правильно распознан узел. Если {@code false}, то узел распознан с ошибками
-     */
-    protected boolean valid;
-
-    /**
      * Закэшированная длина элемента в символах.
      * Длину можно было бы получать, суммируя длины токенов, но это неоптимально.
      * При обновлении длины токена или элемента он должен оповестить родителя об этом изменении чтобы тот обновил свою длину.
@@ -52,8 +51,27 @@ public abstract class AbstractNode implements Node {
      */
     private int cachedLineBreaks;
 
+    private final Map<Node, NodeError> errors = new HashMap<>();
+
+    /**
+     * Типы токенов, которые ожидаются дальше по ходу парсинга этого узла.
+     * По мере приближения к концу парсинга follow-set будет сокращаться.
+     * Токены из follow-set представляют из себя некие "чекпоинты", с которых можно продолжить парсинг при ошибках
+     */
+    private Set<TokenType> followSet = EnumSet.copyOf(initialFollowSet());
+
+    /**
+     * follow-set родительского узла на момент парсинга этого узла
+     */
+    private final Set<TokenType> parentFollowSet;
+
     public AbstractNode(AbstractNode parent) {
         this.parent = parent;
+        if (parent == null || parent.followSet.isEmpty()) {
+            parentFollowSet = Collections.emptySet();
+        } else {
+            parentFollowSet = EnumSet.copyOf(parent.followSet);
+        }
     }
 
     /**
@@ -62,7 +80,8 @@ public abstract class AbstractNode implements Node {
     protected final void clear() {
         initialized = false;
         children.clear();
-        valid = false;
+        errors.clear();
+        followSet = initialFollowSet();
         cachedLineBreaks = 0;
         cachedLength = 0;
         clearInternal();
@@ -79,15 +98,15 @@ public abstract class AbstractNode implements Node {
      * @param lexer Лексер для получения токенов.
      * @return Успешно ли распознавание.
      */
-    public final boolean parse(Lexer lexer) {
+    public final ParsingResult parse(Lexer lexer) {
         Token checkpoint = lexer.getPointer();
-        valid = true;
-        initialized = parseInternal(lexer);
-        if (!initialized) {
+        ParsingResult parsingResult = parseInternal(lexer);
+        this.initialized = parsingResult.isOk();
+        if (!this.initialized) {
             lexer.setPointer(checkpoint);
             children.clear();
         }
-        return initialized;
+        return parsingResult;
     }
 
     /**
@@ -100,11 +119,85 @@ public abstract class AbstractNode implements Node {
     public final boolean reparse(Lexer lexer, Node failed) {
         Token start = firstToken();
         lexer.setPointer(start == null ? null : start.getPrev());
-        if (parse(lexer)) {
+        if (parse(lexer).isOk()) {
             return true;
         } else {
             return parent != null && parent.reparse(lexer, this);
         }
+    }
+
+    protected <T extends AbstractNode> ParsingResult parseChildNode(T child, Lexer lexer, Consumer<T> fillField) {
+        ParsingResult result = child.parse(lexer);
+        if(result.isOk()) {
+            addChild(child);
+            fillField.accept(child);
+        }
+        return result;
+    }
+
+    protected boolean parseChildToken(Lexer lexer, Consumer<Token> fillField, TokenType... tokenTypes) {
+        Token token = lexer.nextNonIgnored();
+        if(ofType(token, tokenTypes)) {
+            addChild(token);
+            fillField.accept(token);
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Убрать тип токена из follow-set
+     *
+     * @param tokenType Тип токена, который больше не ожидается
+     */
+    protected void dontExpect(TokenType tokenType) {
+        followSet.remove(tokenType);
+    }
+
+    /**
+     * Убрать типы токенов из follow-set
+     *
+     * @param tokenTypes Типы токенов, которые больше не ожидаются
+     */
+    protected void dontExpect(TokenType... tokenTypes) {
+        for (TokenType tokenType : tokenTypes) {
+            followSet.remove(tokenType);
+        }
+    }
+
+    /**
+     * Очистить follow-set.
+     */
+    protected void dontExpect() {
+        followSet.clear();
+    }
+
+    /**
+     * Собирает все follow-set всех уровней от этого узла до корня в одно множество
+     *
+     * @return Множество всех ожидаемых типов токенов
+     */
+    protected Set<TokenType> collectFollowSets() {
+        Set<TokenType> all = EnumSet.noneOf(TokenType.class);
+        all.addAll(followSet);
+        for (AbstractNode node = this; node != null; node = node.parent) {
+            all.addAll(node.parentFollowSet);
+        }
+        return all;
+    }
+
+    /**
+     * Ищет ближайший уровень парсера, follow-set которого содержит указанный тип токена
+     *
+     * @param tokenType Тип токена из некоторого follow-set
+     * @return ближайший уровень парсера, follow-set которого содержит указанный тип токена
+     */
+    protected AbstractNode nodeForFollowingToken(TokenType tokenType) {
+        if(followSet.contains(tokenType)) return this;
+        for (AbstractNode node = this; node.parent!=null; node = node.parent) {
+            if(node.parentFollowSet.contains(tokenType)) return node.parent;
+        }
+        return null;
     }
 
     /**
@@ -113,7 +206,18 @@ public abstract class AbstractNode implements Node {
      * @param lexer Лексер для получения токенов.
      * @return Успешно ли распознавание.
      */
-    protected abstract boolean parseInternal(Lexer lexer);
+    protected abstract ParsingResult parseInternal(Lexer lexer);
+
+    /**
+     * Возвращает начальный follow-set,
+     * т.е. типы токенов, которые могут встретиться в данном узле,
+     * и по которым можно будет продолжить распознавание узла если где-то произойдёт ошибка
+     *
+     * @return Возвращает follow-set для типа узла
+     */
+    protected Set<TokenType> initialFollowSet() {
+        return EMPTY_FOLLOW_SET;
+    }
 
     @Override
     public final List<Node> children() {
@@ -218,18 +322,53 @@ public abstract class AbstractNode implements Node {
     }
 
     /**
+     * Пропускает токены, пока не найдёт токен указанного типа
+     *
+     * @param lexer      Лексер
+     * @param tokenTypes Ожидаемые типы токенов
+     * @return Токен одного из заданных типов, либо последний токен, либо {@code null} если ни одного токена не получено.
+     * @see #skipUntilFollowSet(Lexer)
+     */
+    protected final Token skipUntil(Lexer lexer, TokenType... tokenTypes) {
+        Token token = lexer.nextToken();
+        while (!ofType(token, tokenTypes)) {
+            Token next = lexer.nextToken();
+            if (next == null) break;
+            token = next;
+        }
+        return token;
+    }
+
+    /**
+     * Пропускает токены, пока не найдёт токен из какого-либо follow-set
+     *
+     * @param lexer Лексер
+     * @return Первый токен из follow-set либо {@code null}, если такого токена не нашлось.
+     * @see #skipUntil(Lexer, TokenType...)
+     * @see #collectFollowSets()
+     */
+    protected final Token skipUntilFollowSet(Lexer lexer) {
+        Set<TokenType> followSets = collectFollowSets();
+        Token token = lexer.nextNonIgnored();
+        while (token != null && !followSets.contains(token.getTokenType())) {
+            token = lexer.nextToken();
+        }
+        return token;
+    }
+
+    /**
      * Вспомогательный метод для парсинга необязательных частей. Ставит чекпоинт для лексера, и если часть не распознана, откатывает к нему.
      *
      * @param lexer     Лексер
      * @param parseFunc Функция распознавания части узла. Возвращает {@code true} если часть распознана успешно.
      */
-    protected final boolean parseOptional(Lexer lexer, Predicate<Lexer> parseFunc) {
+    protected final ParsingResult parseOptional(Lexer lexer, Function<Lexer, ParsingResult> parseFunc) {
         Token checkpoint = lexer.getPointer();
-        if (!parseFunc.test(lexer)) {
+        ParsingResult result = parseFunc.apply(lexer);
+        if (!result.isOk()) {
             lexer.setPointer(checkpoint);
-            return false;
         }
-        return true;
+        return result;
     }
 
     /**
@@ -238,7 +377,7 @@ public abstract class AbstractNode implements Node {
     private void addChildAndUpdate(Node child) {
         children.add(child);
         child.setParent(this);
-        updateLength(cachedLength + child.length());
+        updateLength(child.length());
         updateLineBreaks(cachedLineBreaks + child.lineBreaks());
     }
 
@@ -326,9 +465,13 @@ public abstract class AbstractNode implements Node {
 
     /**
      * Номер символа в исходном коде, с которого начинается переданный дочерний узел
+     *
      * @param child Дочерний узел этого узла
      */
     public final int startPos(Node child) {
+        if(parent == null) {
+            return countUntilFoundChild(child, null, Node::length);
+        }
         if (!parent.initialized) throw new IllegalStateException("Parent not initialized yet!");
         return countUntilFoundChild(child,
                 parent::startPos,
@@ -341,8 +484,23 @@ public abstract class AbstractNode implements Node {
     }
 
     @Override
-    public final boolean isValid() {
-        return initialized && valid;
+    public boolean isValid() {
+        return initialized && errors.isEmpty();
+    }
+
+    public Map<Node, NodeError> getErrors() {
+        return Collections.unmodifiableMap(errors);
+    }
+
+    /**
+     * Записывает ошибку
+     *
+     * @param child Дочерний узел, с которым связана ошибка
+     * @param after {@code true} если ошибка после узла, или {@code false} если ошибка в самом узле
+     * @param text  Текст ошибки
+     */
+    protected final void addError(Node child, boolean after, String text) {
+        errors.put(child, new NodeError(child, after, text));
     }
 
     @Override
@@ -407,8 +565,9 @@ public abstract class AbstractNode implements Node {
 
     /**
      * Проверяет что токен имеет указанный тип
+     *
      * @param token Токен
-     * @param type Ожидаемый тип
+     * @param type  Ожидаемый тип
      * @return {@code true} если токен не null и имеет указанный тип.
      */
     protected static boolean ofType(Token token, TokenType type) {
@@ -417,20 +576,22 @@ public abstract class AbstractNode implements Node {
 
     /**
      * Проверяет что токен имеет один из указанных типов
+     *
      * @param token Токен
      * @param types Ожидаемые типы
      * @return {@code true} если токен не null и имеет указанный тип.
      */
     protected static boolean ofType(Token token, TokenType... types) {
-        if(token == null) return false;
+        if (token == null) return false;
         for (TokenType type : types) {
-            if(token.getTokenType() == type) return true;
+            if (token.getTokenType() == type) return true;
         }
         return false;
     }
 
     /**
      * Проверяет, что токен является заголовком модуля
+     *
      * @param token Токен
      * @return {@code true} если токен относится к одному из типов звголовков
      * @see TokenType#HEADERS
@@ -441,8 +602,9 @@ public abstract class AbstractNode implements Node {
 
     /**
      * Проверяет, что токен относится к заданной категшории
+     *
      * @param token Токен
-     * @param kind Ожидаемая категория токена
+     * @param kind  Ожидаемая категория токена
      * @return {@code true} если токен не {@code null} и относится к заданной категории токенов
      */
     protected static boolean ofKind(Token token, TokenKind kind) {

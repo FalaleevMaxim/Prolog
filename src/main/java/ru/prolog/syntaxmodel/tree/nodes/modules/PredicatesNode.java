@@ -4,6 +4,7 @@ import ru.prolog.syntaxmodel.TokenType;
 import ru.prolog.syntaxmodel.recognizers.Lexer;
 import ru.prolog.syntaxmodel.tree.AbstractNode;
 import ru.prolog.syntaxmodel.tree.Token;
+import ru.prolog.syntaxmodel.tree.misc.ParsingResult;
 import ru.prolog.syntaxmodel.tree.nodes.FunctorDefNode;
 
 import java.util.ArrayList;
@@ -26,27 +27,27 @@ public class PredicatesNode extends AbstractNode {
     }
 
     @Override
-    protected boolean parseInternal(Lexer lexer) {
+    protected ParsingResult parseInternal(Lexer lexer) {
         Token token = lexer.nextNonIgnored();
-        if(token.getTokenType() != TokenType.PREDICATES_KEYWORD) return false;
+        if(token.getTokenType() != TokenType.PREDICATES_KEYWORD) return ParsingResult.fail();
         predicatesKeyword = token;
         addChild(token);
 
-        while (parseOptional(lexer, this::parsePredicate));
+        while (parseOptional(lexer, this::parsePredicate).isOk());
         if(predicates.isEmpty()) {
-            valid = false;
+            addError(predicatesKeyword, true, "No predicates in predicates module");
         }
-        return true;
+        return ParsingResult.ok();
     }
 
-    private boolean parsePredicate(Lexer lexer) {
+    private ParsingResult parsePredicate(Lexer lexer) {
         FunctorDefNode predicate = new FunctorDefNode(this);
-        if(predicate.parse(lexer)) {
+        if(predicate.parse(lexer).isOk()) {
             predicates.add(predicate);
             addChild(predicate);
-            return true;
+            return ParsingResult.ok();
         }
-        return false;
+        return ParsingResult.fail();
     }
 
     public Token getPredicatesKeyword() {

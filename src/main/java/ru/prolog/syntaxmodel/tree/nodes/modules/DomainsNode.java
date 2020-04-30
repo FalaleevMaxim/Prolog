@@ -4,6 +4,7 @@ import ru.prolog.syntaxmodel.TokenType;
 import ru.prolog.syntaxmodel.recognizers.Lexer;
 import ru.prolog.syntaxmodel.tree.AbstractNode;
 import ru.prolog.syntaxmodel.tree.Token;
+import ru.prolog.syntaxmodel.tree.misc.ParsingResult;
 import ru.prolog.syntaxmodel.tree.nodes.TypeDefNode;
 
 import java.util.ArrayList;
@@ -25,25 +26,19 @@ public class DomainsNode extends AbstractNode {
     }
 
     @Override
-    protected boolean parseInternal(Lexer lexer) {
+    protected ParsingResult parseInternal(Lexer lexer) {
         Token token = lexer.nextNonIgnored();
         if (ofType(token, TokenType.DOMAINS_KEYWORD)) {
             domainsKeyword = token;
             addChild(domainsKeyword);
-        } else return false;
+        } else return ParsingResult.fail();
 
-        while (parseOptional(lexer, this::parseTypeDef));
-        return true;
+        while (parseOptional(lexer, this::parseTypeDef).isOk()); //ToDo использовать follow-set
+        return ParsingResult.ok();
     }
 
-    private boolean parseTypeDef(Lexer lexer) {
-        TypeDefNode typeDefNode = new TypeDefNode(this);
-        if (typeDefNode.parse(lexer)) {
-            typeDefNodes.add(typeDefNode);
-            addChild(typeDefNode);
-            return true;
-        }
-        return false;
+    private ParsingResult parseTypeDef(Lexer lexer) {
+        return parseChildNode(new TypeDefNode(this), lexer, typeDefNodes::add);
     }
 
     public Token getDomainsKeyword() {

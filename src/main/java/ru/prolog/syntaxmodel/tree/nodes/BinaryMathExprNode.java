@@ -1,13 +1,13 @@
 package ru.prolog.syntaxmodel.tree.nodes;
 
-import ru.prolog.syntaxmodel.TokenType;
 import ru.prolog.syntaxmodel.recognizers.Lexer;
 import ru.prolog.syntaxmodel.tree.AbstractNode;
 import ru.prolog.syntaxmodel.tree.Token;
+import ru.prolog.syntaxmodel.tree.misc.ParsingResult;
 
 import static ru.prolog.syntaxmodel.TokenType.*;
 
-public class BinaryMathExprNode extends AbstractNode {
+public class BinaryMathExprNode extends AbstractNode { //ToDo Поменять способ парсинга математических выражений
     /**
      * Число слева
      */
@@ -35,30 +35,30 @@ public class BinaryMathExprNode extends AbstractNode {
     }
 
     @Override
-    protected boolean parseInternal(Lexer lexer) {
+    protected ParsingResult parseInternal(Lexer lexer) {
         Token token = lexer.nextNonIgnored();
-        if(!ofType(token, INTEGER, REAL, VARIABLE)) return false;
+        if(!ofType(token, INTEGER, REAL, VARIABLE)) return ParsingResult.fail();
         left = token;
         addChild(left);
 
         token = lexer.nextNonIgnored();
-        if(!ofType(token, PLUS, MINUS, DIVIDE, STAR_MULTIPLY, DIV, MOD)) return false;
+        if(!ofType(token, PLUS, MINUS, DIVIDE, STAR_MULTIPLY, DIV, MOD)) return ParsingResult.fail();
         operator = token;
         addChild(operator);
 
-        if(!parseOptional(lexer, this::parseRight)) {
-            valid = false;
+        if(!parseOptional(lexer, this::parseRight).isOk()) {
+            addError(operator, true, "Expected number");
         }
-        return true;
+        return ParsingResult.ok();
     }
 
-    private boolean parseRight(Lexer lexer) {
+    private ParsingResult parseRight(Lexer lexer) {
         Token token = lexer.nextNonIgnored();
         if (ofType(token, INTEGER, REAL, VARIABLE)) {
             right = token;
             addChild(right);
-            return true;
+            return ParsingResult.ok();
         }
-        return false;
+        return ParsingResult.fail();
     }
 }

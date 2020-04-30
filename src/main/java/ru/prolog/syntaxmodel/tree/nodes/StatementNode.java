@@ -4,6 +4,9 @@ import ru.prolog.syntaxmodel.TokenType;
 import ru.prolog.syntaxmodel.recognizers.Lexer;
 import ru.prolog.syntaxmodel.tree.AbstractNode;
 import ru.prolog.syntaxmodel.tree.Token;
+import ru.prolog.syntaxmodel.tree.misc.ParsingResult;
+
+import static ru.prolog.syntaxmodel.tree.misc.ParsingResult.*;
 
 /**
  * Выражение в составе цели или правой стороны правила.
@@ -36,10 +39,12 @@ public class StatementNode extends AbstractNode {
     }
 
     @Override
-    protected boolean parseInternal(Lexer lexer) {
-        return parseOptional(lexer, this::parseCutSign)
-                || parseOptional(lexer, this::parsePredicateExec)
-                || parseOptional(lexer, this::parseCompareStatement);
+    protected ParsingResult parseInternal(Lexer lexer) {
+        ParsingResult result = parseOptional(lexer, this::parseCutSign);
+        if(result.isOk()) return result;
+        result = parseOptional(lexer, this::parsePredicateExec);
+        if(result.isOk()) return result;
+        return parseOptional(lexer, this::parseCompareStatement);
     }
 
     public boolean isCutSign() {
@@ -62,34 +67,34 @@ public class StatementNode extends AbstractNode {
         return predicateExec;
     }
 
-    private boolean parseCutSign(Lexer lexer) {
+    private ParsingResult parseCutSign(Lexer lexer) {
         Token token = lexer.nextNonIgnored();
         if (ofType(token, TokenType.CUT_SIGN)) {
             cutSign = token;
             addChild(token);
-            return true;
+            return OK;
         }
-        return false;
+        return FAIL;
     }
 
-    private boolean parsePredicateExec(Lexer lexer) {
+    private ParsingResult parsePredicateExec(Lexer lexer) {
         FunctorNode predExec = new FunctorNode(this);
-        if (predExec.parse(lexer)) {
+        if (predExec.parse(lexer).isOk()) {
             predicateExec = predExec;
             addChild(predExec);
-            return true;
+            return OK;
         }
-        return false;
+        return FAIL;
     }
 
-    private boolean parseCompareStatement(Lexer lexer) {
+    private ParsingResult parseCompareStatement(Lexer lexer) {
         CompareNode compareNode = new CompareNode(this);
-        if (compareNode.parse(lexer)) {
+        if (compareNode.parse(lexer).isOk()) {
             compareStatement = compareNode;
             addChild(compareNode);
-            return true;
+            return OK;
         }
-        return false;
+        return FAIL;
     }
 
     public CompareNode getCompareStatement() {

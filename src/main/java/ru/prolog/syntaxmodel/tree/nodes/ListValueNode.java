@@ -6,11 +6,17 @@ import ru.prolog.syntaxmodel.tree.AbstractNode;
 import ru.prolog.syntaxmodel.tree.Token;
 import ru.prolog.syntaxmodel.tree.interfaces.Bracketed;
 import ru.prolog.syntaxmodel.tree.interfaces.Separated;
+import ru.prolog.syntaxmodel.tree.misc.ParsingResult;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
+
+import static ru.prolog.syntaxmodel.TokenType.*;
+import static ru.prolog.syntaxmodel.tree.misc.ParsingResult.*;
 
 public class ListValueNode extends AbstractNode implements Bracketed, Separated {
+    public static final Set<TokenType> FOLLOW_SET = Collections.unmodifiableSet(
+            EnumSet.of(RSQB, COMMA, TAILSEP));
+
     /**
      * Открывающая квадратная скобка
      */
@@ -51,91 +57,99 @@ public class ListValueNode extends AbstractNode implements Bracketed, Separated 
     }
 
     @Override
-    protected boolean parseInternal(Lexer lexer) {
+    protected ParsingResult parseInternal(Lexer lexer) { //ToDo использовать follow-set
         Token token = lexer.nextNonIgnored();
-        if(!ofType(token, TokenType.LSQB)) return false;
+        if(!ofType(token, TokenType.LSQB)) return FAIL;
         lb = token;
         addChild(token);
 
         while (true) {
-            if(parseOptional(lexer, this::parseClosing)) return true;
+            if(parseOptional(lexer, this::parseClosing).isOk()) return OK;
             if(heads.isEmpty()) {
-                if(!parseOptional(lexer, this::parseValue)) {
-                    valid = false;
-                    return true; //ToDo вместо этого пропускать токены пока не найдётся | или ]
+                if(!parseOptional(lexer, this::parseValue).isOk()) {
+                    addError(lb, true, "Expected '|', ']' or list element");
+                    return OK;
                 }
             } else {
-                if(parseOptional(lexer, this::parseTail)) return true;
-                if(!parseOptional(lexer, this::parseCommaAndValue)) {
-                    valid = false;
-                    return true;
+                if(parseOptional(lexer, this::parseTail).isOk()) return OK;
+                if(!parseOptional(lexer, this::parseCommaAndValue).isOk()) {
+                    addError(heads.get(heads.size()-1), true, "Expected '|', ']' or another element of list");
+                    return OK;
                 }
             }
         }
     }
 
-    private boolean parseClosing(Lexer lexer) {
+    private ParsingResult parseClosing(Lexer lexer) {
         Token token = lexer.nextNonIgnored();
         if(ofType(token, TokenType.RSQB)) {
             rb = token;
             addChild(token);
-            return true;
+            return OK;
         }
-        return false;
+        return FAIL;
     }
 
-    private boolean parseValue(Lexer lexer) {
+    private ParsingResult parseValue(Lexer lexer) {
         ValueNode value = new ValueNode(this);
-        if(value.parse(lexer)) {
+        if(value.parse(lexer).isOk()) {
             heads.add(value);
             addChild(value);
-            return true;
+            return OK;
         }
-        return false;
+        return FAIL;
     }
 
-    private boolean parseCommaAndValue(Lexer lexer) {
-        boolean parseComma = parseOptional(lexer, this::parseComma);
-        boolean parseValue = parseOptional(lexer, this::parseValue);
-        if(!parseComma || !parseValue) valid = false;
-        return parseComma || parseValue;
+    private ParsingResult parseCommaAndValue(Lexer lexer) {
+        ParsingResult parseComma = parseOptional(lexer, this::parseComma);
+        ParsingResult parseValue = parseOptional(lexer, this::parseValue);
+        if(parseComma.isOk() || parseValue.isOk()) {
+            if (!parseComma.isOk()) {
+                addError(heads.get(heads.size()-1), false, "Expected ',' before list element");
+            }
+            if (!parseValue.isOk()) {
+                addError(commas.get(commas.size()-1), true, "Expected list element");
+            }
+        }
+        if(parseValue.isOk()) return parseValue;
+        return parseComma;
     }
 
-    private boolean parseComma(Lexer lexer) {
+    private ParsingResult parseComma(Lexer lexer) {
         Token token = lexer.nextNonIgnored();
         if(ofType(token, TokenType.COMMA)) {
             commas.add(token);
             addChild(token);
-            return true;
+            return OK;
         }
-        return false;
+        return FAIL;
     }
 
-    private boolean parseTail(Lexer lexer) {
+    private ParsingResult parseTail(Lexer lexer) {
         Token token = lexer.nextNonIgnored();
-        if (!ofType(token, TokenType.TAILSEP)) return false;
+        if (!ofType(token, TokenType.TAILSEP)) return FAIL;
         tailSep = token;
         addChild(token);
 
-        if(!parseOptional(lexer, this::parseVar)) {
-            valid = false;
-            return true;
+        if(!parseOptional(lexer, this::parseVar).isOk()) {
+            addError(tailSep, true, "Expected variable");
+            return OK;
         }
 
-        if(!parseOptional(lexer, this::parseClosing)) {
-            valid = false;
+        if(!parseOptional(lexer, this::parseClosing).isOk()) {
+            addError(tailVar, true, "Expected ']'");
         }
-        return true;
+        return OK;
     }
 
-    private boolean parseVar(Lexer lexer) {
+    private ParsingResult parseVar(Lexer lexer) {
         Token token = lexer.nextNonIgnored();
         if(ofType(token, TokenType.VARIABLE, TokenType.ANONYMOUS)) {
             tailVar = token;
             addChild(token);
-            return true;
+            return OK;
         }
-        return false;
+        return FAIL;
     }
 
     @Override

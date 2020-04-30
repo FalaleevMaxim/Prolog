@@ -1,15 +1,16 @@
 package ru.prolog.syntaxmodel.tree.nodes;
 
+import ru.prolog.syntaxmodel.TokenType;
 import ru.prolog.syntaxmodel.recognizers.Lexer;
 import ru.prolog.syntaxmodel.tree.AbstractNode;
 import ru.prolog.syntaxmodel.tree.Token;
 import ru.prolog.syntaxmodel.tree.interfaces.Separated;
+import ru.prolog.syntaxmodel.tree.misc.ParsingResult;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 import static ru.prolog.syntaxmodel.TokenType.*;
+import static ru.prolog.syntaxmodel.tree.misc.ParsingResult.*;
 
 /**
  * Описание типа данных из domains
@@ -78,84 +79,85 @@ public class TypeDefNode extends AbstractNode implements Separated {
     }
 
     @Override
-    protected boolean parseInternal(Lexer lexer) {
-        if(!parseName(lexer)) return false;
+    protected ParsingResult parseInternal(Lexer lexer) { //ToDo использовать follow-set
+        if(!parseName(lexer).isOk()) return FAIL;
 
-        while (parseOptional(lexer, this::parseCommaAndName));
+        while (parseOptional(lexer, this::parseCommaAndName).isOk());
 
         Token token = lexer.nextNonIgnored();
         if (ofType(token, EQUALS)) {
             equalsToken = token;
             addChild(equalsToken);
-        } else return false;
+        } else return FAIL;
 
-        if (parseOptional(lexer, this::parseList)) return true;
-        if (parseOptional(lexer, this::parsePrimitive)) return true;
-        if (parseOptional(lexer, this::parseCompound)) return true;
-        valid = false;
-        return true;
+        ParsingResult result = parseOptional(lexer, this::parseList);
+        if (result.isOk()) return result;
+        result = parseOptional(lexer, this::parsePrimitive);
+        if (result.isOk()) return result;
+        result = parseOptional(lexer, this::parseCompound);
+        if (result.isOk()) return result;
+        addError(equalsToken, true, "Expected type definition");
+        return OK;
     }
 
-    private boolean parseName(Lexer lexer) {
+    private ParsingResult parseName(Lexer lexer) {
         Token token = lexer.nextNonIgnored();
         if (ofType(token, SYMBOL)) {
             typeNames.add(token);
             addChild(token);
-            return true;
-        } return false;
+            return OK;
+        } return FAIL;
     }
 
-    private boolean parseComma(Lexer lexer) {
+    private ParsingResult parseComma(Lexer lexer) {
         Token token = lexer.nextNonIgnored();
         if (ofType(token, COMMA)) {
             commas.add(token);
             addChild(token);
-            return true;
-        } return false;
+            return OK;
+        } return FAIL;
     }
 
-    private boolean parseCommaAndName(Lexer lexer) {
-        boolean parseComma = parseOptional(lexer, this::parseComma);
-        boolean parseName = parseOptional(lexer, this::parseName);
-        if(!parseComma && !parseName) {
-            return false;
+    private ParsingResult parseCommaAndName(Lexer lexer) {
+        ParsingResult parseComma = parseOptional(lexer, this::parseComma);
+        ParsingResult parseName = parseOptional(lexer, this::parseName);
+        if(!parseComma.isOk() && !parseName.isOk()) {
+            return FAIL;
         }
 
-        if(!parseComma || !parseName) {
-            valid = false;
+        if(!parseComma.isOk()) {
+            addError(typeNames.get(typeNames.size()-1), false, "Expected ',' before type name");
         }
-        return true;
+
+        if(!parseName.isOk()) {
+            addError(commas.get(commas.size() - 1), true, "Expected type name");
+        }
+        return OK;
     }
 
-    private boolean parseList(Lexer lexer) {
+    private ParsingResult parseList(Lexer lexer) {
         ListTypeNode listTypeNode = new ListTypeNode(this);
-        if (listTypeNode.parse(lexer)) {
+        if (listTypeNode.parse(lexer).isOk()) {
             listType = listTypeNode;
             addChild(listTypeNode);
-            return true;
+            return OK;
         }
-        return false;
+        return FAIL;
     }
 
-    private boolean parsePrimitive(Lexer lexer) {
+    private ParsingResult parsePrimitive(Lexer lexer) {
         Token token = lexer.nextNonIgnored();
-        if (token == null) return false;
+        if (token == null) return FAIL;
         if (token.getTokenType() == PRIMITIVE) {
             primitive = token;
             addChild(token);
-            return true;
+            return OK;
         }
-        return false;
+        return FAIL;
     }
 
-    private boolean parseCompound(Lexer lexer) {
-        CompoundTypeNode compoundTypeNode = new CompoundTypeNode(this);
-        if (compoundTypeNode.parse(lexer)) {
-            compoundType = compoundTypeNode;
-            addChild(compoundTypeNode);
-            return true;
-        }
-        return false;
+    private ParsingResult parseCompound(Lexer lexer) {
+        return parseChildNode(new CompoundTypeNode(this), lexer, n->{compoundType = n;});
     }
 
     public Token getEqualsToken() {

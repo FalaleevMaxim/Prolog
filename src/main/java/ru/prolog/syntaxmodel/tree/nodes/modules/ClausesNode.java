@@ -4,10 +4,13 @@ import ru.prolog.syntaxmodel.TokenType;
 import ru.prolog.syntaxmodel.recognizers.Lexer;
 import ru.prolog.syntaxmodel.tree.AbstractNode;
 import ru.prolog.syntaxmodel.tree.Token;
+import ru.prolog.syntaxmodel.tree.misc.ParsingResult;
 import ru.prolog.syntaxmodel.tree.nodes.RuleNode;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static ru.prolog.syntaxmodel.tree.misc.ParsingResult.*;
 
 public class ClausesNode extends AbstractNode {
     private Token clausesKeyword;
@@ -25,26 +28,21 @@ public class ClausesNode extends AbstractNode {
     }
 
     @Override
-    protected boolean parseInternal(Lexer lexer) {
+    protected ParsingResult parseInternal(Lexer lexer) {
         Token token = lexer.nextNonIgnored();
-        if(token.getTokenType() != TokenType.CLAUSES_KEYWORD) return false;
+        if (!ofType(token, TokenType.CLAUSES_KEYWORD)) return FAIL;
         clausesKeyword = token;
         addChild(token);
 
-        while (parseOptional(lexer, this::parseRule));
-        if(rules.isEmpty()) {
-            valid = false;
+        while (parseOptional(lexer, this::parseRule).isOk()) ;
+        if (rules.isEmpty()) {
+            addError(clausesKeyword, true, "No rules in clauses module");
         }
-        return true;
+        return OK;
     }
 
-    private boolean parseRule(Lexer lexer) {
+    private ParsingResult parseRule(Lexer lexer) {
         RuleNode rule = new RuleNode(this);
-        if(rule.parse(lexer)) {
-            rules.add(rule);
-            addChild(rule);
-            return true;
-        }
-        return false;
+        return parseChildNode(rule, lexer, rules::add);
     }
 }

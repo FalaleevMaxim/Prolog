@@ -4,8 +4,20 @@ import ru.prolog.syntaxmodel.TokenType;
 import ru.prolog.syntaxmodel.recognizers.Lexer;
 import ru.prolog.syntaxmodel.tree.AbstractNode;
 import ru.prolog.syntaxmodel.tree.Token;
+import ru.prolog.syntaxmodel.tree.misc.ParsingResult;
+
+import java.util.Collections;
+import java.util.EnumSet;
+import java.util.Set;
 
 public class CompareNode extends AbstractNode {
+    public static final Set<TokenType> FOLLOW_SET = Collections.unmodifiableSet(EnumSet.of(TokenType.EQUALS,
+            TokenType.GREATER,
+            TokenType.GREATER_EQUALS,
+            TokenType.LESSER,
+            TokenType.LESSER_EQUALS,
+            TokenType.NOT_EQUALS));
+
     private ExprOrValueNode left;
     private Token compareSign;
     private ExprOrValueNode right;
@@ -22,9 +34,9 @@ public class CompareNode extends AbstractNode {
     }
 
     @Override
-    protected boolean parseInternal(Lexer lexer) {
+    protected ParsingResult parseInternal(Lexer lexer) { //ToDo использовать follow-set
         ExprOrValueNode value = new ExprOrValueNode(this);
-        if(!value.parse(lexer)) return false;
+        if(!value.parse(lexer).isOk()) return ParsingResult.fail();
         left = value;
         addChild(value);
 
@@ -36,25 +48,31 @@ public class CompareNode extends AbstractNode {
                 TokenType.LESSER,
                 TokenType.LESSER_EQUALS,
                 TokenType.NOT_EQUALS)) {
-            return false;
+            return ParsingResult.fail();
         }
         compareSign = token;
         addChild(compareSign);
+        dontExpect();
 
-        if(!parseOptional(lexer, this::parseRight)) {
-            valid = false;
+        if(!parseOptional(lexer, this::parseRight).isOk()) {
+            addError(compareSign, true, "Expected value or expression");
         }
-        return true;
+        return ParsingResult.ok();
     }
 
-    private boolean parseRight(Lexer lexer) {
+    private ParsingResult parseRight(Lexer lexer) {
         ExprOrValueNode value = new ExprOrValueNode(this);
-        if(value.parse(lexer)) {
+        if(value.parse(lexer).isOk()) {
             right = value;
             addChild(right);
-            return true;
+            return ParsingResult.ok();
         }
-        return false;
+        return ParsingResult.fail();
+    }
+
+    @Override
+    protected Set<TokenType> initialFollowSet() {
+        return FOLLOW_SET;
     }
 
     public ExprOrValueNode getLeft() {

@@ -6,15 +6,19 @@ import ru.prolog.syntaxmodel.tree.AbstractNode;
 import ru.prolog.syntaxmodel.tree.Token;
 import ru.prolog.syntaxmodel.tree.interfaces.Bracketed;
 import ru.prolog.syntaxmodel.tree.interfaces.Separated;
+import ru.prolog.syntaxmodel.tree.misc.ParsingResult;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
+
+import static ru.prolog.syntaxmodel.TokenType.*;
+import static ru.prolog.syntaxmodel.tree.misc.ParsingResult.*;
 
 /**
  * Узел, состоящий из имени и списка аргументов в скобках через запятую (функтор, вызов предиката или левая часть правила).
  */
 public class FunctorNode extends AbstractNode implements Bracketed, Separated {
+    public static final Set<TokenType> FOLLOW_SET = Collections.unmodifiableSet(EnumSet.of(RB, COMMA));
+
     /**
      * Имя функтора
      */
@@ -54,74 +58,82 @@ public class FunctorNode extends AbstractNode implements Bracketed, Separated {
     }
 
     @Override
-    protected boolean parseInternal(Lexer lexer) {
+    protected ParsingResult parseInternal(Lexer lexer) {
         Token token = lexer.nextNonIgnored();
-        if (!ofType(token, TokenType.SYMBOL)) return false;
+        if (!ofType(token, SYMBOL)) return FAIL;
         name = token;
         addChild(token);
 
         parseOptional(lexer, this::parseBrackets);
-        return true;
+        return OK;
     }
 
-    private boolean parseBrackets(Lexer lexer) {
+    private ParsingResult parseBrackets(Lexer lexer) {
         Token token = lexer.nextNonIgnored();
-        if (ofType(token, TokenType.LB)) {
+        if (ofType(token, LB)) {
             lb = token;
             addChild(lb);
         } else {
-            return false;
+            return FAIL;
         }
 
         while (true) {
-            if (parseOptional(lexer, this::parseClosing)) return true;
+            ParsingResult result = parseOptional(lexer, this::parseClosing);
+            if (result.isOk()) return result;
             if (args.isEmpty()) {
-                if (!parseOptional(lexer, this::parseArg)) {
-                    valid = false;
-                    return false; //ToDo вместо return пропускать токены пока не найдётся закрывающая скобка
+                result = parseOptional(lexer, this::parseArg);
+                if (!result.isOk()) {
+                    addError(lb, true, "Expected closing ')' or value");
+                    return OK; //ToDo использовать follow-set
                 }
             } else {
-                if (!parseOptional(lexer, this::parseCommaAndArg)) {
-                    valid = false;
-                    return false; //ToDo вместо return пропускать токены пока не найдётся закрывающая скобка
+                result = parseOptional(lexer, this::parseCommaAndArg);
+                if (!result.isOk()) {
+                    addError(children().get(children().size()-1), true, "Expected closing ')' or more args");
+                    return OK; //ToDo использовать follow-set
                 }
             }
         }
     }
 
-    private boolean parseClosing(Lexer lexer) {
+    private ParsingResult parseClosing(Lexer lexer) {
         Token token = lexer.nextNonIgnored();
-        if (ofType(token, TokenType.RB)) {
+        if (ofType(token, RB)) {
             rb = token;
             addChild(token);
-            return true;
+            return OK;
         }
-        return false;
+        return FAIL;
     }
 
-    private boolean parseArg(Lexer lexer) {
+    private ParsingResult parseArg(Lexer lexer) {
         ValueNode value = new ValueNode(this);
-        if (value.parse(lexer)) {
+        if (value.parse(lexer).isOk()) {
             args.add(value);
             addChild(value);
-            return true;
+            return OK;
         }
-        return false;
+        return FAIL;
     }
 
-    private boolean parseCommaAndArg(Lexer lexer) {
+    private ParsingResult parseCommaAndArg(Lexer lexer) {
         Token token = lexer.nextNonIgnored();
-        if (ofType(token, TokenType.COMMA)) {
+        if (ofType(token, COMMA)) {
             commas.add(token);
             addChild(token);
         } else {
-            return false;
+            return FAIL;
         }
 
-        if(!parseOptional(lexer, this::parseArg)) {
-            valid = false;
+        if(!parseOptional(lexer, this::parseArg).isOk()) {
+            addError(token, true, "Expected value");
         }
-        return true;
+        return OK;
+    }
+
+    @Override
+    protected Set<TokenType> initialFollowSet() {
+        return FOLLOW_SET;
     }
 
     public Token getName() {

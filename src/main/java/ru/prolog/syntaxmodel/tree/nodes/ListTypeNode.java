@@ -3,8 +3,10 @@ package ru.prolog.syntaxmodel.tree.nodes;
 import ru.prolog.syntaxmodel.recognizers.Lexer;
 import ru.prolog.syntaxmodel.tree.AbstractNode;
 import ru.prolog.syntaxmodel.tree.Token;
+import ru.prolog.syntaxmodel.tree.misc.ParsingResult;
 
 import static ru.prolog.syntaxmodel.TokenType.STAR_MULTIPLY;
+import static ru.prolog.syntaxmodel.tree.misc.ParsingResult.*;
 
 /**
  * Тип узла определения типа списка (название типа и '*')
@@ -24,20 +26,20 @@ public class ListTypeNode extends AbstractNode {
     }
 
     @Override
-    protected boolean parseInternal(Lexer lexer) {
+    protected ParsingResult parseInternal(Lexer lexer) {
         typeName = new TypeNameNode(this);
-        if (typeName.parse(lexer)) {
+        if (typeName.parse(lexer).isOk()) {
             addChild(typeName);
         } else {
-            return false;
+            return FAIL;
         }
 
         Token token = lexer.nextNonIgnored();
         if (ofType(token, STAR_MULTIPLY)) {
             arraySymbol = token;
             addChild(arraySymbol);
-            return true;
+            return OK;
         }
-        return false;
+        return FAIL;
     }
 }

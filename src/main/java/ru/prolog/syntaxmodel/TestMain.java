@@ -12,7 +12,7 @@ public class TestMain {
         final String code = readAllBytes("C:\\Users\\admin\\IdeaProjects\\Prolog\\src\\main\\resources\\sampleCode.pl");
         Lexer lexer = new Lexer(code);
         ProgramNode programNode = new ProgramNode(null);
-        boolean parse = programNode.parse(lexer);
+        boolean parse = programNode.parse(lexer).isOk();
         System.out.println(parse);
     }
 

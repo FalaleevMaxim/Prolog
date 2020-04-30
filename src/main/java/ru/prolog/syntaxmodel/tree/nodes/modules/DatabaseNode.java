@@ -4,11 +4,14 @@ import ru.prolog.syntaxmodel.TokenType;
 import ru.prolog.syntaxmodel.recognizers.Lexer;
 import ru.prolog.syntaxmodel.tree.AbstractNode;
 import ru.prolog.syntaxmodel.tree.Token;
+import ru.prolog.syntaxmodel.tree.misc.ParsingResult;
 import ru.prolog.syntaxmodel.tree.nodes.FunctorDefNode;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+
+import static ru.prolog.syntaxmodel.tree.misc.ParsingResult.*;
 
 public class DatabaseNode extends AbstractNode {
     /**
@@ -41,17 +44,17 @@ public class DatabaseNode extends AbstractNode {
     }
 
     @Override
-    protected boolean parseInternal(Lexer lexer) {
+    protected ParsingResult parseInternal(Lexer lexer) {
         Token token = lexer.nextNonIgnored();
-        if(token.getTokenType() != TokenType.DATABASE_KEYWORD) return false;
+        if(token.getTokenType() != TokenType.DATABASE_KEYWORD) return FAIL;
         databaseKeyword = token;
         addChild(token);
 
-        while (parseOptional(lexer, this::parsePredicate));
+        while (parseOptional(lexer, this::parsePredicate).isOk());
         if(predicates.isEmpty()) {
-            valid = false;
+            addError(databaseKeyword, true, "No predicates in database module");
         }
-        return true;
+        return OK;
     }
 
     private boolean parseDatabaseName(Lexer lexer) {
@@ -60,28 +63,28 @@ public class DatabaseNode extends AbstractNode {
         dash = token;
         addChild(dash);
 
-        if(!parseOptional(lexer, this::parseName)) {
-            valid = false;
+        if(!parseOptional(lexer, this::parseName).isOk()) {
+            addError(dash, true, "Expected database name after '-'");
         }
         return true;
     }
 
-    private boolean parseName(Lexer lexer) {
+    private ParsingResult parseName(Lexer lexer) {
         Token token = lexer.nextNonIgnored();
-        if(!ofType(token, TokenType.SYMBOL)) return false;
+        if(!ofType(token, TokenType.SYMBOL)) return OK;
         name = token;
         addChild(name);
-        return true;
+        return FAIL;
     }
 
-    private boolean parsePredicate(Lexer lexer) {
+    private ParsingResult parsePredicate(Lexer lexer) {
         FunctorDefNode predicate = new FunctorDefNode(this);
-        if(predicate.parse(lexer)) {
+        if(predicate.parse(lexer).isOk()) {
             predicates.add(predicate);
             addChild(predicate);
-            return true;
+            return OK;
         }
-        return false;
+        return FAIL;
     }
 
     public Token getDatabaseKeyword() {

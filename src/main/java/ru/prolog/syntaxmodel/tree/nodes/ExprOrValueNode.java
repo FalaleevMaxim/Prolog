@@ -2,6 +2,7 @@ package ru.prolog.syntaxmodel.tree.nodes;
 
 import ru.prolog.syntaxmodel.recognizers.Lexer;
 import ru.prolog.syntaxmodel.tree.AbstractNode;
+import ru.prolog.syntaxmodel.tree.misc.ParsingResult;
 
 public class ExprOrValueNode extends AbstractNode {
     BinaryMathExprNode binaryExpr;
@@ -18,28 +19,30 @@ public class ExprOrValueNode extends AbstractNode {
     }
 
     @Override
-    protected boolean parseInternal(Lexer lexer) {
-        return parseOptional(lexer, this::parseBinaryExpr) || parseOptional(lexer, this::parseValue);
+    protected ParsingResult parseInternal(Lexer lexer) {
+        ParsingResult result = parseOptional(lexer, this::parseBinaryExpr);
+        if(result.isOk()) return result;
+        return parseOptional(lexer, this::parseValue);
     }
 
-    private boolean parseBinaryExpr(Lexer lexer) {
+    private ParsingResult parseBinaryExpr(Lexer lexer) {
         BinaryMathExprNode binaryMathExprNode = new BinaryMathExprNode(this);
-        if(binaryMathExprNode.parse(lexer)) {
+        if(binaryMathExprNode.parse(lexer).isOk()) {
             binaryExpr = binaryMathExprNode;
             addChild(binaryExpr);
-            return true;
+            return ParsingResult.ok();
         }
-        return false;
+        return ParsingResult.fail();
     }
 
-    private boolean parseValue(Lexer lexer) {
+    private ParsingResult parseValue(Lexer lexer) {
         ValueNode valueNode = new ValueNode(this);
-        if(valueNode.parse(lexer)) {
+        if(valueNode.parse(lexer).isOk()) {
             value = valueNode;
             addChild(value);
-            return true;
+            return ParsingResult.ok();
         }
-        return false;
+        return ParsingResult.fail();
     }
 
     public BinaryMathExprNode getBinaryExpr() {

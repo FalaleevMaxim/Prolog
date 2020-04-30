@@ -4,12 +4,17 @@ import ru.prolog.syntaxmodel.TokenType;
 import ru.prolog.syntaxmodel.recognizers.Lexer;
 import ru.prolog.syntaxmodel.tree.AbstractNode;
 import ru.prolog.syntaxmodel.tree.Token;
+import ru.prolog.syntaxmodel.tree.misc.ParsingResult;
 import ru.prolog.syntaxmodel.tree.nodes.StatementsSetNode;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 public class GoalNode extends AbstractNode {
+    public static final Set<TokenType> FOLLOW_SET = Collections.unmodifiableSet(EnumSet.of(
+            TokenType.OR_KEYWORD,
+            TokenType.SEMICOLON,
+            TokenType.DOT));
+
     /**
      * Ключевое слово goal
      */
@@ -42,54 +47,59 @@ public class GoalNode extends AbstractNode {
     }
 
     @Override
-    protected boolean parseInternal(Lexer lexer) {
+    protected ParsingResult parseInternal(Lexer lexer) { //ToDo использовать follow-set
         Token token = lexer.nextNonIgnored();
-        if(!ofType(token, TokenType.GOAL_KEYWORD)) return false;
+        if(!ofType(token, TokenType.GOAL_KEYWORD)) return ParsingResult.fail();
         goalKeyword = token;
         addChild(token);
 
-        if (!parseOptional(lexer, this::parseStatementsSet)) {
-            valid = false;
-            return true;
+        if (!parseOptional(lexer, this::parseStatementsSet).isOk()) {
+            addError(goalKeyword, true, "Expected goal");
+            return ParsingResult.ok();
         }
 
-        while (parseOptional(lexer, this::parseOrAndStatementSet));
+        while (parseOptional(lexer, this::parseOrAndStatementSet).isOk());
         parseOptional(lexer, this::parseDot);
-        return true;
+        return ParsingResult.ok();
     }
 
-    private boolean parseStatementsSet(Lexer lexer) {
+    private ParsingResult parseStatementsSet(Lexer lexer) {
         StatementsSetNode statementsSet = new StatementsSetNode(this);
-        if(statementsSet.parse(lexer)) {
+        if(statementsSet.parse(lexer).isOk()) {
             statementsSets.add(statementsSet);
             addChild(statementsSet);
-            return true;
+            return ParsingResult.ok();
         }
-        return false;
+        return ParsingResult.fail();
     }
 
-    private boolean parseOrAndStatementSet(Lexer lexer) {
+    private ParsingResult parseOrAndStatementSet(Lexer lexer) {
         Token token = lexer.nextNonIgnored();
         if (!ofType(token, TokenType.SEMICOLON, TokenType.OR_KEYWORD)) {
-            return false;
+            return ParsingResult.fail();
         }
         orSigns.add(token);
         addChild(token);
 
-        if (!parseOptional(lexer, this::parseStatementsSet)) {
-            valid = false;
+        if (!parseOptional(lexer, this::parseStatementsSet).isOk()) {
+            addError(token, true, "Expected statement");
         }
-        return true;
+        return ParsingResult.ok();
     }
 
-    private boolean parseDot(Lexer lexer) {
+    private ParsingResult parseDot(Lexer lexer) {
         Token token = lexer.nextNonIgnored();
         if(ofType(token, TokenType.DOT)) {
             dot = token;
             addChild(dot);
-            return true;
+            return ParsingResult.ok();
         }
-        return false;
+        return ParsingResult.ok();
+    }
+
+    @Override
+    protected Set<TokenType> initialFollowSet() {
+        return FOLLOW_SET;
     }
 
     public Token getGoalKeyword() {
