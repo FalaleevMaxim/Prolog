@@ -12,12 +12,15 @@ import java.util.*;
 import static ru.prolog.syntaxmodel.TokenType.*;
 
 public class ProgramNode extends AbstractNode {
-    public static final Set<TokenType> FOLLOW_SET = Collections.unmodifiableSet(EnumSet.of(DOMAINS_KEYWORD,
+    public static final Set<TokenType> FOLLOW_SET = Collections.unmodifiableSet(EnumSet.of(
+            INCLUDE_KEYWORD,
+            DOMAINS_KEYWORD,
             DATABASE_KEYWORD,
             PREDICATES_KEYWORD,
             CLAUSES_KEYWORD,
             GOAL_KEYWORD));
 
+    private IncludesNode includes;
     private DomainsNode domains;
     private List<DatabaseNode> databases = new ArrayList<>();
     private PredicatesNode predicates;
@@ -56,23 +59,31 @@ public class ProgramNode extends AbstractNode {
 
         lexer.setPointer(skip.getPrev());
         switch (skip.getTokenType()) {
+            case INCLUDE_KEYWORD:
+                dontExpect(INCLUDE_KEYWORD);
+                return parseFromIncludes(lexer);
             case DOMAINS_KEYWORD:
                 dontExpect(DOMAINS_KEYWORD);
                 return parseFromDomains(lexer);
             case DATABASE_KEYWORD:
-                dontExpect(DOMAINS_KEYWORD);
+                dontExpect(INCLUDE_KEYWORD, DOMAINS_KEYWORD);
                 return parseFromDatabase(lexer);
             case PREDICATES_KEYWORD:
-                dontExpect(DOMAINS_KEYWORD, DATABASE_KEYWORD, PREDICATES_KEYWORD);
+                dontExpect(INCLUDE_KEYWORD, DOMAINS_KEYWORD, DATABASE_KEYWORD, PREDICATES_KEYWORD);
                 return parseFromPredicates(lexer);
             case CLAUSES_KEYWORD:
-                dontExpect(DOMAINS_KEYWORD, DATABASE_KEYWORD, PREDICATES_KEYWORD, CLAUSES_KEYWORD);
+                dontExpect(INCLUDE_KEYWORD, DOMAINS_KEYWORD, DATABASE_KEYWORD, PREDICATES_KEYWORD, CLAUSES_KEYWORD);
                 return parseFromClauses(lexer);
             case GOAL_KEYWORD:
-                dontExpect(DOMAINS_KEYWORD, DATABASE_KEYWORD, PREDICATES_KEYWORD, CLAUSES_KEYWORD, GOAL_KEYWORD);
+                dontExpect();
                 return parseFromGoal(lexer);
         }
         return ParsingResult.ok();
+    }
+
+    private ParsingResult parseFromIncludes(Lexer lexer) {
+        parseOptional(lexer, this::parseIncludes);
+        return parseInternal(lexer);
     }
 
     private ParsingResult parseFromDomains(Lexer lexer) {
@@ -106,6 +117,10 @@ public class ProgramNode extends AbstractNode {
         return FOLLOW_SET;
     }
 
+    private ParsingResult parseIncludes(Lexer lexer) {
+        return parseChildNode(new IncludesNode(this), lexer, t->{includes = t;});
+    }
+
     private ParsingResult parseDomains(Lexer lexer) {
         return parseChildNode(new DomainsNode(this), lexer, t->{domains = t;});
     }
@@ -128,6 +143,10 @@ public class ProgramNode extends AbstractNode {
 
     public DomainsNode getDomains() {
         return domains;
+    }
+
+    public List<DatabaseNode> getDatabases() {
+        return Collections.unmodifiableList(databases);
     }
 
     public PredicatesNode getPredicates() {

@@ -29,6 +29,7 @@ import ru.prolog.model.type.descriptions.Functor;
 import ru.prolog.model.type.descriptions.FunctorType;
 import ru.prolog.model.values.*;
 import ru.prolog.std.Not;
+import ru.prolog.util.ToStringUtil;
 
 import java.io.IOException;
 import java.lang.reflect.Constructor;
@@ -729,70 +730,13 @@ public class PrologParseListener extends PrologBaseListener implements ANTLRErro
     }
 
     private ValueModel parseStringValue(PrologParser.ValueContext ctx, Type expected) {
-        String str = ctx.STRING().getText();
-        str = str.substring(1, str.length()-1);
-        StringBuilder sb = new StringBuilder();
-        boolean backslash = false;
-        char u = 0;
-        char uPos = 0;
-        boolean unicode = false;
-        for(char c : str.toCharArray()) {
-            //Reading 4 hex to unicode character
-            if(unicode){
-                u*=16;
-                u+=Character.forDigit(c,16);
-                if(uPos<3)
-                    uPos++;
-                else{
-                    uPos=0;
-                    unicode=false;
-                    sb.append(u);
-                    u=0;
-                }
-            }
-            //If this or previous character is not backslash, just write it;
-            if(c!='\\' && !backslash){
-                sb.append(c);
-                continue;
-            }
-            switch (c){
-                case '\\':
-                    if(backslash){
-                        //If it is second backslash, write it
-                        sb.append(c);
-                        backslash = false;
-                    }else {
-                        backslash = true;
-                    }
-                    break;
-                case '\"':
-                    sb.append('\"');
-                    backslash = false;
-                    break;
-                case 'n':
-                    sb.append('\n');
-                    backslash = false;
-                    break;
-                case 't':
-                    sb.append('\t');
-                    backslash = false;
-                    break;
-                case 'r':
-                    sb.append('\r');
-                    backslash = false;
-                    break;
-                case 'u':
-                    unicode = true;
-                    backslash = false;
-                    break;
-            }
-        }
+        String valueText = ToStringUtil.stringTokenValue(ctx.STRING().getText());
 
         ValueModel val;
         if(expected!=null && expected.equals(program.domains().get("symbol"))) {
-            val = new SimpleValueModel(expected, sb.toString());
+            val = new SimpleValueModel(expected, valueText);
         }else {
-            val = new SimpleValueModel(program.domains().get("string"), sb.toString());
+            val = new SimpleValueModel(program.domains().get("string"), valueText);
         }
         val.setCodeIntervals(new ModelCodeIntervals(tokenInterval(ctx.STRING().getSymbol())));
         return val;

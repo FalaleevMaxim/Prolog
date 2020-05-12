@@ -65,6 +65,7 @@ public class Lexer {
 
     public Lexer(String code) {
         this.code = new MappingCharSequence(code);
+        diffLength = code.length();
     }
 
     /**

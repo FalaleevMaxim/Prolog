@@ -86,6 +86,67 @@ public class ToStringUtil {
         }
     }
 
+    public static String stringTokenValue(String tokenText) {
+        String str = tokenText.substring(1, tokenText.length()-1);
+        StringBuilder sb = new StringBuilder();
+        boolean backslash = false;
+        char u = 0;
+        char uPos = 0;
+        boolean unicode = false;
+        for(char c : str.toCharArray()) {
+            //Reading 4 hex to unicode character
+            if(unicode){
+                u*=16;
+                u+=Character.forDigit(c,16);
+                if(uPos<3)
+                    uPos++;
+                else{
+                    uPos=0;
+                    unicode=false;
+                    sb.append(u);
+                    u=0;
+                }
+            }
+            //If this or previous character is not backslash, just write it;
+            if(c!='\\' && !backslash){
+                sb.append(c);
+                continue;
+            }
+            switch (c){
+                case '\\':
+                    if(backslash){
+                        //If it is second backslash, write it
+                        sb.append(c);
+                        backslash = false;
+                    }else {
+                        backslash = true;
+                    }
+                    break;
+                case '\"':
+                    sb.append('\"');
+                    backslash = false;
+                    break;
+                case 'n':
+                    sb.append('\n');
+                    backslash = false;
+                    break;
+                case 't':
+                    sb.append('\t');
+                    backslash = false;
+                    break;
+                case 'r':
+                    sb.append('\r');
+                    backslash = false;
+                    break;
+                case 'u':
+                    unicode = true;
+                    backslash = false;
+                    break;
+            }
+        }
+        return sb.toString();
+    }
+
     public static String prologFormat(String format, List<Value> args){
         StringBuilder sb = new StringBuilder();
         int i=0;

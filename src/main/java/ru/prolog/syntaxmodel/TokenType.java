@@ -25,6 +25,7 @@ public enum TokenType {
     VARIABLE(SEMANTIC, new VariableRecognizer()),
     ANONYMOUS(SEMANTIC, new AnonymousVariableRecognizer()),
     CUT_SIGN(SEMANTIC, new CutSignRecognizer()),
+    INCLUDE_KEYWORD(SYNTAX, new IncludeKeywordRecognizer()),
     DOMAINS_KEYWORD(SYNTAX, new DomainsKeywordRecognizer()),
     DATABASE_KEYWORD(SYNTAX, new DatabaseKeywordRecognizer()),
     PREDICATES_KEYWORD(SYNTAX, new PredicatesKeywordRecognizer()),
