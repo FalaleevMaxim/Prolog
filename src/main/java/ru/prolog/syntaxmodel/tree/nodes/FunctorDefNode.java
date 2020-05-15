@@ -5,6 +5,7 @@ import ru.prolog.syntaxmodel.recognizers.Lexer;
 import ru.prolog.syntaxmodel.tree.AbstractNode;
 import ru.prolog.syntaxmodel.tree.Token;
 import ru.prolog.syntaxmodel.tree.interfaces.Bracketed;
+import ru.prolog.syntaxmodel.tree.interfaces.Named;
 import ru.prolog.syntaxmodel.tree.interfaces.Separated;
 import ru.prolog.syntaxmodel.tree.misc.ParsingResult;
 
@@ -16,7 +17,7 @@ import static ru.prolog.syntaxmodel.tree.misc.ParsingResult.*;
 /**
  * Узел описания функтора или предиката
  */
-public class FunctorDefNode extends AbstractNode implements Bracketed, Separated {
+public class FunctorDefNode extends AbstractNode implements Bracketed, Separated, Named {
     public static final Set<TokenType> FOLLOW_SET = Collections.unmodifiableSet(EnumSet.of(RB, COMMA));
 
     /**
@@ -134,6 +135,7 @@ public class FunctorDefNode extends AbstractNode implements Bracketed, Separated
         return FOLLOW_SET;
     }
 
+    @Override
     public Token getName() {
         return name;
     }

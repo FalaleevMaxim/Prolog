@@ -156,4 +156,12 @@ public class ProgramNode extends AbstractNode {
     public ClausesNode getClauses() {
         return clauses;
     }
+
+    public GoalNode getGoal() {
+        return goal;
+    }
+
+    public IncludesNode getIncludes() {
+        return includes;
+    }
 }

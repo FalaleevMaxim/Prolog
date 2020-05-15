@@ -1,6 +1,7 @@
 package ru.prolog.syntaxmodel.tree;
 
 import ru.prolog.syntaxmodel.TokenKind;
+import ru.prolog.syntaxmodel.tree.semantics.SemanticInfo;
 
 import java.util.List;
 
@@ -107,4 +108,9 @@ public interface Node {
      * @throws StringIndexOutOfBoundsException Если {@param relativeStartPos} или {@param relativeEndPos} выходит за пределы данного узла.
      */
     Node minNodeIncludes(int relativeStartPos, int relativeEndPos);
+
+    /**
+     * @return Возвращает семантическую информацию, ассоциированную с данным узлом.
+     */
+    SemanticInfo getSemanticInfo();
 }

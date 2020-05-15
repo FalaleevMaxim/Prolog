@@ -5,6 +5,7 @@ import ru.prolog.syntaxmodel.TokenType;
 import ru.prolog.syntaxmodel.recognizers.Lexer;
 import ru.prolog.syntaxmodel.tree.misc.NodeError;
 import ru.prolog.syntaxmodel.tree.misc.ParsingResult;
+import ru.prolog.syntaxmodel.tree.semantics.SemanticInfo;
 
 import java.util.*;
 import java.util.function.Consumer;
@@ -64,6 +65,8 @@ public abstract class AbstractNode implements Node {
      * follow-set родительского узла на момент парсинга этого узла
      */
     private final Set<TokenType> parentFollowSet;
+
+    private SemanticInfo semanticInfo;
 
     public AbstractNode(AbstractNode parent) {
         this.parent = parent;
@@ -357,6 +360,21 @@ public abstract class AbstractNode implements Node {
     }
 
     /**
+     * Ищет узел, в follow-set которого есть заданный тип токена.
+     *
+     * @param type Тип токена
+     * @return Узел, follow-set которого содержит данный тип токена, или {@code null} если такого нет.
+     * @see #skipUntilFollowSet(Lexer)
+     */
+    protected final AbstractNode findFollowSetOwner(TokenType type) {
+        if(followSet.contains(type)) return this;
+        for(AbstractNode node = this; node.parent != null; node = node.parent) {
+            if(node.parentFollowSet.contains(type)) return parent;
+        }
+        return null;
+    }
+
+    /**
      * Вспомогательный метод для парсинга необязательных частей. Ставит чекпоинт для лексера, и если часть не распознана, откатывает к нему.
      *
      * @param lexer     Лексер
@@ -618,5 +636,11 @@ public abstract class AbstractNode implements Node {
     @Override
     public String toString() {
         return "<" + getClass().getSimpleName() + ">" + getText();
+    }
+
+    @Override
+    public SemanticInfo getSemanticInfo() {
+        if(semanticInfo == null) semanticInfo = new SemanticInfo(this);
+        return semanticInfo;
     }
 }

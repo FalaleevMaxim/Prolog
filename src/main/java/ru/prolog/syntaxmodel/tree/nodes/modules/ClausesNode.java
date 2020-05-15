@@ -45,4 +45,12 @@ public class ClausesNode extends AbstractNode {
         RuleNode rule = new RuleNode(this);
         return parseChildNode(rule, lexer, rules::add);
     }
+
+    public Token getClausesKeyword() {
+        return clausesKeyword;
+    }
+
+    public List<RuleNode> getRules() {
+        return rules;
+    }
 }

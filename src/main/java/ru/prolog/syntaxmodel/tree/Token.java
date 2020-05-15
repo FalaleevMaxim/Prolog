@@ -3,6 +3,7 @@ package ru.prolog.syntaxmodel.tree;
 import ru.prolog.syntaxmodel.TokenKind;
 import ru.prolog.syntaxmodel.TokenType;
 import ru.prolog.syntaxmodel.tree.recognizers.Hint;
+import ru.prolog.syntaxmodel.tree.semantics.SemanticInfo;
 
 import java.util.Collections;
 import java.util.LinkedList;
@@ -51,6 +52,8 @@ public class Token implements Node {
      * Подсказки, как можно дополнить.
      */
     private Hint hint;
+
+    private SemanticInfo semanticInfo;
 
     public Token(TokenType type, String text, AbstractNode parent, boolean isPartial) {
         this(type, text, parent);
@@ -239,5 +242,11 @@ public class Token implements Node {
     @Override
     public String toString() {
         return "<" + type +">" + text;
+    }
+
+    @Override
+    public SemanticInfo getSemanticInfo() {
+        if(semanticInfo == null) semanticInfo = new SemanticInfo(this);
+        return semanticInfo;
     }
 }
