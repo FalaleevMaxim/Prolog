@@ -6,6 +6,9 @@ import ru.prolog.syntaxmodel.tree.AbstractNode;
 import ru.prolog.syntaxmodel.tree.Token;
 import ru.prolog.syntaxmodel.tree.misc.ParsingResult;
 
+import java.util.*;
+import java.util.stream.Collectors;
+
 import static ru.prolog.syntaxmodel.tree.misc.ParsingResult.*;
 
 public class ValueNode extends AbstractNode {
@@ -62,6 +65,21 @@ public class ValueNode extends AbstractNode {
             return OK;
         }
         return FAIL;
+    }
+
+    /**
+     * Возвращает этот узел и все вложенные в этот него узлы {@link ValueNode}.
+     * Результат не включает хвосты списков, поскольку они являются токенами, а не {@link ValueNode}
+     */
+    public Collection<ValueNode> getInnerValues() {
+        if(isSimpleValue()) return Collections.singletonList(this);
+        List<ValueNode> valueNodes = new ArrayList<>();
+        valueNodes.add(this);
+        if(isList()) valueNodes.addAll(list.getHeads());
+        if(isFunctor()) functor.getArgs().stream()
+                .map(ValueNode::getInnerValues)
+                .forEach(valueNodes::addAll);
+        return valueNodes;
     }
 
     public boolean isVariable() {

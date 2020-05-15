@@ -8,13 +8,8 @@ import ru.prolog.syntaxmodel.tree.Token;
 import ru.prolog.syntaxmodel.tree.nodes.*;
 import ru.prolog.syntaxmodel.tree.nodes.modules.DatabaseNode;
 import ru.prolog.syntaxmodel.tree.nodes.modules.ProgramNode;
-import ru.prolog.syntaxmodel.tree.semantics.attributes.ToDeclaration;
-import ru.prolog.syntaxmodel.tree.semantics.attributes.ToImplementations;
-import ru.prolog.syntaxmodel.tree.semantics.attributes.ToUsages;
-import ru.prolog.syntaxmodel.tree.semantics.attributes.errors.DeclarationNotFoundError;
-import ru.prolog.syntaxmodel.tree.semantics.attributes.errors.DuplicateError;
-import ru.prolog.syntaxmodel.tree.semantics.attributes.errors.IllegalPredicateError;
-import ru.prolog.syntaxmodel.tree.semantics.attributes.errors.NoImplementationsError;
+import ru.prolog.syntaxmodel.tree.semantics.attributes.*;
+import ru.prolog.syntaxmodel.tree.semantics.attributes.errors.*;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -40,6 +35,11 @@ public class SemanticAnalyzer {
     private List<FunctorDefNode> functors;
 
     /**
+     * Значения-функторы в правилах и цели
+     */
+    List<FunctorNode> functorUsages;
+
+    /**
      * Вызовы предикатов
      */
     private Map<String, List<FunctorNode>> predicateCalls;
@@ -57,6 +57,7 @@ public class SemanticAnalyzer {
         analyzeRules(root);
         analyzePredicateCalls(root);
         analyzeUsages();
+        analyzeFunctorUsages(root);
     }
 
     private void analyzeUsages() {
@@ -77,6 +78,7 @@ public class SemanticAnalyzer {
                 .collect(Collectors.toList());
         for (FunctorDefNode functor : functors) {
             functor.getSemanticInfo().putAttribute(new ToUsages());
+            functor.getName().getSemanticInfo().putAttribute(new NameOf(functor));
         }
         checkUniqueFunctors();
     }
@@ -102,6 +104,7 @@ public class SemanticAnalyzer {
         for (FunctorDefNode predicate : allPredicates) {
             predicate.getSemanticInfo().putAttribute(new ToImplementations());
             predicate.getSemanticInfo().putAttribute(new ToUsages());
+            predicate.getName().getSemanticInfo().putAttribute(new NameOf(predicate));
         }
         checkUniquePredicates();
         checkUniqueDatabasePredicates();
@@ -185,6 +188,7 @@ public class SemanticAnalyzer {
         if(programNode.getClauses() == null) return;
         for (RuleNode rule : programNode.getClauses().getRules()) {
             FunctorNode left = rule.getLeft();
+            left.getName().getSemanticInfo().putAttribute(new NameOf(left));
             String name = left.getName().getText().toLowerCase();
             int arity = left.getArgs().size();
             Optional<FunctorDefNode> predicate = getAllPredicates().stream()
@@ -221,6 +225,7 @@ public class SemanticAnalyzer {
         }
         List<FunctorDefNode> allPredicates = getAllPredicates();
         for (FunctorNode call : predicateCalls) {
+            call.getName().getSemanticInfo().putAttribute(new NameOf(call));
             String name = call.getName().getText().toLowerCase();
             int arity = call.getArgs().size();
             if(predicateStorage.get(name, arity) != null || predicateStorage.getVarArgPredicate(name) != null) break;
@@ -236,5 +241,99 @@ public class SemanticAnalyzer {
                         "Not found predicate with name %s and %d arguments", name, arity)));
             }
         }
+    }
+
+    private void analyzeFunctorUsages(ProgramNode programNode) {
+        List<FunctorNode> usages = new ArrayList<>();
+        if(programNode.getClauses() != null) {
+            List<RuleNode> rules = programNode.getClauses().getRules();
+            //Достаём все значения-функторы из левых частей правил
+            rules.stream().map(RuleNode::getLeft)
+                    .map(FunctorNode::getArgs)
+                    .flatMap(Collection::stream)
+                    .map(ValueNode::getInnerValues)
+                    .flatMap(Collection::stream)
+                    .filter(ValueNode::isFunctor)
+                    .map(ValueNode::getFunctor)
+                    .forEach(usages::add);
+            //Достаём все выражения правых частей правил
+            List<StatementNode> statements = rules.stream()
+                    .map(RuleNode::getStatementsSets).flatMap(Collection::stream)
+                    .map(StatementsSetNode::getStatements).flatMap(Collection::stream)
+                    .collect(Collectors.toList());
+            extractFunctorsFromStatements(statements, usages);
+        }
+        if(programNode.getGoal() != null) {
+            List<StatementNode> statements = programNode.getGoal().getStatementsSets().stream()
+                    .map(StatementsSetNode::getStatements).flatMap(Collection::stream)
+                    .collect(Collectors.toList());
+            extractFunctorsFromStatements(statements, usages);
+        }
+        functorUsages = usages;
+        for (FunctorNode usage : usages) {
+            Optional<FunctorDefNode> declaration = functors.stream()
+                    .filter(def -> def.getName().getText().equals(usage.getName().getText()))
+                    .findFirst();
+            if(declaration.isPresent()) {
+                //Соединяем использование функтора с объявлением
+                SemanticInfo usageSemanticInfo = usage.getSemanticInfo();
+                usageSemanticInfo.putAttribute(new ToDeclaration(declaration.get()));
+                declaration.get().getSemanticInfo().getAttribute(ToUsages.class).addUsage(usage);
+
+                //Проверяем количество аргументов
+                int usageArgs = usage.getArgs().size();
+                int declarationArgs = declaration.get().getArgTypes().size();
+                if(usageArgs != declarationArgs) {
+                    usageSemanticInfo.putAttribute(new WrongFunctorArgsCountError(
+                            String.format("Wrong number of arguments. Expected %d, got %d",
+                            declarationArgs, usageArgs)));
+                }
+            } else {
+                if (usage.getLb() == null) {
+                    //Если не найдено объявление функтора, и у функтора нет скобок, то это символьное значение
+                    usage.getName().getSemanticInfo().putAttribute(new SymbolValue());
+                } else {
+                    //Если у функтора есть скобки, а объявление не найдено, добавляем ошибку
+                    usage.getSemanticInfo().putAttribute(new DeclarationNotFoundError(
+                            String.format("Functor declaration %s not found in domains", usage.getName().getText())));
+                }
+            }
+        }
+    }
+
+    private void extractFunctorsFromStatements(List<StatementNode> statements, List<FunctorNode> usages) {
+        //Достаём все значения-функторы из вызовов предикатов
+        statements.stream()
+                .filter(StatementNode::isPredicateExec)
+                .map(StatementNode::getPredicateExec)
+                .map(FunctorNode::getArgs)
+                .flatMap(Collection::stream)
+                .map(ValueNode::getInnerValues).flatMap(Collection::stream)
+                .filter(ValueNode::isFunctor)
+                .map(ValueNode::getFunctor)
+                .forEach(usages::add);
+        //Собираем выражения-сравнения
+        List<CompareNode> compareStatements = statements.stream()
+                .filter(StatementNode::isCompareStatement)
+                .map(StatementNode::getCompareStatement)
+                .collect(Collectors.toList());
+        //Выбираем все значения-функторы из левых частей выражений
+        compareStatements.stream()
+                .map(CompareNode::getLeft)
+                .filter(ExprOrValueNode::isValue)
+                .map(ExprOrValueNode::getValue)
+                .map(ValueNode::getInnerValues).flatMap(Collection::stream)
+                .filter(ValueNode::isFunctor)
+                .map(ValueNode::getFunctor)
+                .forEach(usages::add);
+        //Выбираем все значения-функторы из правых частей выражений
+        compareStatements.stream()
+                .map(CompareNode::getRight)
+                .filter(ExprOrValueNode::isValue)
+                .map(ExprOrValueNode::getValue)
+                .map(ValueNode::getInnerValues).flatMap(Collection::stream)
+                .filter(ValueNode::isFunctor)
+                .map(ValueNode::getFunctor)
+                .forEach(usages::add);
     }
 }

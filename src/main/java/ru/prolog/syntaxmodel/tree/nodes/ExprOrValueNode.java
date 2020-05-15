@@ -45,6 +45,14 @@ public class ExprOrValueNode extends AbstractNode {
         return ParsingResult.fail();
     }
 
+    public boolean isValue() {
+        return value != null;
+    }
+
+    public boolean isExpr() {
+        return binaryExpr != null;
+    }
+
     public BinaryMathExprNode getBinaryExpr() {
         return binaryExpr;
     }
