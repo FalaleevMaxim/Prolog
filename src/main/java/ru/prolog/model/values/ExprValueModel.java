@@ -81,6 +81,11 @@ public class ExprValueModel extends AbstractModelObject implements ValueModel{
             case "sin":
             case "cos":
             case "tan":
+            case "arctan":
+            case "ln":
+            case "log":
+            case "exp":
+            case "sqrt":
                 return real;
             case "abs":
                 return integer;
@@ -115,6 +120,16 @@ public class ExprValueModel extends AbstractModelObject implements ValueModel{
                 return new CosExpr(left.forContext(context));
             case "tan":
                 return new TanExpr(left.forContext(context));
+            case "arctan":
+                return new ArctanExpr(left.forContext(context));
+            case "ln":
+                return new LnExpr(left.forContext(context));
+            case "log":
+                return new LogExpr(left.forContext(context));
+            case "exp":
+                return new ExpExpr(left.forContext(context));
+            case "sqrt":
+                return new SqrtExpr(left.forContext(context));
             case "abs":
                 return new AbsExpr(left.forContext(context));
             case "-":

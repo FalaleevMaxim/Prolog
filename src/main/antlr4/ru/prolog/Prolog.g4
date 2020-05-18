@@ -105,6 +105,10 @@ cut:'!'
 FUNCTION:'sin'
         |'cos'
         |'tan'
+        |'arctan'
+        |'ln'
+        |'log'
+        |'exp'
         |'abs'
         ;
 

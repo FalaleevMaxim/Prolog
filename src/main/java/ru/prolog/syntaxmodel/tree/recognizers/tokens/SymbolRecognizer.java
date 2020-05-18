@@ -2,6 +2,7 @@ package ru.prolog.syntaxmodel.tree.recognizers.tokens;
 
 import ru.prolog.syntaxmodel.TokenType;
 import ru.prolog.syntaxmodel.tree.Token;
+import ru.prolog.syntaxmodel.tree.recognizers.tokens.math.MathFunctionNameRecognizer;
 
 import java.util.function.Predicate;
 
@@ -29,6 +30,11 @@ public class SymbolRecognizer extends TokenRecognizer {
 
         //Ключевые слова не могут быть именами или симвользыми данными
         if (TokenType.getKeywords().stream().anyMatch(s -> s.equalsIgnoreCase(matchedText))) {
+            return null;
+        }
+
+        //Название математической функции не может быть именем или символьными данными
+        if(MathFunctionNameRecognizer.FUNCTIONS.contains(matchedText.toLowerCase())) {
             return null;
         }
 

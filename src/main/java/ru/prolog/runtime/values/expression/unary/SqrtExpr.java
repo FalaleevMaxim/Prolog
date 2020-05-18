@@ -3,15 +3,15 @@ package ru.prolog.runtime.values.expression.unary;
 import ru.prolog.model.type.Type;
 import ru.prolog.runtime.values.expression.ExprValue;
 
-public class TanExpr extends AbstractUnaryExpr {
-    public TanExpr(ExprValue innerExpr) {
-        super("tan", innerExpr);
+public class SqrtExpr extends AbstractUnaryExpr {
+    public SqrtExpr(ExprValue innerExpr) {
+        super("sqrt", innerExpr);
     }
 
     @Override
     public Double getContent() {
         checkFreeVariables();
-        return Math.tan(innerExpr.getContent().doubleValue());
+        return Math.sqrt(innerExpr.getContent().doubleValue());
     }
 
     @Override

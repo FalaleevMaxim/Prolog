@@ -32,6 +32,7 @@ public enum TokenType {
     CLAUSES_KEYWORD(SYNTAX, new ClausesKeywordRecognizer()),
     GOAL_KEYWORD(SYNTAX, new GoalKeywordRecognizer()),
     STAR_MULTIPLY(SYNTAX, new StarOrMultiplyCharacterRecognizer()),
+    FUNCTION(SYNTAX, new MathFunctionNameRecognizer()),
     PLUS(SYNTAX, new PlusRecognizer()),
     MINUS(SYNTAX, new MinusRecognizer()),
     DIVIDE(SYNTAX, new DivideRecognizer()),
