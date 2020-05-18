@@ -156,6 +156,7 @@ public class SemanticAnalyzer {
                 .map(Token::getText)
                 .map(String::toLowerCase)
                 .collect(Collectors.toSet());
+        Set<String> functorNames = functors.stream().map(FunctorDefNode::getName).map(Token::getText).collect(Collectors.toSet());
         Map<String, FunctorDefNode> dbPredicatesNames = new HashMap<>();
         for (FunctorDefNode databasePredicate : databasePredicates) {
             String name = databasePredicate.getName().getText().toLowerCase();
@@ -166,6 +167,8 @@ public class SemanticAnalyzer {
                 dbPredicatesNames.put(name, databasePredicate);
                 if(predicateNames.contains(name)) {
                     databasePredicate.getSemanticInfo().putAttribute(new DuplicateError("Another predicate with same name exists"));
+                } else if(functorNames.contains(name)) {
+                    databasePredicate.getSemanticInfo().putAttribute(new DuplicateError("Functor with same name exists"));
                 }
             }
         }
@@ -208,20 +211,20 @@ public class SemanticAnalyzer {
     }
 
     private void analyzePredicateCalls(ProgramNode programNode) {
-        if(programNode.getClauses() == null) return;
-        List<FunctorNode> predicateCalls = programNode.getClauses().getRules().stream()
-                .map(RuleNode::getStatementsSets).flatMap(Collection::stream)
-                .map(StatementsSetNode::getStatements).flatMap(Collection::stream)
-                .filter(StatementNode::isPredicateExec)
-                .map(StatementNode::getPredicateExec)
-                .collect(Collectors.toList());
+        List<FunctorNode> predicateCalls = new ArrayList<>();
+        if(programNode.getClauses() != null) {
+            List<StatementNode> statements = programNode.getClauses().getRules().stream()
+                    .map(RuleNode::getStatementsSets).flatMap(Collection::stream)
+                    .map(StatementsSetNode::getStatements).flatMap(Collection::stream)
+                    .collect(Collectors.toList());
+            predicateCalls.addAll(extractPredicateCalls(statements));
+        }
         if(programNode.getGoal() != null) {
-            programNode.getGoal().getStatementsSets().stream()
+            List<StatementNode> statements = programNode.getGoal().getStatementsSets().stream()
                     .map(StatementsSetNode::getStatements)
                     .flatMap(Collection::stream)
-                    .filter(StatementNode::isPredicateExec)
-                    .map(StatementNode::getPredicateExec)
-                    .forEach(predicateCalls::add);
+                    .collect(Collectors.toList());
+            predicateCalls.addAll(extractPredicateCalls(statements));
         }
         List<FunctorDefNode> allPredicates = getAllPredicates();
         for (FunctorNode call : predicateCalls) {
@@ -241,6 +244,20 @@ public class SemanticAnalyzer {
                         "Not found predicate with name %s and %d arguments", name, arity)));
             }
         }
+    }
+
+    private List<FunctorNode> extractPredicateCalls(List<StatementNode> statements) {
+        List<FunctorNode> calls = statements.stream()
+                .filter(StatementNode::isPredicateExec)
+                .map(StatementNode::getPredicateExec)
+                .collect(Collectors.toList());
+        statements.stream()
+                .filter(StatementNode::isPredicateExecNegation)
+                .map(StatementNode::getPredicateExecNegation)
+                .map(NotPredicateExec::getPredicateExec)
+                .filter(Objects::nonNull)
+                .forEach(calls::add);
+        return calls;
     }
 
     private void analyzeFunctorUsages(ProgramNode programNode) {
@@ -271,6 +288,7 @@ public class SemanticAnalyzer {
         }
         functorUsages = usages;
         for (FunctorNode usage : usages) {
+            usage.getName().getSemanticInfo().putAttribute(new NameOf(usage));
             Optional<FunctorDefNode> declaration = functors.stream()
                     .filter(def -> def.getName().getText().equals(usage.getName().getText()))
                     .findFirst();
@@ -306,6 +324,18 @@ public class SemanticAnalyzer {
         statements.stream()
                 .filter(StatementNode::isPredicateExec)
                 .map(StatementNode::getPredicateExec)
+                .map(FunctorNode::getArgs)
+                .flatMap(Collection::stream)
+                .map(ValueNode::getInnerValues).flatMap(Collection::stream)
+                .filter(ValueNode::isFunctor)
+                .map(ValueNode::getFunctor)
+                .forEach(usages::add);
+        //Достаём все значения-функторы из отрицаний вызовов предикатов
+        statements.stream()
+                .filter(StatementNode::isPredicateExecNegation)
+                .map(StatementNode::getPredicateExecNegation)
+                .map(NotPredicateExec::getPredicateExec)
+                .filter(Objects::nonNull)
                 .map(FunctorNode::getArgs)
                 .flatMap(Collection::stream)
                 .map(ValueNode::getInnerValues).flatMap(Collection::stream)

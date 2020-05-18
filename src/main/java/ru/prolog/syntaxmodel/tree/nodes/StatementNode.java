@@ -24,6 +24,11 @@ public class StatementNode extends AbstractNode {
     private FunctorNode predicateExec;
 
     /**
+     * Вызов предиката, обёрнутый в not()
+     */
+    private NotPredicateExec predicateExecNegation;
+
+    /**
      * Выражение сравнения
      */
     private CompareNode compareStatement;
@@ -41,14 +46,20 @@ public class StatementNode extends AbstractNode {
     @Override
     protected ParsingResult parseInternal(Lexer lexer) {
         ParsingResult result = parseOptional(lexer, this::parseCutSign);
-        if(result.isOk()) return result;
+        if (result.isOk()) return result;
+        result = parseOptional(lexer, this::parsePredicateExecNegation);
+        if (result.isOk()) return result;
         result = parseOptional(lexer, this::parsePredicateExec);
-        if(result.isOk()) return result;
+        if (result.isOk()) return result;
         return parseOptional(lexer, this::parseCompareStatement);
     }
 
     public boolean isCutSign() {
         return cutSign != null;
+    }
+
+    public boolean isPredicateExecNegation() {
+        return predicateExecNegation != null;
     }
 
     public boolean isPredicateExec() {
@@ -77,14 +88,12 @@ public class StatementNode extends AbstractNode {
         return FAIL;
     }
 
+    private ParsingResult parsePredicateExecNegation(Lexer lexer) {
+        return parseChildNode(new NotPredicateExec(this), lexer, p -> predicateExecNegation = p);
+    }
+
     private ParsingResult parsePredicateExec(Lexer lexer) {
-        FunctorNode predExec = new FunctorNode(this);
-        if (predExec.parse(lexer).isOk()) {
-            predicateExec = predExec;
-            addChild(predExec);
-            return OK;
-        }
-        return FAIL;
+        return parseChildNode(new FunctorNode(this), lexer, p -> predicateExec = p);
     }
 
     private ParsingResult parseCompareStatement(Lexer lexer) {
@@ -99,5 +108,9 @@ public class StatementNode extends AbstractNode {
 
     public CompareNode getCompareStatement() {
         return compareStatement;
+    }
+
+    public NotPredicateExec getPredicateExecNegation() {
+        return predicateExecNegation;
     }
 }
