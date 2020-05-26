@@ -6,9 +6,12 @@ import ru.prolog.syntaxmodel.tree.AbstractNode;
 import ru.prolog.syntaxmodel.tree.Token;
 import ru.prolog.syntaxmodel.tree.misc.ParsingResult;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class CompareNode extends AbstractNode {
     public static final Set<TokenType> FOLLOW_SET = Collections.unmodifiableSet(EnumSet.of(TokenType.EQUALS,
@@ -85,5 +88,12 @@ public class CompareNode extends AbstractNode {
 
     public ExprOrValueNode getRight() {
         return right;
+    }
+
+    public Collection<Token> getAllVariables(boolean includeAnonymous) {
+        return Stream.of(left, right)
+                .map(v->v.getAllVariables(includeAnonymous))
+                .flatMap(Collection::stream)
+                .collect(Collectors.toList());
     }
 }

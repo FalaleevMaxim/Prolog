@@ -82,6 +82,32 @@ public class ValueNode extends AbstractNode {
         return valueNodes;
     }
 
+    /**
+     * Возвращает все переменные внутри значения.
+     *
+     * @param includeAnonymous Включать ли анонимные переменные в результат
+     */
+    public Collection<Token> getAllVariables(boolean includeAnonymous) {
+        if(isVariable() || (includeAnonymous && isAnonymousVariable())) return Collections.singletonList(simpleValue);
+        if(isList()) {
+            List<Token> variables = new ArrayList<>();
+            if(list.getTailVar() != null && (includeAnonymous || ofType(list.getTailVar(), TokenType.VARIABLE))) {
+                variables.add(list.getTailVar());
+            }
+            list.getHeads().stream()
+                    .map(v->v.getAllVariables(includeAnonymous))
+                    .flatMap(Collection::stream)
+                    .forEach(variables::add);
+            return variables;
+        }
+        if(isFunctor()) {
+            return functor.getArgs().stream().map(v->v.getAllVariables(includeAnonymous))
+                    .flatMap(Collection::stream)
+                    .collect(Collectors.toList());
+        }
+        return Collections.emptyList();
+    }
+
     public boolean isVariable() {
         return ofType(simpleValue, TokenType.VARIABLE);
     }

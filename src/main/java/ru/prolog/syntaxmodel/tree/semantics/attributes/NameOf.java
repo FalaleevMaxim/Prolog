@@ -1,6 +1,6 @@
 package ru.prolog.syntaxmodel.tree.semantics.attributes;
 
-import ru.prolog.syntaxmodel.tree.interfaces.Named;
+import ru.prolog.syntaxmodel.tree.Node;
 
 /**
  * Атрибут, указывающий что данный токен является именем
@@ -9,17 +9,17 @@ public class NameOf extends AbstractSemanticAttribute {
     /**
      * Узел, именем которого является данный токен
      */
-    private Named namedNode;
+    private Node namedNode;
 
-    public NameOf(Named namedNode) {
+    public NameOf(Node namedNode) {
         this.namedNode = namedNode;
     }
 
-    public Named getNamedNode() {
+    public Node getNamedNode() {
         return namedNode;
     }
 
-    public void setNamedNode(Named namedNode) {
+    public void setNamedNode(Node namedNode) {
         this.namedNode = namedNode;
     }
 

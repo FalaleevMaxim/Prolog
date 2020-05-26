@@ -15,7 +15,10 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 public class SemanticAnalyzer {
-    private static final PredicateStorage predicateStorage = new PredicateStorageImpl(new TypeStorageImpl());
+    /**
+     * Хранилище предикатов, заполненное только встроенными предикатами
+     */
+    private static final PredicateStorage DEFAULT_PREDICATE_STORAGE = new PredicateStorageImpl(new TypeStorageImpl());
 
     private final ProgramNode root;
 
@@ -23,6 +26,11 @@ public class SemanticAnalyzer {
      * Объявления предикатов
      */
     private List<FunctorDefNode> predicates;
+
+    /**
+     * Имя предиката -> арность (количество аргументов) предиката -> первое объявление предиката с такой сигнатурой
+     */
+    Map<String, Map<Integer, FunctorDefNode>> predicateSignatures;
 
     /**
      * Объявления предикатов
@@ -58,6 +66,8 @@ public class SemanticAnalyzer {
         analyzePredicateCalls(root);
         analyzeUsages();
         analyzeFunctorUsages(root);
+        analyzeTypeUsages(root);
+        indexVariables(root);
     }
 
     private void analyzeUsages() {
@@ -88,7 +98,8 @@ public class SemanticAnalyzer {
         for (FunctorDefNode functor : functors) {
             String name = functor.getName().getText().toLowerCase();
             if (functorNames.containsKey(name)) {
-                functor.getSemanticInfo().putAttribute(new DuplicateError("Another functor exists with same name"));
+                functor.getSemanticInfo().putAttribute(new DuplicateError("Another functor exists with same name", functorNames.get(name)));
+                functorNames.get(name).getSemanticInfo().putAttribute(new DuplicateError("Another functor exists with same name", functor));
             } else {
                 functorNames.put(name, functor);
             }
@@ -142,40 +153,38 @@ public class SemanticAnalyzer {
             }
             int arity = predicate.getArgTypes().size();
             if(arities.containsKey(arity)) {
-                predicate.getSemanticInfo().putAttribute(new DuplicateError("Another predicate with same name and arity exists"));
-                arities.get(arity).getSemanticInfo().putAttribute(new DuplicateError("Another predicate with same name and arity exists"));
+                predicate.getSemanticInfo().putAttribute(new DuplicateError("Another predicate with same name and arity exists", arities.get(arity)));
+                arities.get(arity).getSemanticInfo().putAttribute(new DuplicateError("Another predicate with same name and arity exists", predicate));
             } else {
                 arities.put(arity, predicate);
             }
         }
+        this.predicateSignatures = predicateSignatures;
     }
 
     private void checkUniqueDatabasePredicates() {
-        Set<String> predicateNames = predicates.stream()
-                .map(FunctorDefNode::getName)
-                .map(Token::getText)
-                .map(String::toLowerCase)
-                .collect(Collectors.toSet());
-        Set<String> functorNames = functors.stream().map(FunctorDefNode::getName).map(Token::getText).collect(Collectors.toSet());
+        Map<String, FunctorDefNode> functorNames = functors.stream()
+                .collect(Collectors.toMap(f->f.getName().getText().toLowerCase(), f->f));
         Map<String, FunctorDefNode> dbPredicatesNames = new HashMap<>();
         for (FunctorDefNode databasePredicate : databasePredicates) {
             String name = databasePredicate.getName().getText().toLowerCase();
             if(dbPredicatesNames.containsKey(name)) {
-                databasePredicate.getSemanticInfo().putAttribute(new DuplicateError("Another database predicate with same name exists"));
-                dbPredicatesNames.get(name).getSemanticInfo().putAttribute(new DuplicateError("Another database predicate with same name exists"));
+                databasePredicate.getSemanticInfo().putAttribute(new DuplicateError("Another database predicate with same name exists", dbPredicatesNames.get(name)));
+                dbPredicatesNames.get(name).getSemanticInfo().putAttribute(new DuplicateError("Another database predicate with same name exists", databasePredicate));
             } else {
                 dbPredicatesNames.put(name, databasePredicate);
-                if(predicateNames.contains(name)) {
-                    databasePredicate.getSemanticInfo().putAttribute(new DuplicateError("Another predicate with same name exists"));
-                } else if(functorNames.contains(name)) {
-                    databasePredicate.getSemanticInfo().putAttribute(new DuplicateError("Functor with same name exists"));
+                if(predicateSignatures.containsKey(name)) {
+                    databasePredicate.getSemanticInfo().putAttribute(new DuplicateError("Another predicate with same name exists",
+                            predicateSignatures.get(name).values().iterator().next()));
+                } else if(functorNames.containsKey(name)) {
+                    databasePredicate.getSemanticInfo().putAttribute(new DuplicateError("Functor with same name exists", functorNames.get(name)));
                 }
             }
         }
     }
 
     private void checkBuiltInPredicates(List<FunctorDefNode> allPredicates) {
-        Set<String> builtInPredicatesNames = predicateStorage.all().stream()
+        Set<String> builtInPredicatesNames = DEFAULT_PREDICATE_STORAGE.all().stream()
                 .map(Predicate::getName)
                 .map(String::toLowerCase)
                 .collect(Collectors.toSet());
@@ -202,7 +211,7 @@ public class SemanticAnalyzer {
                 left.getSemanticInfo().putAttribute(new ToDeclaration(predicate.get()));
                 predicate.get().getSemanticInfo().getAttribute(ToImplementations.class).addImplementation(left);
             } else {
-                if(predicateStorage.get(name, arity) == null && predicateStorage.getVarArgPredicate(name) == null) {
+                if(DEFAULT_PREDICATE_STORAGE.get(name, arity) == null && DEFAULT_PREDICATE_STORAGE.getVarArgPredicate(name) == null) {
                     left.getSemanticInfo().putAttribute(new DeclarationNotFoundError(String.format(
                             "Not found predicate with name %s and %d arguments", name, arity)));
                 }
@@ -231,7 +240,7 @@ public class SemanticAnalyzer {
             call.getName().getSemanticInfo().putAttribute(new NameOf(call));
             String name = call.getName().getText().toLowerCase();
             int arity = call.getArgs().size();
-            if(predicateStorage.get(name, arity) != null || predicateStorage.getVarArgPredicate(name) != null) break;
+            if(DEFAULT_PREDICATE_STORAGE.get(name, arity) != null || DEFAULT_PREDICATE_STORAGE.getVarArgPredicate(name) != null) break;
             Optional<FunctorDefNode> predicate = allPredicates.stream()
                     .filter(p -> name.equals(p.getName().getText().toLowerCase()))
                     .filter(p -> arity == p.getArgTypes().size())
@@ -365,5 +374,84 @@ public class SemanticAnalyzer {
                 .filter(ValueNode::isFunctor)
                 .map(ValueNode::getFunctor)
                 .forEach(usages::add);
+    }
+
+    private void analyzeTypeUsages(ProgramNode programNode) {
+        List<TypeNameNode> allArgTypes = getAllPredicates().stream()
+                .map(FunctorDefNode::getArgTypes).flatMap(Collection::stream)
+                .filter(t -> !t.isPrimitive())
+                .collect(Collectors.toList());
+        functors.stream()
+                .map(FunctorDefNode::getArgTypes).flatMap(Collection::stream)
+                .filter(t -> !t.isPrimitive())
+                .forEach(allArgTypes::add);
+
+        Set<Token> typeNames;
+        if(programNode.getDomains() != null) {
+            typeNames = programNode.getDomains().getTypeDefNodes().stream()
+                    .map(TypeDefNode::getTypeNames).flatMap(Collection::stream)
+                    .collect(Collectors.toSet());
+        } else {
+            typeNames = Collections.emptySet();
+        }
+
+        Map<String, Token> typeNamesMap = new HashMap<>();
+        for (Token typeName : typeNames) {
+            String name = typeName.getText().toLowerCase();
+            if(typeNamesMap.containsKey(name)) {
+                typeName.getSemanticInfo().putAttribute(new DuplicateError("Another type with same name exists", typeNamesMap.get(name)));
+                typeNamesMap.get(name).getSemanticInfo().putAttribute(new DuplicateError("Another type with same name exists", typeName));
+            } else {
+                typeNamesMap.put(name, typeName);
+                typeName.getSemanticInfo().putAttribute(new ToUsages());
+                typeName.getSemanticInfo().putAttribute(new NameOf(typeName));
+            }
+        }
+
+        for (TypeNameNode argType : allArgTypes) {
+            argType.getName().getSemanticInfo().putAttribute(new NameOf(argType));
+            Token typeDeclaration = typeNamesMap.get(argType.getName().getText().toLowerCase());
+            if(typeDeclaration != null) {
+                argType.getSemanticInfo().putAttribute(new ToDeclaration(typeDeclaration));
+                typeDeclaration.getSemanticInfo().getAttribute(ToUsages.class).addUsage(argType);
+            } else {
+                argType.getSemanticInfo().putAttribute(new DeclarationNotFoundError("Type not found in domains"));
+            }
+        }
+    }
+
+    private void indexVariables(ProgramNode programNode) {
+        if(programNode.getClauses() != null) {
+            for (RuleNode rule : programNode.getClauses().getRules()) {
+                RuleLeftVariablesHolder ruleLeftVariablesHolder = new RuleLeftVariablesHolder();
+                rule.getLeft().getArgs()
+                        .stream().map(v->v.getAllVariables(false))
+                        .flatMap(Collection::stream)
+                        .forEach(ruleLeftVariablesHolder::addVariable);
+                rule.getSemanticInfo().putAttribute(ruleLeftVariablesHolder);
+                for (StatementsSetNode statementsSet : rule.getStatementsSets()) {
+                    StatementSetVariablesHolder variablesHolder = new StatementSetVariablesHolder(ruleLeftVariablesHolder);
+                    statementsSet.getSemanticInfo().putAttribute(variablesHolder);
+                    statementsSet.getStatements().stream()
+                            .filter(StatementNode::isPredicateExec)
+                            .map(StatementNode::getPredicateExec)
+                            .map(FunctorNode::getArgs).flatMap(Collection::stream)
+                            .map(v->v.getAllVariables(false)).flatMap(Collection::stream)
+                            .forEach(variablesHolder::addVariable);
+                    statementsSet.getStatements().stream()
+                            .filter(StatementNode::isPredicateExecNegation)
+                            .map(StatementNode::getPredicateExecNegation)
+                            .map(NotPredicateExec::getPredicateExec)
+                            .map(FunctorNode::getArgs).flatMap(Collection::stream)
+                            .map(v->v.getAllVariables(false)).flatMap(Collection::stream)
+                            .forEach(variablesHolder::addVariable);
+                    statementsSet.getStatements().stream()
+                            .filter(StatementNode::isCompareStatement)
+                            .map(StatementNode::getCompareStatement)
+                            .map(v->v.getAllVariables(false)).flatMap(Collection::stream)
+                            .forEach(variablesHolder::addVariable);
+                }
+            }
+        }
     }
 }

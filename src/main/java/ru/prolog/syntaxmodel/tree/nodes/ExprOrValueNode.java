@@ -2,10 +2,14 @@ package ru.prolog.syntaxmodel.tree.nodes;
 
 import ru.prolog.syntaxmodel.recognizers.Lexer;
 import ru.prolog.syntaxmodel.tree.AbstractNode;
+import ru.prolog.syntaxmodel.tree.Token;
 import ru.prolog.syntaxmodel.tree.misc.ParsingResult;
+import ru.prolog.syntaxmodel.tree.nodes.math.MathExpressionRootNode;
+
+import java.util.Collection;
 
 public class ExprOrValueNode extends AbstractNode {
-    BinaryMathExprNode binaryExpr;
+    MathExpressionRootNode mathExpr;
     ValueNode value;
 
     public ExprOrValueNode(AbstractNode parent) {
@@ -15,7 +19,7 @@ public class ExprOrValueNode extends AbstractNode {
     @Override
     protected void clearInternal() {
         value = null;
-        binaryExpr = null;
+        mathExpr = null;
     }
 
     @Override
@@ -26,10 +30,10 @@ public class ExprOrValueNode extends AbstractNode {
     }
 
     private ParsingResult parseBinaryExpr(Lexer lexer) {
-        BinaryMathExprNode binaryMathExprNode = new BinaryMathExprNode(this);
-        if(binaryMathExprNode.parse(lexer).isOk()) {
-            binaryExpr = binaryMathExprNode;
-            addChild(binaryExpr);
+        MathExpressionRootNode mathExpr = new MathExpressionRootNode(this);
+        if(mathExpr.parse(lexer).isOk()) {
+            this.mathExpr = mathExpr;
+            addChild(mathExpr);
             return ParsingResult.ok();
         }
         return ParsingResult.fail();
@@ -50,14 +54,19 @@ public class ExprOrValueNode extends AbstractNode {
     }
 
     public boolean isExpr() {
-        return binaryExpr != null;
+        return mathExpr != null;
     }
 
-    public BinaryMathExprNode getBinaryExpr() {
-        return binaryExpr;
+    public MathExpressionRootNode getBinaryExpr() {
+        return mathExpr;
     }
 
     public ValueNode getValue() {
         return value;
+    }
+
+    public Collection<Token> getAllVariables(boolean includeAnonymous) {
+        if(isValue()) return value.getAllVariables(includeAnonymous);
+        return mathExpr.getAllVariables();
     }
 }

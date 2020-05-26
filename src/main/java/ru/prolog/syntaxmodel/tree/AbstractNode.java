@@ -396,7 +396,7 @@ public abstract class AbstractNode implements Node {
         children.add(child);
         child.setParent(this);
         updateLength(child.length());
-        updateLineBreaks(cachedLineBreaks + child.lineBreaks());
+        updateLineBreaks(child.lineBreaks());
     }
 
     @Override
@@ -441,7 +441,7 @@ public abstract class AbstractNode implements Node {
 
     private void updateLineBreaks(int change) {
         cachedLineBreaks += change;
-        if (parent != null) {
+        if (parent != null && parent.initialized) {
             parent.updateLineBreaks(change);
         }
     }
@@ -465,6 +465,9 @@ public abstract class AbstractNode implements Node {
      * @return Номер строки на которой начинается элемент.
      */
     public final int linesBefore(Node child) {
+        if(parent == null) {
+            return countUntilFoundChild(child, null, Node::lineBreaks);
+        }
         if (!parent.initialized) throw new IllegalStateException("Parent not initialized yet!");
         return countUntilFoundChild(child,
                 parent::linesBefore,
