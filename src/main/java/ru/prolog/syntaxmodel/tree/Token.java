@@ -219,6 +219,19 @@ public class Token implements Node {
         return next;
     }
 
+    public void setText(String text) {
+        String oldText = this.text;
+        int oldLineBreaks = this.lineBreaks;
+        this.text = text;
+        this.lineBreaks = (int) text.chars().filter(c -> c == '\n').count();
+        if(parent != null) {
+            int lengthChange = text.length() - oldText.length();
+            int lineBreaksChange = lineBreaks - oldLineBreaks;
+            if (lengthChange != 0) parent.updateLength();
+            if (lineBreaksChange != 0) parent.updateLineBreaks();
+        }
+    }
+
     public void setNext(Token next) {
         this.next = next;
     }
