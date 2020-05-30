@@ -119,7 +119,8 @@ public class MathExpressionRootNode extends AbstractNode {
                             stack.push(expr);
                             addToPeekExpr(peek, stack.peek());
                         }
-                        expected = INITIAL_EXPECTED;
+                        expected = EnumSet.copyOf(INITIAL_EXPECTED);
+                        expected.add(Expect.CLOSING);
                         break;
                     case UNARY:
                         UnaryExprNode unaryExprNode = new UnaryExprNode();
@@ -199,7 +200,7 @@ public class MathExpressionRootNode extends AbstractNode {
                             stack.push(new Expr(binaryExpr));
                             addToPeekExpr(peek, stack.peek());
                         }
-                        expected = INITIAL_EXPECTED;
+                        expected = EnumSet.copyOf(INITIAL_EXPECTED);
                         if (stackContainsUnclosedBrackets(stack)) {
                             expected.add(Expect.CLOSING);
                         }
@@ -216,6 +217,7 @@ public class MathExpressionRootNode extends AbstractNode {
                                 break;
                             }
                         }
+                        if(stack.isEmpty()) stack.push(expr);
                         expected = EnumSet.of(Expect.BINARY);
                         if (stackContainsUnclosedBrackets(stack)) {
                             expected.add(Expect.CLOSING);
