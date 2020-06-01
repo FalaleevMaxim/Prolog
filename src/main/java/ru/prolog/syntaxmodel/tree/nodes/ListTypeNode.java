@@ -6,7 +6,8 @@ import ru.prolog.syntaxmodel.tree.Token;
 import ru.prolog.syntaxmodel.tree.misc.ParsingResult;
 
 import static ru.prolog.syntaxmodel.TokenType.STAR_MULTIPLY;
-import static ru.prolog.syntaxmodel.tree.misc.ParsingResult.*;
+import static ru.prolog.syntaxmodel.tree.misc.ParsingResult.FAIL;
+import static ru.prolog.syntaxmodel.tree.misc.ParsingResult.OK;
 
 /**
  * Тип узла определения типа списка (название типа и '*')
@@ -41,5 +42,13 @@ public class ListTypeNode extends AbstractNode {
             return OK;
         }
         return FAIL;
+    }
+
+    public TypeNameNode getTypeName() {
+        return typeName;
+    }
+
+    public Token getArraySymbol() {
+        return arraySymbol;
     }
 }

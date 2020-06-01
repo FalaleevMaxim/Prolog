@@ -4,8 +4,7 @@ public class StatementSetVariablesHolder extends VariablesHolder {
     private RuleLeftVariablesHolder ruleLeftVariablesHolder;
 
     public StatementSetVariablesHolder(RuleLeftVariablesHolder ruleLeftVariablesHolder) {
-        this.ruleLeftVariablesHolder = ruleLeftVariablesHolder;
-        ruleLeftVariablesHolder.addStatementSetVariablesHolder(this);
+        setRuleLeftVariablesHolder(ruleLeftVariablesHolder);
     }
 
     public StatementSetVariablesHolder() {
@@ -16,7 +15,9 @@ public class StatementSetVariablesHolder extends VariablesHolder {
     }
 
     public void setRuleLeftVariablesHolder(RuleLeftVariablesHolder ruleLeftVariablesHolder) {
-        this.ruleLeftVariablesHolder = ruleLeftVariablesHolder;
-        ruleLeftVariablesHolder.addStatementSetVariablesHolder(this);
+        if(ruleLeftVariablesHolder != null) {
+            this.ruleLeftVariablesHolder = ruleLeftVariablesHolder;
+            ruleLeftVariablesHolder.addStatementSetVariablesHolder(this);
+        }
     }
 }

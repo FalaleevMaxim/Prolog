@@ -6,10 +6,10 @@ import ru.prolog.syntaxmodel.tree.AbstractNode;
 import ru.prolog.syntaxmodel.tree.Token;
 import ru.prolog.syntaxmodel.tree.misc.ParsingResult;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
+import java.util.List;
 
 /**
  * Обёртка над разными видами выражений
@@ -156,10 +156,11 @@ public class Expr extends AbstractNode {
         if (isFunctionExpr()) return functionExpr.getExpr().getAllVariables();
         if (isBracketedExpr()) return bracketedExpr.getExpr().getAllVariables();
         if (isUnaryExpr()) return unaryExpr.getExpr().getAllVariables();
-        if (isBinaryExpr()) return Stream.concat(
-                binaryExpr.getLeft().getAllVariables().stream(),
-                binaryExpr.getRight().getAllVariables().stream())
-                .collect(Collectors.toList());
+        if (isBinaryExpr()) {
+            List<Token> variables = new ArrayList<>(binaryExpr.getLeft().getAllVariables());
+            if(binaryExpr.getRight() != null) variables.addAll(binaryExpr.getRight().getAllVariables());
+            return variables;
+        }
 
         if (ofType(number, TokenType.VARIABLE)) {
             return Collections.singletonList(number);

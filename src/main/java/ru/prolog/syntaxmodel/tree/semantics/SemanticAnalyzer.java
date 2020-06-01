@@ -79,7 +79,10 @@ public class SemanticAnalyzer {
     }
 
     private void indexFunctors(ProgramNode programNode) {
-        if(programNode.getDomains() == null) return;
+        if(programNode.getDomains() == null) {
+            functors = Collections.emptyList();
+            return;
+        }
         functors = programNode.getDomains().getTypeDefNodes().stream()
                 .filter(TypeDefNode::isCompound)
                 .map(TypeDefNode::getCompoundType)
@@ -385,7 +388,14 @@ public class SemanticAnalyzer {
                 .map(FunctorDefNode::getArgTypes).flatMap(Collection::stream)
                 .filter(t -> !t.isPrimitive())
                 .forEach(allArgTypes::add);
-
+        if(programNode.getDomains() != null) {
+            programNode.getDomains().getTypeDefNodes().stream()
+                    .filter(TypeDefNode::isList)
+                    .map(TypeDefNode::getListType)
+                    .map(ListTypeNode::getTypeName)
+                    .filter(t -> !t.isPrimitive())
+                    .forEach(allArgTypes::add);
+        }
         Set<Token> typeNames;
         if(programNode.getDomains() != null) {
             typeNames = programNode.getDomains().getTypeDefNodes().stream()
@@ -429,29 +439,37 @@ public class SemanticAnalyzer {
                         .flatMap(Collection::stream)
                         .forEach(ruleLeftVariablesHolder::addVariable);
                 rule.getSemanticInfo().putAttribute(ruleLeftVariablesHolder);
-                for (StatementsSetNode statementsSet : rule.getStatementsSets()) {
-                    StatementSetVariablesHolder variablesHolder = new StatementSetVariablesHolder(ruleLeftVariablesHolder);
-                    statementsSet.getSemanticInfo().putAttribute(variablesHolder);
-                    statementsSet.getStatements().stream()
-                            .filter(StatementNode::isPredicateExec)
-                            .map(StatementNode::getPredicateExec)
-                            .map(FunctorNode::getArgs).flatMap(Collection::stream)
-                            .map(v->v.getAllVariables(false)).flatMap(Collection::stream)
-                            .forEach(variablesHolder::addVariable);
-                    statementsSet.getStatements().stream()
-                            .filter(StatementNode::isPredicateExecNegation)
-                            .map(StatementNode::getPredicateExecNegation)
-                            .map(NotPredicateExec::getPredicateExec)
-                            .map(FunctorNode::getArgs).flatMap(Collection::stream)
-                            .map(v->v.getAllVariables(false)).flatMap(Collection::stream)
-                            .forEach(variablesHolder::addVariable);
-                    statementsSet.getStatements().stream()
-                            .filter(StatementNode::isCompareStatement)
-                            .map(StatementNode::getCompareStatement)
-                            .map(v->v.getAllVariables(false)).flatMap(Collection::stream)
-                            .forEach(variablesHolder::addVariable);
-                }
+                List<StatementsSetNode> statementsSets = rule.getStatementsSets();
+                indexVariablesInStatementsSets(statementsSets, ruleLeftVariablesHolder);
             }
+        }
+        if(programNode.getGoal() != null) {
+            indexVariablesInStatementsSets(programNode.getGoal().getStatementsSets(), null);
+        }
+    }
+
+    private void indexVariablesInStatementsSets(List<StatementsSetNode> statementsSets, RuleLeftVariablesHolder ruleLeftVariablesHolder) {
+        for (StatementsSetNode statementsSet : statementsSets) {
+            StatementSetVariablesHolder variablesHolder = new StatementSetVariablesHolder(ruleLeftVariablesHolder);
+            statementsSet.getSemanticInfo().putAttribute(variablesHolder);
+            statementsSet.getStatements().stream()
+                    .filter(StatementNode::isPredicateExec)
+                    .map(StatementNode::getPredicateExec)
+                    .map(FunctorNode::getArgs).flatMap(Collection::stream)
+                    .map(v->v.getAllVariables(false)).flatMap(Collection::stream)
+                    .forEach(variablesHolder::addVariable);
+            statementsSet.getStatements().stream()
+                    .filter(StatementNode::isPredicateExecNegation)
+                    .map(StatementNode::getPredicateExecNegation)
+                    .map(NotPredicateExec::getPredicateExec)
+                    .map(FunctorNode::getArgs).flatMap(Collection::stream)
+                    .map(v->v.getAllVariables(false)).flatMap(Collection::stream)
+                    .forEach(variablesHolder::addVariable);
+            statementsSet.getStatements().stream()
+                    .filter(StatementNode::isCompareStatement)
+                    .map(StatementNode::getCompareStatement)
+                    .map(v->v.getAllVariables(false)).flatMap(Collection::stream)
+                    .forEach(variablesHolder::addVariable);
         }
     }
 }

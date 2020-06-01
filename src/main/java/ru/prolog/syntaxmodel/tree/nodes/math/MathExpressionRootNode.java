@@ -5,7 +5,6 @@ import ru.prolog.syntaxmodel.TokenType;
 import ru.prolog.syntaxmodel.recognizers.Lexer;
 import ru.prolog.syntaxmodel.tree.AbstractNode;
 import ru.prolog.syntaxmodel.tree.Token;
-import ru.prolog.syntaxmodel.tree.interfaces.Bracketed;
 import ru.prolog.syntaxmodel.tree.misc.ParsingResult;
 import ru.prolog.syntaxmodel.tree.nodes.math.operations.*;
 
@@ -37,6 +36,7 @@ public class MathExpressionRootNode extends AbstractNode {
         }
 
         public boolean check(Token token) {
+            if (token == null || token.getTokenType() == null) return false;
             return tokenTypes.contains(token.getTokenType());
         }
 
@@ -227,7 +227,7 @@ public class MathExpressionRootNode extends AbstractNode {
             }
             prev = token;
         }
-        if (token == null) return null;
+        if (stack.isEmpty()) return null;
         return stack.firstElement();
     }
 

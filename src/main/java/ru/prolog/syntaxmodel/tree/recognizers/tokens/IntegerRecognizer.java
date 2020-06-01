@@ -36,8 +36,12 @@ public class IntegerRecognizer extends TokenRecognizer {
             }
         }
         i += digitsCount;
-        //Если за числом следует точка, то это число должно распознаваться как вещественное.
+        //Если за числом следует точка и цифра, то это число должно распознаваться как вещественное.
         boolean pointAfter = code.length() > i && code.charAt(i) == '.';
+        if(pointAfter && code.length() > i+1 && Character.isDigit(code.charAt(i+1))) {
+            return null;
+        }
+
         //Но только если число не шестнадцатиричное. Шестнадцатиричным может быть только целое число.
         //Если за шестнадцатиричным числом следует точка, то шестнадцатиричное число будет распознано, а позже точка будет лишним токеном.
         pointAfter = pointAfter && !hex;
