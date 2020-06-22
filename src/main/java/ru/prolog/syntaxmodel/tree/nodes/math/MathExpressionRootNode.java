@@ -88,8 +88,8 @@ public class MathExpressionRootNode extends AbstractNode {
     private Expr parseExpr(Lexer lexer) {
         Set<Expect> expected = INITIAL_EXPECTED;
         Stack<Expr> stack = new Stack<>();
-        Token token = null;
-        Token prev = null;
+        Token token;
+        Token prev = lexer.getPointer();
         while (!lexer.isEnd()) {
             token = lexer.nextNonIgnored();
             Expect type = Expect.selectFromExpected(expected, token);

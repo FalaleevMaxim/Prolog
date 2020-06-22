@@ -42,12 +42,6 @@ public class IntegerRecognizer extends TokenRecognizer {
             return null;
         }
 
-        //Но только если число не шестнадцатиричное. Шестнадцатиричным может быть только целое число.
-        //Если за шестнадцатиричным числом следует точка, то шестнадцатиричное число будет распознано, а позже точка будет лишним токеном.
-        pointAfter = pointAfter && !hex;
-        if (pointAfter) {
-            return null;
-        }
         //Если цифры есть, то токен распознан.
         return tokenOf(tokenText(code, i));
     }

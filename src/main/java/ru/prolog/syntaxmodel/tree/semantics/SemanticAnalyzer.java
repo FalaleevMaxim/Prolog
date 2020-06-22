@@ -62,15 +62,15 @@ public class SemanticAnalyzer {
     public void performSemanticAnalysis() {
         indexFunctors(root);
         indexPredicates(root);
-        analyzeRules(root);
-        analyzePredicateCalls(root);
-        analyzeUsages();
-        analyzeFunctorUsages(root);
         analyzeTypeUsages(root);
+        analyzeRules(root);
+        checkImplementations();
+        analyzePredicateCalls(root);
+        analyzeFunctorUsages(root);
         indexVariables(root);
     }
 
-    private void analyzeUsages() {
+    private void checkImplementations() {
         for (FunctorDefNode predicate : predicates) {
             if (predicate.getSemanticInfo().getAttribute(ToImplementations.class).getImplementations().isEmpty()) {
                 predicate.getSemanticInfo().putAttribute(new NoImplementationsError("No rules for predicate"));
@@ -243,7 +243,7 @@ public class SemanticAnalyzer {
             call.getName().getSemanticInfo().putAttribute(new NameOf(call));
             String name = call.getName().getText().toLowerCase();
             int arity = call.getArgs().size();
-            if(DEFAULT_PREDICATE_STORAGE.get(name, arity) != null || DEFAULT_PREDICATE_STORAGE.getVarArgPredicate(name) != null) break;
+            if(DEFAULT_PREDICATE_STORAGE.get(name, arity) != null || (arity>0 && DEFAULT_PREDICATE_STORAGE.getVarArgPredicate(name) != null)) continue;
             Optional<FunctorDefNode> predicate = allPredicates.stream()
                     .filter(p -> name.equals(p.getName().getText().toLowerCase()))
                     .filter(p -> arity == p.getArgTypes().size())
@@ -252,10 +252,52 @@ public class SemanticAnalyzer {
                 call.getSemanticInfo().putAttribute(new ToDeclaration(predicate.get()));
                 predicate.get().getSemanticInfo().getAttribute(ToUsages.class).addUsage(call);
             } else {
+                Collection<Predicate> predicates = DEFAULT_PREDICATE_STORAGE.get(name);
+                if(!predicates.isEmpty()) {
+                    call.getSemanticInfo().putAttribute(new DeclarationNotFoundError(String.format(
+                            "Predicate %s expect %s arguments, got %d", name, makePredicatesArgCountsString(predicates), arity)));
+                    continue;
+                }
+                List<FunctorDefNode> byName = allPredicates.stream()
+                        .filter(p -> name.equals(p.getName().getText().toLowerCase()))
+                        .collect(Collectors.toList());
+                if(!byName.isEmpty()) {
+                    call.getSemanticInfo().putAttribute(new DeclarationNotFoundError(String.format(
+                            "Predicate %s expect %s arguments, got %d", name, makeDeclarationsArgCountsString(byName), arity), byName));
+                    continue;
+                }
                 call.getSemanticInfo().putAttribute(new DeclarationNotFoundError(String.format(
                         "Not found predicate with name %s and %d arguments", name, arity)));
             }
         }
+    }
+
+    private String makePredicatesArgCountsString(Collection<Predicate> predicates) {
+        String counts = predicates.stream()
+                .mapToInt(Predicate::getArity)
+                .mapToObj(Integer::toString)
+                .collect(Collectors.joining(", "));
+        return fixArgCountsString(counts);
+    }
+
+    private String makeDeclarationsArgCountsString(Collection<FunctorDefNode> predicates) {
+        String counts = predicates.stream()
+                .map(FunctorDefNode::getArgTypes)
+                .mapToInt(List::size)
+                .mapToObj(Integer::toString)
+                .collect(Collectors.joining(", "));
+        return fixArgCountsString(counts);
+    }
+
+    private String fixArgCountsString(String counts) {
+        int i = counts.lastIndexOf(',');
+        if(i>0) {
+            StringBuilder sb = new StringBuilder(counts);
+            sb.replace(i, i+1, " or");
+            counts = sb.toString();
+        }
+        counts = counts.replaceFirst(Integer.toString(Integer.MAX_VALUE), "1 or more");
+        return counts;
     }
 
     private List<FunctorNode> extractPredicateCalls(List<StatementNode> statements) {
